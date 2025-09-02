@@ -1,9 +1,9 @@
 import axios, { type AxiosRequestConfig } from 'axios'
+import { API_CONFIG } from '@/config/api.ts'
 
 const apiClient = axios.create({
-  //Qui si potrebbe mettere in prima posizione (||) la costante e lasciare il localhost come default
-  baseURL: 'http://192.168.1.119/api/v1',
-  timeout: 5000
+  baseURL: API_CONFIG.baseURL + '/api/v1',
+  timeout: API_CONFIG.timeout,
 })
 
 // Interceptor per aggiungere token di autenticazione
