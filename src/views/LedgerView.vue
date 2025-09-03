@@ -10,7 +10,7 @@ import router from '@/router'
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 0))
-const rows = ref(Number(route.query.size ?? 15))
+const size = ref(Number(route.query.size ?? 15))
 
 const onPage = (page: number, size: number) => {
   router.replace({

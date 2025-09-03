@@ -2,7 +2,7 @@ import type { Supplier } from '@/types/supplier.ts'
 
 export interface IncomingInvoice {
   id?: number;
-  supplier?: Supplier | string;
+  supplier?: Supplier;
   date?: string;
   number?: string;
   amount?: number;
@@ -15,8 +15,8 @@ export interface IncomingInvoiceDTO {
   supplier?: Supplier;
   supplierId?: number;
   supplierName?: string;
-  date: string;
-  number: string;
+  date?: string;
+  number?: string;
   amount?: number;
   notes?: string;
 }

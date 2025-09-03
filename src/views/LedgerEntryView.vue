@@ -1,5 +1,5 @@
 <template>
-  <LedgerEntryForm :editable :id @submit="onSubmit" @close="onClose" @edit="onEdit" @delete="onDelete">
+  <LedgerEntryForm :editable :id :backable @submit="onSubmit" @close="onClose" @edit="onEdit" @delete="onDelete">
   </LedgerEntryForm>
 </template>
 
@@ -24,6 +24,8 @@ const editable = computed({
     })
   }
 })
+
+const backable = computed(() => route.query.from !== 'add' || editable.value)
 
 const onSubmit = () => {
   editable.value = false

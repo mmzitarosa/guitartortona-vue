@@ -251,23 +251,23 @@ export const SIDEBAR_ITEMS: Menu[] = [
   {
     label: 'Fatture in Entrata',
     items: [
-      { label: 'Inserisci Fattura', icon: 'pi pi-file-plus', route: '/incomingInvoice' },
-      { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices' }
-    ]
+      { label: 'Inserisci Fattura', icon: 'pi pi-file-plus', route: '/incomingInvoice', disabled: true },
+      { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices', disabled: true }
+    ],
   },
   {
     label: 'Usato',
     items: [
-      { label: 'Nuova Ricevuta', icon: 'pi pi-plus', route: '/usedReceipt' },
-      { label: 'Registro Usato', icon: 'pi pi-list', route: '/usedReceipts' }
+      { label: 'Nuova Ricevuta', icon: 'pi pi-plus', route: '/usedReceipt', disabled: true },
+      { label: 'Registro Usato', icon: 'pi pi-list', route: '/usedReceipts', disabled: true }
     ]
   },
   {
     label: 'Prodotti',
     items: [
-      { label: 'Inserisci Prodotto', icon: 'pi pi-plus', route: '/product' },
-      { label: 'Ricerca Prodotto', icon: 'pi pi-search', route: '/product/search' },
-      { label: 'Inventario', icon: 'pi pi-table', route: '/products' }
+      { label: 'Inserisci Prodotto', icon: 'pi pi-plus', route: '/product', disabled: true },
+      { label: 'Ricerca Prodotto', icon: 'pi pi-search', route: '/product/search', disabled: true },
+      { label: 'Inventario', icon: 'pi pi-table', route: '/products', disabled: true }
     ]
   },
   {

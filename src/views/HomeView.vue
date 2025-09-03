@@ -1,3 +1,3 @@
-<template>Ciao</template>
+<template></template>
 
 <script setup lang="ts"></script>

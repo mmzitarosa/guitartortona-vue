@@ -15,8 +15,8 @@
         <div v-else class="grid grid-cols-2 gap-4 w-full mt-2">
           <FormField v-slot="$field" name="supplier" class="flex flex-col gap-1 w-full">
             <FloatLabel variant="on">
-              <InputText id="supplier" v-if="!editable && incomingInvoice.supplier"
-                         v-model="incomingInvoice.supplier.name"
+              <InputText id="supplier" v-if="!editable"
+                         :value="incomingInvoice.supplier ? incomingInvoice.supplier.name : ''"
                          class="w-full" readonly />
               <Select v-else-if="editable"
                       v-model="incomingInvoice.supplier"

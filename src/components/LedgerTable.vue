@@ -38,11 +38,10 @@
 
 <script setup lang="ts">
 
-import { Column, DataTable, type DataTablePageEvent, type VirtualScrollerLazyEvent } from 'primevue'
+import { Column, DataTable, type DataTablePageEvent } from 'primevue'
 import { onMounted, ref } from 'vue'
 import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
 import { useLedgerTable } from '@/composables/useLedgerTable.ts'
-import Card from 'primevue/card'
 
 const {
   ledger,

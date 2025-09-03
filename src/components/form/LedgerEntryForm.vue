@@ -231,7 +231,7 @@
       <div class="flex justify-between items-center w-full mt-2">
         <!-- Bottoni di sinistra -->
           <div class="flex gap-2">
-            <Button
+            <Button v-if="backable"
               type="button"
               severity="secondary"
               :label="props.id && !hasChanges ? constants.close.label : constants.cancel.label"
@@ -337,6 +337,10 @@ const props = defineProps({
   editable: {
     type: Boolean,
     default: false
+  },
+  backable: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -350,7 +354,7 @@ onMounted(() => {
 
 const onFormSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return
-  handleSubmit().then(() => emit('submit'))
+  handleSubmit().then((result) => emit('submit', result))
 }
 
 const onFormReset = () => {

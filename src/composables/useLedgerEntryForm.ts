@@ -91,7 +91,7 @@ export const useLedgerEntryForm = () => {
   const isUpdate = computed(() => ledgerEntry.value?.id !== undefined)
 
   const handleSubmit = () => {
-    return new Promise<IncomingInvoice>((resolve, error) => {
+    return new Promise<LedgerEntry>((resolve, error) => {
       const dialogConstants = isUpdate.value ? constants.updateDialog : constants.saveDialog
       confirm.require({
         header: dialogConstants?.title,

@@ -1,6 +1,8 @@
 import { INCOMING_INVOICE, LEDGER } from './constants'
+import type { LedgerEntry } from '@/types/ledgerEntry.ts'
+import type { FormResolverOptions } from '@primevue/forms'
 
-export const incomingInvoiceResolver = ({ values }) => {
+export const incomingInvoiceResolver = ({ values } : FormResolverOptions) => {
   const errors: Record<string, { message: string }[]> = {}
 
   // number
@@ -39,7 +41,8 @@ export const incomingInvoiceResolver = ({ values }) => {
 
 
 
-export const ledgerEntryResolver = ({ values }) => {
+export const ledgerEntryResolver = ({ values } : FormResolverOptions) => {
+  console.log(values)
   const errors: Record<string, { message: string }[]> = {}
 
   // date

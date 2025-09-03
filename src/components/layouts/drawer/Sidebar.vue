@@ -25,7 +25,7 @@
     <div class="pt-2 flex w-full border-t border-primary-600">
       <div class="flex w-full items-center gap-1 text-sm">
         <!-- TODO: Link alle impostazioni -->
-        <Button icon="pi pi-cog" rounded @click="router.push({name:'settings'})" />
+        <Button icon="pi pi-cog" rounded @click="router.push({name:'settings'})" disabled/>
         <!-- TODO: Impostare nome utente autenticato-->
         <p>{{ LAYOUT.SIDEBAR_USER_PREFIX }}<strong class="text-white">****</strong></p>
       </div>

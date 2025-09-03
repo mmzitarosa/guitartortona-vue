@@ -10,6 +10,7 @@
           :icon="'pi ' + item.icon"
           :label="item.label"
           @click="router.push(item.route!)"
+          :disabled="item.disabled"
         />
       </li>
     </ul>
