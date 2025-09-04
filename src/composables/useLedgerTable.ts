@@ -25,10 +25,10 @@ export const useLedgerTable = () => {
   const loading = ref(false)
   const selectedLedgerEntry: Ref<LedgerEntry | undefined> = ref(undefined)
 
-  const loadLedger = async (page?: number, size?: number, sort?: any) => {
+  const loadLedger = async (fromDate?: string, toDate?: string, page?: number, size?: number, sort?: any) => {
     loading.value = true
     try {
-      const result = await getLedger(page, size,sort)
+      const result = await getLedger(fromDate, toDate, page, size,sort)
       ledger.value = result.content
       totalRecords.value = result.totalElements
     } finally {
