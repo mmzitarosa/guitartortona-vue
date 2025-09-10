@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import { API_CONFIG } from '@/config/api.ts'
 
 const apiClient = axios.create({

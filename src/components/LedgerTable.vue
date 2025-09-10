@@ -3,7 +3,6 @@
     <template #content>
       <Form @submit="onFormSubmit">
         <div class="flex gap-4 pb-4 justify-end">
-
           <FormField v-slot="$field" name="fromDate">
             <FloatLabel variant="on">
               <InputMask id="fromDate" v-model="fromDate" mask="99/99/9999" class="p-filled"
@@ -28,16 +27,14 @@
               }}
             </Message>
           </FormField>
-
-          <Button type="button" icon="pi pi-print" severity="secondary" />
-
-          <Button type="submit" icon="pi pi-search"
-          />
+          <Button v-if="hasChanges" type="button" icon="pi pi-print" severity="secondary" @click="printTable" />
+          <Button v-if="hasChanges" type="button" icon="pi pi-times" severity="secondary" @click="resetForm" />
+          <Button type="submit" icon="pi pi-search" />
         </div>
       </Form>
 
       <DataTable v-model:selection="selectedLedgerEntry" :value="ledger" paginator @page="onPage"
-                 :rows :first :totalRecords lazy tableStyle="min-width: 50rem" stripedRows
+                 :rows="filter.size" :first="filter.first" :totalRecords lazy tableStyle="min-width: 50rem" stripedRows
                  scrollable scroll-height="flex" selectionMode="single" dataKey="id"
                  @rowSelect="onRowSelect" :loading rowHover>
         <Column field="date" header="Data"></Column>
@@ -87,7 +84,7 @@ import {
   InputMask,
   Message
 } from 'primevue'
-import { onMounted, type Ref, ref } from 'vue'
+import { computed, onMounted, type Ref, ref, watch } from 'vue'
 import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
 import { useLedgerTable } from '@/composables/useLedgerTable.ts'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
@@ -101,22 +98,28 @@ const {
 } = useLedgerTable()
 
 const props = defineProps<{
-  page: number,
-  rows: number,
-  first: number,
-  dateFilter?: {
-    from: string,
-    to: string
+  filter: {
+    page: number,
+    size: number,
+    first: number,
+    from?: string,
+    to?: string
   }
 }>()
 
-const fromDate : Ref<string | undefined> = ref(props.dateFilter?.from)
-const toDate : Ref<string | undefined> = ref(props.dateFilter?.to)
+const fromDate : Ref<string | undefined> = ref(props.filter.from)
+const toDate : Ref<string | undefined> = ref(props.filter.to)
+const emit = defineEmits(['search', 'page', 'rowSelect', 'reset'])
 
-const emit = defineEmits(['search', 'page', 'rowSelect'])
-
+// Carica la tabella al primo caricamento della pagina
 onMounted(() => {
-  loadLedger(fromDate.value, toDate.value, props.page, props.rows, undefined)
+  loadLedger(props.filter.from, props.filter.to, props.filter.page, props.filter.size, undefined)
+})
+
+// La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
+// sidebar. Mettendo il listener sulle proprietà, è stato rimosso il load dall'onPage e onFormSubmit
+watch(() => props.filter, (value) => {
+  loadLedger(value.from, value.to, value.page, value.size, undefined)
 })
 
 const onRowSelect = (): void => {
@@ -128,7 +131,6 @@ const onPage = async (event: DataTablePageEvent) => {
   const page = event.first / rows
 
   emit('page', page, rows)
-  loadLedger(props.dateFilter?.from, props.dateFilter?.to, page, rows, undefined)
 }
 
 // DateForm
@@ -136,16 +138,25 @@ const onFormSubmit = (event: FormSubmitEvent) => {
 //  if (!event.valid) return
   const from = fromDate.value?.replace(/\//g, '-')
   const to = toDate.value?.replace(/\//g, '-')
-  loadLedger(from, to)
   emit('search', from, to)
 }
 
 const resetForm = () => {
-//  if (filter.value !== undefined) filter.value = undefined
-//  fromDate.value = undefined
-//  toDate.value = undefined
+  fromDate.value = undefined
+  toDate.value = undefined
+  emit('reset')
 }
 
-//Se tolgo i filtri non ricarica, ad esempio cliccando su Brogliaccio dal menu
+const hasChanges = computed(() => {
+  return props.filter.from &&  props.filter.to
+})
+
+import {
+print
+} from '@/services/api/ledgerService.ts'
+
+const printTable = () => {
+  if (props.filter.from && props.filter.to) print(props.filter.from, props.filter.to)
+}
 
 </script>

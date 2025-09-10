@@ -1,6 +1,6 @@
 <template>
-  <LedgerTable :page :rows :first :dateFilter @page="onPage" @rowSelect="onRowSelect"
-               @search="onSearch"></LedgerTable>
+  <LedgerTable :filter @page="onPage" @rowSelect="onRowSelect"
+               @search="onSearch" @reset="onReset"></LedgerTable>
 </template>
 
 <script setup lang="ts">
@@ -11,14 +11,18 @@ import router from '@/router'
 
 const route = useRoute()
 
-const page = computed(() => Number(route.query.page ?? 0))
-const rows = computed(() => Number(route.query.size ?? 15))
-const first = computed(() => page.value * rows.value)
+const filter = computed(() => {
+  const { page = 0, size = 15, from, to } = route.query
+  const pageN = Number(page)
+  const sizeN = Number(size)
 
-const dateFilter = computed(() => {
-  const { from, to } = route.query
-  if (from && to) return { from: from as string, to: to as string }
-  return undefined
+  return {
+    page: pageN,
+    size: sizeN,
+    first: pageN * sizeN,
+    from: from && (from as string).trim() ? from as string : undefined,
+    to: to && (to as string).trim() ? to as string : undefined
+  }
 })
 
 const onPage = (page: number, size: number) => {
@@ -43,6 +47,10 @@ const onSearch = (from: string, to: string): void => {
       to: to?.replace(/\//g, '-')
     }
   })
+}
+
+const onReset = () => {
+  router.replace({ query: {} })
 }
 
 </script>
