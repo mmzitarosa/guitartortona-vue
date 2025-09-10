@@ -1,14 +1,14 @@
 <template>
   <Card>
     <template #content>
-      <Form @submit="onFormSubmit">
+      <Form @submit="onFormSubmit" :validate-on-value-update="true" :resolver>
         <div class="flex gap-4 pb-4 justify-end">
           <FormField v-slot="$field" name="fromDate">
             <FloatLabel variant="on">
               <InputMask id="fromDate" v-model="fromDate" mask="99/99/9999" class="p-filled"
                          placeholder="gg/mm/aaaa" :autoClear="false" />
 
-              <label for="fromDate">Filtra da</label>
+              <label for="fromDate">{{ constants.fromDate.label }}</label>
             </FloatLabel>
             <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
                 $field.error?.message
@@ -20,21 +20,27 @@
               <InputMask id="toDate" v-model="toDate" mask="99/99/9999" class="p-filled"
                          placeholder="gg/mm/aaaa" :autoClear="false" />
 
-              <label for="toDate">Filtra a</label>
+              <label for="toDate">{{ constants.toDate.label }}</label>
             </FloatLabel>
             <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
                 $field.error?.message
               }}
             </Message>
           </FormField>
-          <Button v-if="hasChanges" type="button" icon="pi pi-print" severity="secondary" @click="printTable" />
-          <Button v-if="hasChanges" type="button" icon="pi pi-times" severity="secondary" @click="resetForm" />
-          <Button type="submit" icon="pi pi-search" />
+          <div> <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
+            <Button v-if="hasDateFilter" type="button" :icon="constants.print.icon" severity="secondary"
+                    @click="printTable" class="mr-2" />
+            <Button v-if="hasDateFilter" type="button" :icon="constants.reset.icon" severity="secondary"
+                    @click="resetForm" class="mr-2" />
+            <Button type="submit" :icon="constants.search.icon" />
+          </div>
         </div>
       </Form>
 
+      <!-- TODO Da telefono fa un po' cagare -->
       <DataTable v-model:selection="selectedLedgerEntry" :value="ledger" paginator @page="onPage"
-                 :rows="filter.size" :first="filter.first" :totalRecords lazy tableStyle="min-width: 50rem" stripedRows
+                 :rows="filter.size" :first="filter.first" :totalRecords lazy
+                 tableStyle="min-width: 50rem" stripedRows
                  scrollable scroll-height="flex" selectionMode="single" dataKey="id"
                  @rowSelect="onRowSelect" :loading rowHover>
         <Column field="date" header="Data"></Column>
@@ -88,6 +94,11 @@ import { computed, onMounted, type Ref, ref, watch } from 'vue'
 import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
 import { useLedgerTable } from '@/composables/useLedgerTable.ts'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
+import { print } from '@/services/api/ledgerService.ts'
+import { ledgerTableFilterResolver } from '@/utils/resolver.ts'
+import { LEDGER_TABLE } from '@/utils/constants.ts'
+
+const constants = LEDGER_TABLE
 
 const {
   ledger,
@@ -96,6 +107,8 @@ const {
   loadLedger,
   loading
 } = useLedgerTable()
+
+const resolver = ledgerTableFilterResolver
 
 const props = defineProps<{
   filter: {
@@ -107,8 +120,8 @@ const props = defineProps<{
   }
 }>()
 
-const fromDate : Ref<string | undefined> = ref(props.filter.from)
-const toDate : Ref<string | undefined> = ref(props.filter.to)
+const fromDate: Ref<string | undefined> = ref(props.filter.from)
+const toDate: Ref<string | undefined> = ref(props.filter.to)
 const emit = defineEmits(['search', 'page', 'rowSelect', 'reset'])
 
 // Carica la tabella al primo caricamento della pagina
@@ -135,7 +148,7 @@ const onPage = async (event: DataTablePageEvent) => {
 
 // DateForm
 const onFormSubmit = (event: FormSubmitEvent) => {
-//  if (!event.valid) return
+  if (!event.valid) return
   const from = fromDate.value?.replace(/\//g, '-')
   const to = toDate.value?.replace(/\//g, '-')
   emit('search', from, to)
@@ -147,16 +160,12 @@ const resetForm = () => {
   emit('reset')
 }
 
-const hasChanges = computed(() => {
-  return props.filter.from &&  props.filter.to
+const hasDateFilter = computed(() => {
+  return props.filter.from && props.filter.to
 })
 
-import {
-print
-} from '@/services/api/ledgerService.ts'
-
 const printTable = () => {
-  if (props.filter.from && props.filter.to) print(props.filter.from, props.filter.to)
+  if (hasDateFilter) print(props.filter.from!, props.filter.to!)
 }
 
 </script>

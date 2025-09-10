@@ -25,7 +25,7 @@ export interface FieldConst {
 }
 
 export interface ButtonConst {
-  label: string
+  label?: string
   icon: string
 }
 

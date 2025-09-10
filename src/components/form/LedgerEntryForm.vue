@@ -47,7 +47,8 @@
               <FloatLabel variant="on">
                 <InputMask id="invoiceDate" v-model="ledgerEntry.invoiceDate" mask="99/99/9999"
                            :readonly="!editable" fluid
-                           class="p-filled" :placeholder="editable ? 'gg/mm/aaaa' : ''" :autoClear="false"/>
+                           class="p-filled" :placeholder="editable ? 'gg/mm/aaaa' : ''"
+                           :autoClear="false" />
                 <label for="invoiceDate">{{ constants.invoiceDate.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
@@ -101,9 +102,6 @@
                 optionLabel="label"
                 :disabled="!editable"
               />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
             </FormField>
 
 
@@ -133,9 +131,6 @@
                 optionLabel="label"
                 :disabled="!editable"
               />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
             </FormField>
 
 
@@ -171,13 +166,9 @@
                 optionLabel="label"
                 :disabled="!editable"
               />
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
             </FormField>
 
             <FormField v-slot="$field" name="amount" class="w-full">
-              <!-- <InputGroup> -->
               <FloatLabel variant="on">
                 <InputNumber
                   :readonly="!editable"
@@ -193,18 +184,17 @@
                   :min="0"
                   fluid
                 />
-              <label for="amount">{{ constants.amount.label }}</label>
-            </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                $field.error?.message
-              }}
-            </Message>
-          </FormField>
-        </div>
+                <label for="amount">{{ constants.amount.label }}</label>
+              </FloatLabel>
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+                {{ $field.error?.message }}
+              </Message>
+            </FormField>
+          </div>
 
-        <div class="col-span-full mt-4">
-          <FormField v-slot="$field" name="notes" class="w-full">
-            <FloatLabel variant="on">
+          <div class="col-span-full mt-4">
+            <FormField v-slot="$field" name="notes" class="w-full">
+              <FloatLabel variant="on">
             <Textarea
               v-model="ledgerEntry.notes"
               id="notes"
@@ -214,29 +204,28 @@
               class="w-full p-filled"
               :readonly="!editable"
             />
-              <label for="notes">{{ constants.notes.label }}</label>
-            </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                $field.error?.message
-              }}
-            </Message>
-          </FormField>
+                <label for="notes">{{ constants.notes.label }}</label>
+              </FloatLabel>
+              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
+                  $field.error?.message
+                }}
+              </Message>
+            </FormField>
+          </div>
+
         </div>
+      </template>
 
-
-      </div>
-    </template>
-
-    <template #footer>
-      <div class="flex justify-between items-center w-full mt-2">
-        <!-- Bottoni di sinistra -->
+      <template #footer>
+        <div class="flex justify-between items-center w-full mt-2">
+          <!-- Bottoni di sinistra -->
           <div class="flex gap-2">
             <Button v-if="backable"
-              type="button"
-              severity="secondary"
-              :label="props.id && !hasChanges ? constants.close.label : constants.cancel.label"
-              :icon="props.id && !hasChanges ? constants.close.icon : constants.cancel.icon"
-              @click="onFormClose"
+                    type="button"
+                    severity="secondary"
+                    :label="props.id && !hasChanges ? constants.close.label : constants.cancel.label"
+                    :icon="props.id && !hasChanges ? constants.close.icon : constants.cancel.icon"
+                    @click="onFormClose"
             />
             <Button
               type="button"
@@ -252,36 +241,36 @@
 
           <div class="flex gap-2">
 
-          <!-- Bottone di destra -->
-          <Button
-            v-if="!editable"
-            type="button"
-            rounded
-            text
-            icon="pi pi-trash"
-            severity="secondary"
-            @click="onFormDelete"
-          />
+            <!-- Bottone di destra -->
+            <Button
+              v-if="!editable"
+              type="button"
+              rounded
+              text
+              icon="pi pi-trash"
+              severity="secondary"
+              @click="onFormDelete"
+            />
 
-          <Button
-            v-if="!editable"
-            type="button"
-            rounded
-            text
-            icon="pi pi-pen-to-square"
-            severity="secondary"
-            @click="onFormEdit"
-          />
+            <Button
+              v-if="!editable"
+              type="button"
+              rounded
+              text
+              icon="pi pi-pen-to-square"
+              severity="secondary"
+              @click="onFormEdit"
+            />
 
-          <Button
-            v-else-if="!props.id || hasChanges"
-            type="submit"
-            :loading="formLoading"
-            :disabled="!hasChanges"
-            :label="props.id && hasChanges ? constants.update.label : constants.save.label"
-            :icon="props.id && hasChanges ? constants.update.icon : constants.save.icon"
-          />
-        </div>
+            <Button
+              v-else-if="!props.id || hasChanges"
+              type="submit"
+              :loading="formLoading"
+              :disabled="!hasChanges"
+              :label="props.id && hasChanges ? constants.update.label : constants.save.label"
+              :icon="props.id && hasChanges ? constants.update.icon : constants.save.icon"
+            />
+          </div>
         </div>
       </template>
     </Card>
@@ -298,6 +287,8 @@ import {
   InputMask,
   InputNumber,
   InputText,
+  InputGroup,
+  InputGroupAddon,
   Message,
   ProgressSpinner,
   Select,

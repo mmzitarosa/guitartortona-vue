@@ -6,6 +6,38 @@ export const LAYOUT = {
   SIDEBAR_USER_PREFIX: 'Utente: '
 }
 
+export const LEDGER_TABLE: {
+  fromDate: FieldConst,
+  toDate: FieldConst,
+  reset: ButtonConst
+  search: ButtonConst,
+  print: ButtonConst,
+} = {
+  fromDate: {
+    label: 'Filtra da',
+    messages: {
+      required: 'Seleziona una data',
+      other: 'Data non valida'
+    }
+  },
+  toDate: {
+    label: 'Filtra a',
+    messages: {
+      required: 'Seleziona una data',
+      other: 'Data non valida'
+    }
+  },
+  reset: {
+    icon: 'pi pi-times'
+  },
+  print: {
+    icon: 'pi pi-print'
+  },
+  search: {
+    icon: 'pi pi-search'
+  }
+}
+
 export const LEDGER: {
   card: CardConst,
   date: FieldConst,
@@ -65,7 +97,9 @@ export const LEDGER: {
   },
   bank: {
     label: 'Banca',
-    messages: {}
+    messages: {
+      required: 'Seleziona la banca'
+    }
   },
   receiptNumber: {
     label: 'Ultime 3 Cifre a/b',
@@ -76,6 +110,7 @@ export const LEDGER: {
   amount: {
     label: 'Importo',
     messages: {
+      required: 'Inserisci l\'importo',
       other: 'L\'importo deve essere positivo'
     }
   },
@@ -145,8 +180,8 @@ export const LEDGER: {
     label: 'Elimina',
     icon: 'pi pi-trash'
   },
-  deleteDialog:{
-   title: 'Eliminare',
+  deleteDialog: {
+    title: 'Eliminare',
     message: 'Confermando i dati verranno eliminati.',
     icon: 'pi pi-times-circle',
     acceptLabel: 'Elimina',
@@ -251,9 +286,14 @@ export const SIDEBAR_ITEMS: Menu[] = [
   {
     label: 'Fatture in Entrata',
     items: [
-      { label: 'Inserisci Fattura', icon: 'pi pi-file-plus', route: '/incomingInvoice', disabled: true },
+      {
+        label: 'Inserisci Fattura',
+        icon: 'pi pi-file-plus',
+        route: '/incomingInvoice',
+        disabled: true
+      },
       { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices', disabled: true }
-    ],
+    ]
   },
   {
     label: 'Usato',

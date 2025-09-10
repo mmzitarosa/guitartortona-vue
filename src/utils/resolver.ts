@@ -1,8 +1,8 @@
-import { INCOMING_INVOICE, LEDGER } from './constants'
+import { INCOMING_INVOICE, LEDGER, LEDGER_TABLE } from './constants'
 import type { LedgerEntry } from '@/types/ledgerEntry.ts'
 import type { FormResolverOptions } from '@primevue/forms'
 
-export const incomingInvoiceResolver = ({ values } : FormResolverOptions) => {
+export const incomingInvoiceResolver = ({ values }: FormResolverOptions) => {
   const errors: Record<string, { message: string }[]> = {}
 
   // number
@@ -35,15 +35,12 @@ export const incomingInvoiceResolver = ({ values } : FormResolverOptions) => {
 
   return {
     values,
-    errors,
+    errors
   }
 }
 
-
-
-export const ledgerEntryResolver = ({ values } : FormResolverOptions) => {
-  console.log(values)
-  const errors: Record<string, { message: string }[]> = {}
+export const ledgerEntryResolver = ({ values }: FormResolverOptions) => {
+  const errors: Record<string, { message?: string }[]> = {}
 
   // date
   if (!values.date) {
@@ -74,21 +71,63 @@ export const ledgerEntryResolver = ({ values } : FormResolverOptions) => {
     errors.receiptNumber = [{ message: LEDGER.receiptNumber.messages.tooLong! }]
   }
 
+  // bank && paymentMethod
+  if (!values.bank && values.paymentMethod === 'BANK') {
+    errors.bank = [{ message: LEDGER.bank.messages.required! }]
+  } else if (values.bank && values.paymentMethod !== 'BANK') {
+    errors.paymentMethod = [{}]
+  } else if (!values.paymentMethod && (values.amount || values.movementType)) {
+    errors.paymentMethod = [{}]
+  }
+
+  //movementType
+  if (!values.movementType && (values.amount || values.paymentMethod)) {
+    errors.movementType = [{}]
+  }
+
   // amount
-  if (values.amount && values.amount <= 0) {
-    errors.amount = [{ message: LEDGER.amount.messages.other! }]
+  if (values.amount) {
+    if (values.amount <= 0) {
+      errors.amount = [{ message: LEDGER.amount.messages.other! }]
+    }
+  } else if (!(!values.movementType && !values.paymentMethod)) {
+    errors.amount = [{ message: LEDGER.amount.messages.required! }]
   }
 
   // reason
-  // paymentMethod
-  // bank
   // paymentType
-  // movementType
   // notes → opzionale, nessuna validazione
 
   return {
     values,
-    errors,
+    errors
+  }
+}
+
+export const ledgerTableFilterResolver = ({ values }: FormResolverOptions) => {
+  const errors: Record<string, { message?: string }[]> = {}
+
+  const fromDate = validateDate(values.fromDate)
+  const toDate = validateDate(values.toDate)
+
+  if (!values.fromDate) {
+    if (values.toDate) errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.required! }]
+  } else if (!fromDate) {
+    errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.other! }]
+  }
+
+  if (!values.toDate) {
+    if (values.fromDate) errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.required! }]
+  } else if (fromDate && toDate && fromDate>toDate) {
+    errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.other! }]
+    errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.other! }]
+  } else if (!toDate) {
+    errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.other! }]
+  }
+
+  return {
+    values,
+    errors
   }
 }
 
@@ -96,7 +135,7 @@ const validateDate = (date: string) => {
   if (!date) return
   const [day, month, year] = date.split('/').map(Number)
   const d = new Date(year, month - 1, day)
-  return !(d.getFullYear() !== year ||
+  return (d.getFullYear() !== year ||
     d.getMonth() !== month - 1 ||
-    d.getDate() !== day);
+    d.getDate() !== day) ? undefined : d
 }

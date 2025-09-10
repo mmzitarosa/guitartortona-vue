@@ -18,8 +18,6 @@ import {
 
 export const useLedgerTable = () => {
 
-  const constants = LEDGER
-
   const ledger = ref([{}])
   const totalRecords = ref(0)
   const loading = ref(false)
