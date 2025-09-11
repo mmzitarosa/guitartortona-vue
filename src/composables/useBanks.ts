@@ -8,7 +8,6 @@ export const useBanks = () => {
   const banks = ref<Bank[]>([])
 
   const loadBanks = async () => {
-    console.log("loadBanks")
     banks.value = await getBanks()
   }
 

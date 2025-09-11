@@ -16,50 +16,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
             <FormField v-slot="$field" name="supplier" class="w-full">
               <FloatLabel variant="on">
-                <InputText id="supplier" v-if="readonly"
-                           :value="incomingInvoice.supplier ? incomingInvoice.supplier.name: ''"
-                           class="p-filled" fluid readonly />
-                <!--    :modelValue="incomingInvoice.supplier"
-                        Al click si resetta l'oggetto [Object, Object]
-                        @update:modelValue="v => { supplier = v && typeof v === 'string' ? {name: v} : undefined;
-                          incomingInvoice.supplier = supplier ? supplier : v }"
-                        :options="supplier ? [ ...suppliers, supplier] : suppliers"
-                          -->
-                <Select v-else
-                        :modelValue="incomingInvoice.supplier"
-                        @update:modelValue="(v: Supplier | string | undefined) => {
-                          if (typeof v === 'string') {
-                            // cerco se esiste già un supplier con lo stesso name
-                            const existing = suppliers.find(s => s.name.toLowerCase() === v.toLowerCase())
-
-                            if (existing) {
-                              // ricongiungo al supplier già esistente
-                              supplier = undefined
-                              incomingInvoice.supplier = existing
-                            } else {
-                              // creo supplier temporaneo
-                              supplier = { name: v }
-                              incomingInvoice.supplier = supplier
-                            }
-
-                          } else if (v) {
-                            // Supplier scelto da select
-                            supplier = suppliers.some(s => s.id === v.id) ? undefined : v
-                            incomingInvoice.supplier = v
-                          } else {
-                            // undefined
-                            supplier = undefined
-                            incomingInvoice.supplier = undefined
-                          }
-                        }"
-                        :options="supplier ? [ ...suppliers, supplier] : suppliers"
-                        inputId="supplier"
-                        optionLabel="name"
-                        showClear
-                        editable
-                        @focus="loadSuppliers"
-                        :loading="suppliersLoading"
-                        class="p-inputwrapper-filled" fluid />
+                <ComboBox v-model="incomingInvoice.supplier" :options="suppliers" optionId="id" optionLabel="name" inputId="supplier" showClear :editable fluid @focus="loadSuppliers"/>
                 <label for="supplier">{{ constants.supplier.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
@@ -230,6 +187,7 @@ import { useIncomingInvoiceForm } from '@/composables/useIncomingInvoiceForm.ts'
 import { computed, onMounted, type Ref, ref, watch, watchEffect } from 'vue'
 import type { Supplier } from '@/types/supplier.ts'
 import ChangesDialog from '@/components/layouts/ChangesDialog.vue'
+import ComboBox from '@/components/layouts/ComboBox.vue'
 
 const constants = INCOMING_INVOICE
 const resolver = incomingInvoiceResolver
@@ -273,22 +231,9 @@ onMounted(() => {
   }
 })
 
-/*watch(() => incomingInvoice.value.supplier, (value) => {
-  // Quando faccio il load di una nuova fattura, devo aggiungere il fornitore alla lista
-  // - Inizialmente la lista è vuota, la popolo con il fornitore ricevuto
-  // - A seguito di un aggiornamento, aggiungo l'eventuale nuovo fornitore alla lista senza ricaricare tutto
-  if (value === undefined) return
-  console.log('Value: ', value)
-  if (value && value?.id && suppliers.value.filter(v => v.id === value.id).length === 0) {
-    supplier.value = undefined
-    suppliers.value = [value]
-  }
-})*/
-
 const onFormSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return
   handleSubmit().then((result) => {
-      supplier.value = undefined
       suppliers.value = [result.supplier as Supplier]
       emit('submit', result)
     }

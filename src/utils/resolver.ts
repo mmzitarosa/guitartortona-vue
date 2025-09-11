@@ -12,7 +12,6 @@ export const incomingInvoiceResolver = ({ values }: FormResolverOptions) => {
     errors.number = [{ message: INCOMING_INVOICE.number.messages.tooLong! }]
   }
 
-  console.log(values.supplier.length)
   // supplier
   if (!values.supplier) {
     errors.supplier = [{ message: INCOMING_INVOICE.supplier.messages.required! }]

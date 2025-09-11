@@ -24,6 +24,4 @@ import { useBanks } from '@/composables/useBanks.ts'
 
 const mobileMenu = ref(false)
 
-useBanks()
-
 </script>
