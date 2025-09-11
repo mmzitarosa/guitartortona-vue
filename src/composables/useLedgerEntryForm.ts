@@ -1,5 +1,4 @@
 import { computed, type ComputedRef, ref } from 'vue'
-import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
 import { useConfirm, useToast } from 'primevue'
 import { LEDGER } from '@/utils/constants.ts'
 import {
@@ -234,7 +233,6 @@ export const useLedgerEntryForm = () => {
 
   return {
     ledgerEntry,
-    ledgerEntryOriginal,
     loadLedgerEntry,
     changes,
     hasChanges,

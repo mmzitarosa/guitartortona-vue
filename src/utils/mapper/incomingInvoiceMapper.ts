@@ -1,5 +1,3 @@
-import { format, parse } from 'date-fns'
-import { isSupplier } from '@/utils/typeGuards.ts'
 import type { IncomingInvoice, IncomingInvoiceDTO } from '@/types/incomingInvoice.ts'
 
 // Domain → DTO
@@ -8,7 +6,7 @@ export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
     id: invoice.id,
     supplier: invoice.supplier,
     supplierId: invoice.supplier?.id,
-    supplierName: !isSupplier(invoice.supplier) ? invoice.supplier : undefined,
+    supplierName: invoice.supplier?.name,
     date: invoice.date,
     number: invoice.number,
     amount: invoice.amount,

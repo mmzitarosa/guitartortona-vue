@@ -12,6 +12,7 @@ export const incomingInvoiceResolver = ({ values }: FormResolverOptions) => {
     errors.number = [{ message: INCOMING_INVOICE.number.messages.tooLong! }]
   }
 
+  console.log(values.supplier.length)
   // supplier
   if (!values.supplier) {
     errors.supplier = [{ message: INCOMING_INVOICE.supplier.messages.required! }]
@@ -22,6 +23,8 @@ export const incomingInvoiceResolver = ({ values }: FormResolverOptions) => {
   // date
   if (!values.date) {
     errors.date = [{ message: INCOMING_INVOICE.date.messages.required! }]
+  } else if (!validateDate(values.date)) {
+    errors.date = [{ message: INCOMING_INVOICE.date.messages.other! }]
   }
 
   // amount

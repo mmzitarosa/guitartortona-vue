@@ -17,7 +17,7 @@
             <FormField v-slot="$field" name="date" class="w-full">
               <FloatLabel variant="on">
                 <InputMask id="date" v-model="ledgerEntry.date" mask="99/99/9999"
-                           :readonly="!editable" fluid
+                           :readonly fluid
                            class="p-filled" placeholder="gg/mm/aaaa" :autoClear="false" />
 
                 <label for="date">{{ constants.date.label }}</label>
@@ -33,8 +33,8 @@
             <FormField v-slot="$field" name="invoiceNumber" class="w-full">
               <FloatLabel variant="on">
                 <InputText id="invoiceNumber" v-model="ledgerEntry.invoiceNumber"
-                           class="w-full p-filled"
-                           :readonly="!editable" />
+                           class="p-filled" fluid
+                           :readonly />
                 <label for="invoiceNumber">{{ constants.invoiceNumber.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
@@ -46,7 +46,7 @@
             <FormField v-slot="$field" name="invoiceDate" class="w-full">
               <FloatLabel variant="on">
                 <InputMask id="invoiceDate" v-model="ledgerEntry.invoiceDate" mask="99/99/9999"
-                           :readonly="!editable" fluid
+                           :readonly fluid
                            class="p-filled" :placeholder="editable ? 'gg/mm/aaaa' : ''"
                            :autoClear="false" />
                 <label for="invoiceDate">{{ constants.invoiceDate.label }}</label>
@@ -67,8 +67,8 @@
                 style="resize: none"
                 rows="3"
                 auto-resize
-                class="w-full p-filled"
-                :readonly="!editable"
+                class="p-filled" fluid
+                :readonly
               />
                 <label for="description">{{ constants.description.label }}</label>
               </FloatLabel>
@@ -80,8 +80,8 @@
 
             <FormField v-slot="$field" name="reason" class="w-full">
               <FloatLabel variant="on">
-                <InputText id="reason" v-model="ledgerEntry.reason" class="w-full p-filled"
-                           :readonly="!editable" />
+                <InputText id="reason" v-model="ledgerEntry.reason" class="p-filled" fluid
+                           :readonly />
                 <label for="reason">{{ constants.reason.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
@@ -100,7 +100,7 @@
                 :options="paymentTypes"
                 optionValue="value"
                 optionLabel="label"
-                :disabled="!editable"
+                :disabled="readonly"
               />
             </FormField>
 
@@ -108,8 +108,8 @@
             <FormField v-slot="$field" name="receiptNumber" class="w-full">
               <FloatLabel variant="on">
                 <InputText id="receiptNumber" v-model="ledgerEntry.receiptNumber"
-                           class="w-full p-filled"
-                           :readonly="!editable" />
+                           class="p-filled" fluid
+                           :readonly />
                 <label for="receiptNumber">{{ constants.receiptNumber.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
@@ -129,24 +129,23 @@
                 :options="paymentMethods"
                 optionValue="value"
                 optionLabel="label"
-                :disabled="!editable"
+                :disabled="readonly"
               />
             </FormField>
 
 
             <FormField v-slot="$field" name="bank" class="w-full">
               <FloatLabel variant="on">
-                <InputText id="bank" v-if="!editable"
+                <InputText id="bank" v-if="readonly"
                            :value="ledgerEntry.bank ? ledgerEntry.bank.name: ''"
-                           class="w-full p-filled" readonly />
-                <Select v-else-if="editable"
+                           class="p-filled" fluid readonly />
+                <Select v-else
                         v-model="ledgerEntry.bank"
                         inputId="bank"
                         :options="banks"
                         optionLabel="name"
                         showClear
-                        class="w-full p-inputwrapper-filled"
-                />
+                        class="p-inputwrapper-filled" fluid />
                 <label for="bank">{{ constants.bank.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
@@ -164,14 +163,14 @@
                 :options="movementTypes"
                 optionValue="value"
                 optionLabel="label"
-                :disabled="!editable"
+                :disabled="readonly"
               />
             </FormField>
 
             <FormField v-slot="$field" name="amount" class="w-full">
               <FloatLabel variant="on">
                 <InputNumber
-                  :readonly="!editable"
+                  :readonly
                   inputId="amount"
                   mode="currency"
                   currency="EUR"
@@ -192,18 +191,18 @@
             </FormField>
           </div>
 
-          <div class="col-span-full mt-4">
+          <div class="col-span-full">
             <FormField v-slot="$field" name="notes" class="w-full">
               <FloatLabel variant="on">
-            <Textarea
-              v-model="ledgerEntry.notes"
-              id="notes"
-              style="resize: none"
-              rows="2"
-              auto-resize
-              class="w-full p-filled"
-              :readonly="!editable"
-            />
+                <Textarea
+                  v-model="ledgerEntry.notes"
+                  id="notes"
+                  style="resize: none"
+                  rows="2"
+                  auto-resize
+                  class="p-filled" fluid
+                  :readonly
+                />
                 <label for="notes">{{ constants.notes.label }}</label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
@@ -243,7 +242,7 @@
 
             <!-- Bottone di destra -->
             <Button
-              v-if="!editable"
+              v-if="readonly"
               type="button"
               rounded
               text
@@ -253,7 +252,7 @@
             />
 
             <Button
-              v-if="!editable"
+              v-if="readonly"
               type="button"
               rounded
               text
@@ -287,8 +286,6 @@ import {
   InputMask,
   InputNumber,
   InputText,
-  InputGroup,
-  InputGroupAddon,
   Message,
   ProgressSpinner,
   Select,
@@ -298,7 +295,7 @@ import {
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { LEDGER } from '@/utils/constants.ts'
 import { ledgerEntryResolver } from '@/utils/resolver.ts'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useLedgerEntryForm } from '@/composables/useLedgerEntryForm.ts'
 import { useBanks } from '@/composables/useBanks.ts'
 import { movementTypes, paymentMethods, paymentTypes } from '@/types/ledgerEntry.ts'
@@ -336,6 +333,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
+const readonly = computed(() => !props.editable)
 
 onMounted(() => {
   if (props.id) {

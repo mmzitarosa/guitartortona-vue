@@ -205,6 +205,10 @@ export const INCOMING_INVOICE: {
   resetDialog?: DialogConst
   save: ButtonConst
   saveDialog?: DialogConst
+  update: ButtonConst,
+  updateDialog?: DialogConst
+  delete: ButtonConst,
+  deleteDialog?: DialogConst
 } = {
   card: {
     title: 'Nuova Fattura',
@@ -220,7 +224,8 @@ export const INCOMING_INVOICE: {
   date: {
     label: 'Data',
     messages: {
-      required: 'Seleziona una data'
+      required: 'Seleziona una data',
+      other: 'Data non valida'
     }
   },
   number: {
@@ -253,10 +258,12 @@ export const INCOMING_INVOICE: {
   },
   cancelDialog: {
     title: 'Annullare',
-    message: 'Confermarndo verranno annullati i dati inseriti.',
-    icon: 'pi pi-times-circle',
+    message: 'Confermando i dati verranno ripristinati.',
+    icon: 'pi pi-exclamation-triangle',
     acceptLabel: 'Annulla',
-    rejectLabel: 'Chiudi'
+    rejectLabel: 'Chiudi',
+    toastTitle: 'Annullato',
+    toastMessage: 'Operazione annullata, i dati non sono stati modificati.'
   },
   reset: {
     label: 'Ripristina',
@@ -264,10 +271,12 @@ export const INCOMING_INVOICE: {
   },
   resetDialog: {
     title: 'Ripristinare',
-    message: 'Confermarndo verranno ripristinati i dati inseriti.',
+    message: 'Confermando i dati verranno ripristinati.',
     icon: 'pi pi-exclamation-circle',
     acceptLabel: 'Ripristina',
-    rejectLabel: 'Chiudi'
+    rejectLabel: 'Chiudi',
+    toastTitle: 'Ripristinato',
+    toastMessage: 'I dati sono stati ripristinati correttamente.'
   },
   save: {
     label: 'Aggiungi',
@@ -275,10 +284,38 @@ export const INCOMING_INVOICE: {
   },
   saveDialog: {
     title: 'Aggiungere',
-    message: 'Confermarndo verranno aggiunti i dati inseriti.',
-    icon: 'pi pi-plus-circle',
+    message: 'Confermando i dati verranno aggiunti.',
+    icon: 'pi pi-info-circle',
     acceptLabel: 'Aggiungi',
-    rejectLabel: 'Chiudi'
+    rejectLabel: 'Chiudi',
+    toastTitle: 'Aggiunto',
+    toastMessage: 'I dati sono stati aggiunti correttamente.'
+  },
+  update: {
+    label: 'Aggiorna',
+    icon: 'pi pi-sync'
+  },
+  updateDialog: {
+    title: 'Aggiornare',
+    message: 'Confermando i dati verranno aggiornati.',
+    icon: 'pi pi-info-circle',
+    acceptLabel: 'Aggiorna',
+    rejectLabel: 'Chiudi',
+    toastTitle: 'Aggiornato',
+    toastMessage: 'I dati sono stati aggiornati correttamente.'
+  },
+  delete: {
+    label: 'Elimina',
+    icon: 'pi pi-trash'
+  },
+  deleteDialog: {
+    title: 'Eliminare',
+    message: 'Confermando i dati verranno eliminati.',
+    icon: 'pi pi-times-circle',
+    acceptLabel: 'Elimina',
+    rejectLabel: 'Chiudi',
+    toastTitle: 'Eliminato',
+    toastMessage: 'I dati sono stati eliminati correttamente.'
   }
 }
 
@@ -290,7 +327,6 @@ export const SIDEBAR_ITEMS: Menu[] = [
         label: 'Inserisci Fattura',
         icon: 'pi pi-file-plus',
         route: '/incomingInvoice',
-        disabled: true
       },
       { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices', disabled: true }
     ]

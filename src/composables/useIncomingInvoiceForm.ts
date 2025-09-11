@@ -1,11 +1,13 @@
-import { computed, ref } from 'vue'
+import { computed, type ComputedRef, ref } from 'vue'
 import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
 import {
+  deleteIncomingInvoiceById,
   getIncomingInvoiceById,
-  postIncomingInvoice
+  postIncomingInvoice, putIncomingInvoiceById
 } from '@/services/api/incomingInvoiceService.ts'
 import { useConfirm, useToast } from 'primevue'
 import { INCOMING_INVOICE } from '@/utils/constants.ts'
+import type { Supplier } from '@/types/supplier.ts'
 
 export const useIncomingInvoiceForm = () => {
 
@@ -18,96 +20,161 @@ export const useIncomingInvoiceForm = () => {
   const incomingInvoice = ref<IncomingInvoice>({})
   const incomingInvoiceOriginal = ref<IncomingInvoice>({})
 
-  const hasChanges = computed(() => {
-    //TODO Mettere differenze scritte
-    return JSON.stringify(incomingInvoice.value) !== JSON.stringify(incomingInvoiceOriginal.value)
+  const fieldMappings: {
+    key: keyof IncomingInvoice
+    label: string
+    getter?: (v: any) => unknown
+    labeler?: (v: any) => unknown
+  }[] =
+    [
+      { key: 'supplier', label: 'Fornitore', getter: (v: Supplier) => v ? v.id : undefined, labeler:  (v: Supplier) => v ? v.name : undefined },
+      { key: 'date', label: 'Data' },
+      { key: 'number', label: 'Numero' },
+      {
+        key: 'amount',
+        label: 'Importo',
+        labeler: (v: number) => v?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
+      },
+      { key: 'notes', label: 'Note' }
+    ]
+
+  const changes: ComputedRef<{ field: string, oldValue: any, newValue: any }[]> = computed(() => {
+    //Confronto l'oggetto incomingInvoice con l'originale
+    return fieldMappings.flatMap(({ key, label, getter, labeler }) => {
+      const oldVal = getter ? getter(incomingInvoiceOriginal.value[key]) : incomingInvoiceOriginal.value[key]
+      const newVal = getter ? getter(incomingInvoice.value[key]) : incomingInvoice.value[key]
+
+      if (oldVal !== newVal) {
+        const oldLabel = labeler ? labeler(incomingInvoiceOriginal.value[key]) : incomingInvoiceOriginal.value[key]
+        const newLabel = labeler ? labeler(incomingInvoice.value[key]) : incomingInvoice.value[key]
+        return [{ field: label, oldValue: oldLabel, newValue: newLabel }]
+      }
+      return []
+    })
   })
 
+  const hasChanges: ComputedRef<boolean> = computed(() => {
+    return changes.value.length > 0
+  })
+
+  const isUpdate = computed(() => incomingInvoice.value?.id !== undefined)
 
   const handleSubmit = () => {
     return new Promise<IncomingInvoice>((resolve, error) => {
+      const dialogConstants = isUpdate.value ? constants.updateDialog : constants.saveDialog
       confirm.require({
-        header: constants.saveDialog?.title,
-        message: constants.saveDialog?.message,
-        icon: constants.saveDialog?.icon,
-        rejectProps: {
-          label: constants.saveDialog?.rejectLabel,
-          severity: 'secondary',
-          text: true
-        },
-        acceptProps: {
-          label: constants.saveDialog?.acceptLabel,
-          text: true
-        },
+        header: dialogConstants?.title,
+        group: 'differences',
+        message: dialogConstants?.message,
+        icon: dialogConstants?.icon,
+        rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
+        acceptProps: { label: dialogConstants?.acceptLabel, text: true },
         accept: () => {
-          createIncomingInvoice().then(
-            result => resolve(result),
-            e => {
+          (isUpdate.value ? updateIncomingInvoice(incomingInvoice.value.id as number) : createIncomingInvoice()).then(
+            result => {
+              incomingInvoice.value = result
+              incomingInvoiceOriginal.value = { ...result }
+              toast.add({
+                severity: 'success',
+                summary: dialogConstants?.toastTitle,
+                detail: dialogConstants?.toastMessage,
+                life: 3000
+              })
+              resolve(result)
+            }, e => {
               toast.add({ severity: 'error', summary: e.name, detail: e.message, life: 3000 })
               error(e)
-            })
-        }
-      })
-    })
-  }
-
-  const handleReset = ($form: any) => {
-    return new Promise<void>((resolve) => {
-      confirm.require({
-        header: constants.resetDialog?.title,
-        message: constants.resetDialog?.message,
-        icon: constants.resetDialog?.icon,
-        rejectProps: {
-          label: constants.resetDialog?.rejectLabel,
-          severity: 'secondary',
-          text: true
-        },
-        acceptProps: {
-          label: constants.resetDialog?.acceptLabel,
-          severity: 'contrast',
-          text: true
-        },
-        accept: () => {
-          incomingInvoice.value = incomingInvoiceOriginal.value
-          resolve()
-        }
-      })
-    })
-  }
-
-  const handleClose = ($form: any) => {
-    return new Promise<void>((resolve) => {
-        if (!hasChanges) {
-          resolve()
-        } else {
-          confirm.require({
-            header: constants.cancelDialog?.title,
-            message: constants.cancelDialog?.message,
-            icon: constants.cancelDialog?.icon,
-            rejectProps: {
-              label: constants.cancelDialog?.rejectLabel,
-              severity: 'secondary',
-              text: true
-            },
-            acceptProps: {
-              label: constants.cancelDialog?.acceptLabel,
-              severity: 'contrast',
-              text: true
-            },
-            accept: () => {
-              resolve()
             }
-          })
+          )
         }
+      })
+    })
+  }
+
+  const handleReset = () => {
+    return new Promise<void>((resolve) => {
+      const dialogConstants = constants.resetDialog
+      confirm.require({
+        header: dialogConstants?.title,
+        message: dialogConstants?.message,
+        icon: dialogConstants?.icon,
+        rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
+        acceptProps: { label: dialogConstants?.acceptLabel, severity: 'contrast', text: true },
+        accept: () => {
+          incomingInvoice.value = { ...incomingInvoiceOriginal.value }
+          toast.add({
+            severity: 'success',
+            summary: dialogConstants?.toastTitle,
+            detail: dialogConstants?.toastMessage,
+            life: 3000
+          })
+          resolve()
+        }
+      })
+    })
+  }
+
+  const handleClose = () => {
+    return new Promise<void>((resolve) => {
+      const dialogConstants = constants.cancelDialog
+      if (!hasChanges.value) {
+        resolve()
+      } else {
+        confirm.require({
+          header: dialogConstants?.title,
+          message: dialogConstants?.message,
+          icon: dialogConstants?.icon,
+          rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
+          acceptProps: { label: dialogConstants?.acceptLabel, severity: 'contrast', text: true },
+          accept: () => {
+            toast.add({
+              severity: 'success',
+              summary: dialogConstants?.toastTitle,
+              detail: dialogConstants?.toastMessage,
+              life: 3000
+            })
+            resolve()
+          }
+        })
       }
-    )
+    })
+  }
+
+  const handleDelete = () => {
+    return new Promise<void>((resolve, error) => {
+      const dialogConstants = constants.deleteDialog
+      confirm.require({
+        header: dialogConstants?.title,
+        message: dialogConstants?.message,
+        icon: dialogConstants?.icon,
+        rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
+        acceptProps: { label: dialogConstants?.acceptLabel, severity: 'contrast', text: true },
+        accept: () => {
+          if (!incomingInvoice.value.id) return
+          deleteIncomingInvoice(incomingInvoice.value.id).then(
+            () => {
+              toast.add({
+                severity: 'success',
+                summary: dialogConstants?.toastTitle,
+                detail: dialogConstants?.toastMessage,
+                life: 3000
+              })
+              resolve()
+            }, e => {
+              toast.add({ severity: 'error', summary: e.name, detail: e.message, life: 3000 })
+              error(e)
+            }
+          )
+        }
+      })
+    })
   }
 
   const loadIncomingInvoice = async (id: number) => {
     loading.value = true
     try {
       incomingInvoice.value = await getIncomingInvoiceById(id)
-      incomingInvoiceOriginal.value = incomingInvoice.value
+      incomingInvoiceOriginal.value = { ...incomingInvoice.value }
     } finally {
       loading.value = false
     }
@@ -127,7 +194,45 @@ export const useIncomingInvoiceForm = () => {
     })
   }
 
-  return { incomingInvoice, hasChanges, loading, loadIncomingInvoice, handleSubmit, handleReset, handleClose }
+  const updateIncomingInvoice = (id: number) => {
+    loading.value = true
+    return new Promise<IncomingInvoice>(async (resolve, error) => {
+      try {
+        resolve(await putIncomingInvoiceById(id, incomingInvoice.value))
+      } catch (e) {
+        error(e)
+      } finally {
+        loading.value = false
+      }
+    })
+  }
+
+  const deleteIncomingInvoice = (id: number) => {
+    loading.value = true
+    return new Promise<void>(async (resolve, error) => {
+      try {
+        await deleteIncomingInvoiceById(id)
+        resolve()
+      } catch (e) {
+        error(e)
+      } finally {
+        loading.value = false
+      }
+    })
+  }
+
+
+  return {
+    incomingInvoice,
+    loadIncomingInvoice,
+    changes,
+    hasChanges,
+    loading,
+    handleSubmit,
+    handleReset,
+    handleClose,
+    handleDelete
+  }
 
 }
 
