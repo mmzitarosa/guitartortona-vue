@@ -1,0 +1,27 @@
+{
+  "form": {
+    "dialog": {
+      "save": {
+        "header": "Aggiungere",
+        "message": "Confermando i dati verranno aggiunti.",
+        "acceptLabel":"Aggiungi",
+        "toastSummary" : "Aggiunto",
+        "toastDetail": "I dati sono stati aggiunti correttamente."
+      },
+      "update": {
+        "header": "Aggiornare",
+        "message": "Confermando i dati verranno aggiornati.",
+        "acceptLabel":"Aggiorna",
+        "toastSummary" : "Aggiornato",
+        "toastDetail": "I dati sono stati aggiornati correttamente."
+      },
+      "reset": {
+        "header": "Ripristinare",
+        "message": "Confermando i dati verranno ripristinati.",
+        "acceptLabel":"Ripristina",
+        "toastSummary" : "Ripristinato",
+        "toastDetail": "I dati sono stati ripristinati correttamente."
+      }
+    }
+  }
+}

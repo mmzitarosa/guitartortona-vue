@@ -11,6 +11,9 @@ import Aura from '@primeuix/themes/aura'
 import { definePreset } from '@primeuix/themes'
 import { ToastService } from 'primevue'
 import KeyFilter from 'primevue/keyfilter'
+import { createI18n } from 'vue-i18n'
+import it from './locales/it.json'
+import en from './locales/en.json'
 
 const app = createApp(App)
 
@@ -85,6 +88,13 @@ const myPreset = definePreset(Aura, {
       },
     },
   },
+})
+const i18n = createI18n({
+  legacy: false,
+  locale: 'it',
+  fallbackLocale: 'en',
+  globalInjection: true,
+  messages: { it, en }
 })
 
 app.use(router)
@@ -247,6 +257,8 @@ app.use(PrimeVue, {
 
 app.use(ConfirmationService)
 app.use(ToastService)
+
+app.use(i18n)
 
 app.directive('keyfilter', KeyFilter);
 

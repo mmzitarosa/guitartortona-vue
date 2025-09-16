@@ -6,8 +6,19 @@ export const useSuppliers = () => {
   const suppliers = ref<Supplier[]>([])
   const loading = ref(false)
 
+  const addSupplier = (current?: Supplier) => {
+    // Inutile se l'input non è valido
+    if (!current) return
+
+    // Controllo per evitare l'aggiunta di duplicati
+    const exists = suppliers.value.some(supplier => supplier.id === current.id);
+    if (exists) return // Se esiste già, ritorno
+
+    // Aggiungo il nuovo supplier alla lista
+    suppliers.value.push(current);
+  }
+
   const loadSuppliers = async () => {
-    if (suppliers.value.length > 1) return
     loading.value = true
     try {
       suppliers.value = await getSuppliers()
@@ -16,5 +27,5 @@ export const useSuppliers = () => {
     }
   }
 
-  return { suppliers, loading, loadSuppliers }
+  return { suppliers, loading, loadSuppliers, addSupplier }
 }

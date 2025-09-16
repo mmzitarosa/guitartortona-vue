@@ -1,47 +1,43 @@
 <template>
-  <InputText
-    v-if="readonly"
-    :id="inputId"
-    :value="value"
-    :fluid
-    readonly
-    class="p-filled" />
-  <Select v-else
-          :modelValue="model"
-          @update:modelValue="onSelect"
-          :options="tmpModel ? [ ...options, tmpModel] : options"
-          :inputId
-          :optionLabel="optionLabel as string"
-          :showClear
-          :editable
-          :loading
-          class="p-inputwrapper-filled" :fluid />
+  <InputField :inputId :label :invalid :error="validation?.message">
+
+    <InputText v-if="readonly" :value="value"
+               :id="inputId"
+               readonly fluid
+               class="p-filled" />
+
+    <Select v-else :modelValue="model"
+            @update:modelValue="onSelect"
+            :inputId :editable :loading :invalid
+            :options="tmpModel ? [ ...options, tmpModel].sort((a, b) => a.name.localeCompare(b.name)) : options"
+            :optionLabel="optionLabel as string" showClear
+            class="p-inputwrapper-filled" fluid/>
+
+  </InputField>
+
 </template>
 
-<script setup lang="ts" generic="
-  T extends Partial<Record<string, unknown>>,
-  K extends keyof T,
-  L extends keyof T
-">
+<script setup lang="ts" generic="T extends Record<string,any>">
 
 import { computed, ref, type Ref, watch } from 'vue'
 import { InputText, Select } from 'primevue'
+import InputField from '@/components/layouts/InputField.vue'
 
-interface ComboBoxProps<T extends Partial<Record<string, unknown>>, K extends keyof T, L extends keyof T> {
+interface ComboBoxProps<T extends Record<string, any>> {
+  inputId: string;
+  label: string,
   editable?: boolean;
-  fluid?: boolean;
+  readonly?: boolean;
   options: T[];
-  inputId?: string;
-  optionId: K;
-  optionLabel: L;
-  showClear?: boolean;
+  optionId: keyof T;
+  optionLabel: keyof T;
   loading?: boolean;
+  validation?: { message?: string, valid: boolean };
 }
 
-const props = defineProps<ComboBoxProps<T, K, L>>()
-const readonly = computed(() => !props.editable)
+const props = defineProps<ComboBoxProps<T>>()
 
-const model = defineModel<T | undefined>()
+const model = defineModel<T>()
 const tmpModel: Ref<T | undefined> = ref(undefined)
 
 const value = computed(() => {
@@ -62,9 +58,8 @@ function onSelect(v: T | string | undefined) {
   if (typeof v === 'string') {
     // Input manuale
     // Controllo se già esiste
-    const existing = props.options.find((t) => {
-      const labelValue = t[props.optionLabel]
-      return typeof labelValue === 'string' && labelValue.toLowerCase() === v.toLowerCase()
+    const existing = props.options.find((t: T) => {
+      return t[props.optionLabel].toLowerCase() === v.toLowerCase()
     })
 
     if (existing) {
@@ -85,4 +80,8 @@ function onSelect(v: T | string | undefined) {
     model.value = undefined
   }
 }
+
+//TODO qui si può pulire
+const invalid = computed(() => !props.readonly && props.validation ? !props.validation.valid : false)
+
 </script>

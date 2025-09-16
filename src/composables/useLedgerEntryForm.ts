@@ -14,6 +14,7 @@ import {
   postLedgerEntry,
   putLedgerEntryById
 } from '@/services/api/ledgerService.ts'
+import type { FormSubmitEvent } from '@primevue/forms'
 
 export const useLedgerEntryForm = () => {
 
@@ -89,7 +90,7 @@ export const useLedgerEntryForm = () => {
 
   const isUpdate = computed(() => ledgerEntry.value?.id !== undefined)
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: FormSubmitEvent) => {
     return new Promise<LedgerEntry>((resolve, error) => {
       const dialogConstants = isUpdate.value ? constants.updateDialog : constants.saveDialog
       confirm.require({
@@ -116,7 +117,7 @@ export const useLedgerEntryForm = () => {
     })
   }
 
-  const handleReset = () => {
+  const handleReset = ($form: any) => {
     return new Promise<void>((resolve) => {
       const dialogConstants = constants.resetDialog
       confirm.require({
@@ -126,6 +127,7 @@ export const useLedgerEntryForm = () => {
         rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
         acceptProps: { label: dialogConstants?.acceptLabel, severity: 'contrast', text: true },
         accept: () => {
+          $form.reset()
           ledgerEntry.value = { ...ledgerEntryOriginal.value }
           toast.add({ severity: 'success', summary: dialogConstants?.toastTitle, detail: dialogConstants?.toastMessage, life: 3000 })
           resolve()
@@ -134,7 +136,7 @@ export const useLedgerEntryForm = () => {
     })
   }
 
-  const handleClose = () => {
+  const handleClose = ($form?: any) => {
     return new Promise<void>((resolve) => {
       const dialogConstants = constants.cancelDialog
       if (!hasChanges.value) {
@@ -147,6 +149,8 @@ export const useLedgerEntryForm = () => {
           rejectProps: { label: dialogConstants?.rejectLabel, severity: 'secondary', text: true },
           acceptProps: { label: dialogConstants?.acceptLabel, severity: 'contrast', text: true },
           accept: () => {
+            $form.reset()
+            ledgerEntry.value = { ...ledgerEntryOriginal.value }
             toast.add({ severity: 'success', summary: dialogConstants?.toastTitle, detail: dialogConstants?.toastMessage, life: 3000 })
             resolve()
           }

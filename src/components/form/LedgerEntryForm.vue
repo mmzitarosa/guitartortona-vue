@@ -3,6 +3,7 @@
     <ProgressSpinner></ProgressSpinner>
   </div>
   <Form v-else
+        v-slot="$form"
         @submit="onFormSubmit"
         :resolver
         :initial-values="ledgerEntry"
@@ -224,7 +225,7 @@
                     severity="secondary"
                     :label="props.id && !hasChanges ? constants.close.label : constants.cancel.label"
                     :icon="props.id && !hasChanges ? constants.close.icon : constants.cancel.icon"
-                    @click="onFormClose"
+                    @click="onFormClose($form)"
             />
             <Button
               type="button"
@@ -234,7 +235,7 @@
               variant="text"
               rounded
               aria-label="Filter"
-              @click="onFormReset"
+              @click="onFormReset($form)"
             />
           </div>
 
@@ -343,11 +344,11 @@ onMounted(() => {
 
 const onFormSubmit = (event: FormSubmitEvent) => {
   if (!event.valid) return
-  handleSubmit().then((result) => emit('submit', result))
+  handleSubmit(event).then((result) => emit('submit', result))
 }
 
-const onFormReset = () => {
-  handleReset()
+const onFormReset = ($form: any) => {
+  handleReset($form)
 }
 
 const onFormEdit = () => {
@@ -358,8 +359,8 @@ const onFormDelete = () => {
   handleDelete().then(() => emit('delete'))
 }
 
-const onFormClose = () => {
-  handleClose().then(() => emit('close'))
+const onFormClose = ($form: any) => {
+  handleClose($form).then(() => emit('close'))
 }
 
 </script>

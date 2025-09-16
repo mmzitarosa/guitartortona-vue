@@ -1,2 +1,6 @@
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
+
+.p-floatlabel:has(input.p-filled.p-invalid) label {
+  color: #dc2626;
+}

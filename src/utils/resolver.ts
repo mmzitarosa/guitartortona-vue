@@ -7,30 +7,30 @@ export const incomingInvoiceResolver = ({ values }: FormResolverOptions) => {
 
   // number
   if (!values.number) {
-    errors.number = [{ message: INCOMING_INVOICE.number.messages.required! }]
+    errors.number = err(INCOMING_INVOICE.number.messages.required!)
   } else if (values.number.length > 50) {
-    errors.number = [{ message: INCOMING_INVOICE.number.messages.tooLong! }]
+    errors.number = err(INCOMING_INVOICE.number.messages.tooLong!)
   }
 
   // supplier
   if (!values.supplier) {
-    errors.supplier = [{ message: INCOMING_INVOICE.supplier.messages.required! }]
-  } else if (values.supplier.length > 150) {
-    errors.supplier = [{ message: INCOMING_INVOICE.supplier.messages.tooLong! }]
+    errors.supplier = err(INCOMING_INVOICE.supplier.messages.required!)
+  } else if (values.supplier.name && values.supplier.name.length > 150) {
+    errors.supplier = err(INCOMING_INVOICE.supplier.messages.tooLong!)
   }
 
   // date
   if (!values.date) {
-    errors.date = [{ message: INCOMING_INVOICE.date.messages.required! }]
+    errors.date = err(INCOMING_INVOICE.date.messages.required!)
   } else if (!validateDate(values.date)) {
-    errors.date = [{ message: INCOMING_INVOICE.date.messages.other! }]
+    errors.date = err(INCOMING_INVOICE.date.messages.other!)
   }
 
   // amount
   if (values.amount == null) {
-    errors.amount = [{ message: INCOMING_INVOICE.amount.messages.required! }]
+    errors.amount = err(INCOMING_INVOICE.amount.messages.required!)
   } else if (values.amount <= 0) {
-    errors.amount = [{ message: INCOMING_INVOICE.amount.messages.other! }]
+    errors.amount = err(INCOMING_INVOICE.amount.messages.other!)
   }
 
   // notes → opzionale, nessuna validazione
@@ -46,36 +46,36 @@ export const ledgerEntryResolver = ({ values }: FormResolverOptions) => {
 
   // date
   if (!values.date) {
-    errors.date = [{ message: LEDGER.date.messages.required! }]
+    errors.date = err(LEDGER.date.messages.required!)
   } else if (!validateDate(values.date)) {
-    errors.date = [{ message: LEDGER.date.messages.other! }]
+    errors.date = err(LEDGER.date.messages.other!)
   }
 
   // invoiceNumber
   if (values.invoiceNumber && values.invoiceNumber.length > 50) {
-    errors.invoiceNumber = [{ message: LEDGER.invoiceNumber.messages.tooLong! }]
+    errors.invoiceNumber = err(LEDGER.invoiceNumber.messages.tooLong!)
   }
 
   // invoiceDate
   if (values.invoiceDate && !validateDate(values.invoiceDate)) {
-    errors.invoiceDate = [{ message: LEDGER.invoiceDate.messages.other! }]
+    errors.invoiceDate = err(LEDGER.invoiceDate.messages.other!)
   }
 
   // description
   if (values.description == null) {
-    errors.description = [{ message: LEDGER.description.messages.required! }]
+    errors.description = err(LEDGER.description.messages.required!)
   } else if (values.description.length > 255) {
-    errors.description = [{ message: LEDGER.description.messages.tooLong! }]
+    errors.description = err(LEDGER.description.messages.tooLong!)
   }
 
   // receiptNumber
   if (values.receiptNumber && values.receiptNumber.length > 5) {
-    errors.receiptNumber = [{ message: LEDGER.receiptNumber.messages.tooLong! }]
+    errors.receiptNumber = err(LEDGER.receiptNumber.messages.tooLong!)
   }
 
   // bank && paymentMethod
   if (!values.bank && values.paymentMethod === 'BANK') {
-    errors.bank = [{ message: LEDGER.bank.messages.required! }]
+    errors.bank = err(LEDGER.bank.messages.required!)
   } else if (values.bank && values.paymentMethod !== 'BANK') {
     errors.paymentMethod = [{}]
   } else if (!values.paymentMethod && (values.amount || values.movementType)) {
@@ -90,10 +90,10 @@ export const ledgerEntryResolver = ({ values }: FormResolverOptions) => {
   // amount
   if (values.amount) {
     if (values.amount <= 0) {
-      errors.amount = [{ message: LEDGER.amount.messages.other! }]
+      errors.amount = err(LEDGER.amount.messages.other!)
     }
   } else if (!(!values.movementType && !values.paymentMethod)) {
-    errors.amount = [{ message: LEDGER.amount.messages.required! }]
+    errors.amount = err(LEDGER.amount.messages.required!)
   }
 
   // reason
@@ -113,18 +113,18 @@ export const ledgerTableFilterResolver = ({ values }: FormResolverOptions) => {
   const toDate = validateDate(values.toDate)
 
   if (!values.fromDate) {
-    if (values.toDate) errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.required! }]
+    if (values.toDate) errors.fromDate = err(LEDGER_TABLE.fromDate.messages.required!)
   } else if (!fromDate) {
-    errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.other! }]
+    errors.fromDate = err(LEDGER_TABLE.fromDate.messages.other!)
   }
 
   if (!values.toDate) {
-    if (values.fromDate) errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.required! }]
+    if (values.fromDate) errors.toDate = err(LEDGER_TABLE.toDate.messages.required!)
   } else if (fromDate && toDate && fromDate>toDate) {
-    errors.fromDate = [{ message: LEDGER_TABLE.fromDate.messages.other! }]
-    errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.other! }]
+    errors.fromDate = err(LEDGER_TABLE.fromDate.messages.other!)
+    errors.toDate = err(LEDGER_TABLE.toDate.messages.other!)
   } else if (!toDate) {
-    errors.toDate = [{ message: LEDGER_TABLE.toDate.messages.other! }]
+    errors.toDate = err(LEDGER_TABLE.toDate.messages.other!)
   }
 
   return {
@@ -133,7 +133,9 @@ export const ledgerTableFilterResolver = ({ values }: FormResolverOptions) => {
   }
 }
 
-const validateDate = (date: string) => {
+const err = (msg: string) => [{ message: msg }]
+
+export const validateDate = (date: string) => {
   if (!date) return
   const [day, month, year] = date.split('/').map(Number)
   const d = new Date(year, month - 1, day)

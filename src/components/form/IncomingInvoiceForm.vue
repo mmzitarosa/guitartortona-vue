@@ -1,259 +1,250 @@
 <template>
-  <div v-if="id && !incomingInvoice.id" class="w-full flex items-center mt-2">
-    <ProgressSpinner></ProgressSpinner>
-  </div>
-  <Form v-else
-        @submit="onFormSubmit"
-        :resolver
-        :initial-values="incomingInvoice"
-        :validate-on-value-update="true"
-  >
-    <Card>
-      <template #title>{{ constants.card.title }}</template>
-      <template #subtitle>{{ constants.card.subtitle }}</template>
-      <template #content>
-        <div class="grid gap-4 w-full mt-2">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-            <FormField v-slot="$field" name="supplier" class="w-full">
-              <FloatLabel variant="on">
-                <ComboBox v-model="incomingInvoice.supplier" :options="suppliers" optionId="id" optionLabel="name" inputId="supplier" showClear :editable fluid @focus="loadSuppliers"/>
-                <label for="supplier">{{ constants.supplier.label }}</label>
-              </FloatLabel>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
-                {{ $field.error?.message }}
-              </Message>
-            </FormField>
+  <Card class="gap-1">
+    <template #title>{{ constants.card.title }}</template>
+    <template #subtitle>{{ constants.card.subtitle }}</template>
+    <template #content>
+      <ProgressBar :mode="formLoading ? 'indeterminate' : 'determinate'" class="mt-2 bg-gre" style="height: 1px"></ProgressBar>
+      <div class="grid gap-4 w-full mt-6">
+        <!-- Prima riga: fornitore e data-->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
+          <ComboBox v-model="incomingInvoice.supplier" inputId="supplier"
+                    optionId="id" optionLabel="name"
+                    :options="suppliers" editable
+                    :label="constants.supplier.label" :readonly
+                    :loading="suppliersLoading"
+                    :validation="validation.fields.supplier"/>
 
-            <FormField v-slot="$field" name="date" class="w-full">
-              <FloatLabel variant="on">
-                <InputMask id="date" v-model="incomingInvoice.date" mask="99/99/9999"
-                           :readonly fluid
-                           class="p-filled" placeholder="gg/mm/aaaa" :autoClear="false" />
-                <label for="date">{{ constants.date.label }}</label>
-              </FloatLabel>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                  $field.error?.message
-                }}
-              </Message>
-            </FormField>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-
-            <FormField v-slot="$field" name="number" class="w-full">
-              <FloatLabel variant="on">
-                <InputText id="number" v-model="incomingInvoice.number" class="p-filled" fluid
-                           :readonly />
-                <label for="number">{{ constants.number.label }}</label>
-              </FloatLabel>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                  $field.error?.message
-                }}
-              </Message>
-            </FormField>
-
-            <FormField v-slot="$field" name="amount" class="w-full">
-              <FloatLabel variant="on">
-
-                <InputNumber :readonly
-                             inputId="amount"
-                             mode="currency"
-                             currency="EUR"
-                             locale="it-IT"
-                             v-model="incomingInvoice.amount"
-                             class="p-inputwrapper-filled"
-                             @input="(event) => {incomingInvoice.amount = event.value as number | undefined}"
-                             :minFractionDigits="2"
-                             :maxFractionDigits="2"
-                             :min="0"
-                             fluid
-                />
-
-                <label for="amount">{{ constants.amount.label }}</label>
-              </FloatLabel>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                  $field.error?.message
-                }}
-              </Message>
-            </FormField>
-
-          </div>
-
-          <div class="col-span-full">
-            <FormField v-slot="$field" name="notes" class="w-full">
-              <FloatLabel variant="on">
-                <Textarea
-                  v-model="incomingInvoice.notes"
-                  id="notes"
-                  style="resize: none"
-                  rows="2"
-                  auto-resize
-                  class="p-filled" fluid
-                  :readonly
-                />
-                <label for="notes">{{ constants.notes.label }}</label>
-              </FloatLabel>
-              <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                  $field.error?.message
-                }}
-              </Message>
-            </FormField>
-          </div>
-
+          <InputDateField v-model="incomingInvoice.date" inputId="date"
+                     :label="constants.date.label" :readonly
+                     :validation="validation.fields.date" />
         </div>
 
-      </template>
+        <!-- Seconda riga: numero e importo -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
+          <InputTextField v-model="incomingInvoice.number" inputId="number"
+                       :label="constants.number.label" :readonly
+                       :validation="validation.fields.number" />
 
-      <template #footer>
-        <div class="flex justify-between items-center w-full mt-2">
-          <!-- Bottoni di sinistra -->
-          <div class="flex gap-2">
-            <Button v-if="backable"
-                    type="button"
-                    severity="secondary"
-                    :label="props.id && !hasChanges ? constants.close.label : constants.cancel.label"
-                    :icon="props.id && !hasChanges ? constants.close.icon : constants.cancel.icon"
-                    @click="onFormClose"
-            />
-            <Button
-              type="button"
-              v-if="hasChanges"
-              :icon="constants.reset?.icon"
-              severity="secondary"
-              variant="text"
-              rounded
-              aria-label="Filter"
-              @click="onFormReset"
-            />
-          </div>
-
-          <div class="flex gap-2">
-            <!-- Bottone di destra -->
-            <Button
-              v-if="readonly"
-              type="button"
-              rounded
-              text
-              icon="pi pi-trash"
-              severity="secondary"
-              @click="onFormDelete"
-            />
-
-            <Button
-              v-if="readonly"
-              type="button"
-              rounded
-              text
-              icon="pi pi-pen-to-square"
-              severity="secondary"
-              @click="onFormEdit"
-            />
-
-            <Button
-              v-else-if="!props.id || hasChanges"
-              type="submit"
-              :loading="formLoading"
-              :disabled="!hasChanges"
-              :label="props.id && hasChanges ? constants.update.label : constants.save.label"
-              :icon="props.id && hasChanges ? constants.update.icon : constants.save.icon" />
-
-          </div>
+          <InputAmountField v-model="incomingInvoice.amount" inputId="amount"
+                       :label="constants.amount.label" :readonly
+                       :validation="validation.fields.number" />
         </div>
-      </template>
-    </Card>
-  </Form>
-  <ChangesDialog :changes="changes"></ChangesDialog>
+
+        <!-- Terza riga: note -->
+        <div class="col-span-full">
+          <TextAreaField v-model="incomingInvoice.notes" inputId="notes"
+                    :label="constants.notes.label" :readonly>
+          </TextAreaField>
+        </div>
+      </div>
+
+    </template>
+
+    <template #footer>
+      <div class="flex justify-between items-center w-full mt-2">
+        <!-- Bottoni di sinistra -->
+        <div class="flex gap-2">
+          <!-- Bottone Chiudi - Visualizzazione/Modifica senza cambiamenti-->
+          <Button v-if="backable && existingItem && pristine"
+                  type="button"
+                  severity="secondary"
+                  :label="constants.close.label"
+                  :icon="constants.close.icon"
+                  @click="onFormClose"
+          />
+          <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
+          <Button v-else-if="backable"
+                  type="button"
+                  severity="secondary"
+                  :label="constants.cancel.label"
+                  :icon="constants.cancel.icon"
+                  @click="onFormClose"
+          />
+
+          <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
+          <Button
+            type="button"
+            v-if="dirty"
+            :icon="constants.reset?.icon"
+            severity="secondary"
+            variant="text"
+            rounded
+            aria-label="Filter"
+            @click="onFormReset"
+          />
+        </div>
+
+        <!-- Bottoni di destra -->
+        <div class="flex gap-2">
+          <!-- Tasto Delete - Visualizzazione  -->
+          <Button
+            v-if="readonly"
+            type="button"
+            rounded
+            text
+            icon="pi pi-trash"
+            severity="secondary"
+            @click="onFormDelete"
+          />
+
+          <!-- Tasto Edit - Visualizzazione  -->
+          <Button
+            v-if="readonly"
+            type="button"
+            rounded
+            text
+            icon="pi pi-pen-to-square"
+            severity="secondary"
+            @click="onFormEdit"
+          />
+
+          <!-- Tasto Aggiungi - Inserimento  -->
+          <Button
+            v-else-if="newItem"
+            type="submit"
+            :label="constants.save.label"
+            :icon="constants.save.icon"
+            @click="onFormSubmit" />
+
+          <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
+          <Button
+            v-else-if="dirty"
+            type="button"
+            :label="constants.update.label"
+            :icon="constants.update.icon"
+            @click="onFormSubmit" />
+
+        </div>
+      </div>
+    </template>
+  </Card>
+  <ChangesDialog :changes></ChangesDialog>
 </template>
 
 <script setup lang="ts">
 
 import Card from 'primevue/card'
-import {
-  Button,
-  FloatLabel,
-  InputMask,
-  InputNumber,
-  InputText,
-  Message,
-  ProgressSpinner,
-  Select,
-  Textarea
-} from 'primevue'
-import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
-import { INCOMING_INVOICE } from '@/utils/constants.ts'
-import { incomingInvoiceResolver } from '@/utils/resolver.ts'
+import { Button, ProgressBar } from 'primevue'
 import { useSuppliers } from '@/composables/useSuppliers.ts'
-import { useIncomingInvoiceForm } from '@/composables/useIncomingInvoiceForm.ts'
-import { computed, onMounted, type Ref, ref, watch, watchEffect } from 'vue'
+import { onMounted } from 'vue'
 import type { Supplier } from '@/types/supplier.ts'
 import ChangesDialog from '@/components/layouts/ChangesDialog.vue'
+import { type FormOptions, useFormState } from '@/composables/useFormState.ts'
+import { useForm } from '@/composables/useForm.ts'
+import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
+import {
+  deleteIncomingInvoiceById,
+  getIncomingInvoiceById,
+  postIncomingInvoice,
+  putIncomingInvoiceById
+} from '@/services/api/incomingInvoiceService.ts'
+import { validateDate } from '@/utils/dateUtils.ts'
 import ComboBox from '@/components/layouts/ComboBox.vue'
+import InputDateField from '@/components/layouts/InputDateField.vue'
+import InputAmountField from '@/components/layouts/InputAmountField.vue'
+import TextAreaField from '@/components/layouts/TextAreaField.vue'
+import InputTextField from '@/components/layouts/InputTextField.vue'
+import { INCOMING_INVOICE } from '@/utils/constants.ts'
+
+const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
 const constants = INCOMING_INVOICE
-const resolver = incomingInvoiceResolver
 
-const { suppliers, loading: suppliersLoading, loadSuppliers } = useSuppliers()
+interface IncomingInvoiceFormProps extends FormOptions {
+  backable?: boolean,
+}
+
+const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
+  editable: false,
+  backable: true
+})
+
+const { suppliers, loading: suppliersLoading, loadSuppliers, addSupplier } = useSuppliers()
+
 const {
-  incomingInvoice,
-  loadIncomingInvoice,
-  changes,
-  hasChanges,
+  item: incomingInvoice,
   loading: formLoading,
+  changes,
+  dirty,
+  pristine,
+  loadItem: loadIncomingInvoice,
+  validation,
   handleSubmit,
   handleReset,
   handleClose,
   handleDelete
-} = useIncomingInvoiceForm()
+} = useForm<IncomingInvoice>({
+  getById: getIncomingInvoiceById,
+  create: postIncomingInvoice,
+  update: putIncomingInvoiceById,
+  remove: deleteIncomingInvoiceById,
 
-const props = defineProps({
-  id: {
-    type: [Number, null]
-  },
-  editable: {
-    type: Boolean,
-    default: false
-  },
-  backable: {
-    type: Boolean,
-    default: true
-  }
+  fieldMappings: [
+    { key: 'supplier', label: 'Fornitore',
+      getter: (supplier: Supplier | undefined) => supplier?.id,
+      labeler: (supplier: Supplier | undefined) => supplier?.name,
+      validator: (supplier: Supplier | undefined) => {
+        if (!supplier) return { message: 'Required' }
+        else if (supplier.name && supplier.name.length > 150) return { message: 'TooLong'}
+      }
+    }, { key: 'date', label: 'Data',
+      validator: (date: string | undefined) => {
+        if (!date) return { message: 'Required'}
+        else if (!validateDate(date)) return { message: 'Invalid' }
+      }
+    }, { key: 'number', label: 'Numero',
+      validator: (number: string | undefined) => {
+        if (!number) return { message: 'Required' }
+        else if (number.length > 50) return { message: 'TooLong' }
+      }
+    }, { key: 'amount', label: 'Importo',
+      labeler: (amount: number | undefined) => amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }),
+      validator: (amount: number | undefined) => {
+        if (!amount) return { message: 'Required' }
+        else if (amount < 0) return { message: 'Invalid' }
+      }
+    }, { key: 'notes', label: 'Note' }
+  ]
 })
 
-const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
-const readonly = computed(() => !props.editable)
+const {
+  readonly,
+  editable,
+  newItem,
+  existingItem
+} = useFormState(props)
 
-// Per trattare il valore del comboBox editabile come oggetto anziché stringa
-const supplier: Ref<Supplier | undefined> = ref(undefined)
+onMounted(async () => {
+  formLoading.value = true
+  await loadSuppliers()
+  if (props.id) await loadIncomingInvoice(props.id as number)
 
-onMounted(() => {
-  if (props.id) {
-    loadIncomingInvoice(props.id as number).then(value => suppliers.value = [value.supplier as Supplier])
-  }
+  formLoading.value = false
 })
 
-const onFormSubmit = (event: FormSubmitEvent) => {
-  if (!event.valid) return
-  handleSubmit().then((result) => {
-      suppliers.value = [result.supplier as Supplier]
-      emit('submit', result)
-    }
-  )
+const onFormSubmit = async () => {
+  const result = await handleSubmit()
+  if (!result) return
+  addSupplier(result.supplier)
+  emit('submit', result)
 }
 
-const onFormReset = () => {
-  handleReset()
+const onFormReset = async () => {
+  await handleReset()
 }
 
 const onFormEdit = () => {
   emit('edit')
 }
 
-const onFormDelete = () => {
-  handleDelete().then(() => emit('delete'))
+const onFormDelete = async () => {
+  await handleDelete()
+  emit('delete')
 }
 
-const onFormClose = () => {
-  handleClose().then(() => emit('close'))
+const onFormClose = async () => {
+  await handleClose()
+  emit('close')
 }
 
 </script>
