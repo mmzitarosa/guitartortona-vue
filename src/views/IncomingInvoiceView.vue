@@ -1,28 +1,36 @@
 <template>
-  <IncomingInvoiceForm :editable :id :backable @submit="onSubmit" @close="onClose" @edit="onEdit" @delete="onDelete"></IncomingInvoiceForm>
+  <IncomingInvoiceForm
+    :editable
+    :id
+    :backable
+    @submit="onSubmit"
+    @close="onClose"
+    @edit="onEdit"
+    @delete="onDelete"
+  ></IncomingInvoiceForm>
 </template>
 
 <script setup lang="ts">
-import IncomingInvoiceForm from '@/components/form/IncomingInvoiceForm.vue'
+import IncomingInvoiceForm from '@/components/forms/IncomingInvoiceForm.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import router from '@/router'
-import LedgerEntryForm from '@/components/form/LedgerEntryForm.vue'
+import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
 
 const route = useRoute()
 
 const id = Number(route.params.id)
 
 const editable = computed({
-  get: () => route.query.editable === "true",
+  get: () => route.query.editable === 'true',
   set: (val: boolean) => {
     router.replace({
       query: {
         ...route.query,
-        editable: String(val)
-      }
+        editable: String(val),
+      },
     })
-  }
+  },
 })
 
 const backable = computed(() => route.query.from !== 'add' || editable.value)
@@ -43,5 +51,4 @@ const onEdit = () => {
 const onDelete = () => {
   router.back()
 }
-
 </script>

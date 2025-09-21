@@ -20,7 +20,7 @@
 import { ref, useTemplateRef } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { SIDEBAR_ITEMS } from '@/utils/constants'
-import Sidebar from '@/components/layouts/drawer/Sidebar.vue'
+import Sidebar from '@/components/layout/drawer/Sidebar.vue'
 
 const model = defineModel<boolean>()
 const target = useTemplateRef<HTMLElement>('target')

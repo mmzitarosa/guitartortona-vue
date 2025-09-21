@@ -1,22 +1,28 @@
-import apiClient from '@/services/api/apiClient.ts'
+import apiClient, { baseURL } from '@/services/api/apiClient.ts'
 import type { LedgerEntry } from '@/types/ledgerEntry.ts'
 import { fromDTO, fromDTOPage, toDTO } from '@/utils/mapper/ledgerMapper.ts'
 import { API_CONFIG } from '@/config/api.ts'
 
 //Create
 export async function postLedgerEntry(ledgerEntry: LedgerEntry): Promise<LedgerEntry> {
-  const {data} = await apiClient.post("/ledgerEntry", toDTO(ledgerEntry))
+  const { data } = await apiClient.post('/ledgerEntry', toDTO(ledgerEntry))
   return fromDTO(data)
 }
 
 //Read
 export async function getLedgerEntryById(id: number): Promise<LedgerEntry> {
-  const {data} = await apiClient.get(`/ledgerEntry/${id}`)
+  const { data } = await apiClient.get(`/ledgerEntry/${id}`)
   return fromDTO(data)
 }
 
-export async function getLedger(fromDate?: string, toDate?: string, page?: number, size?: number, sort?: any): Promise<{content: LedgerEntry[], totalElements: number}> {
-  const {data} = await apiClient.get(`/ledger`, {
+export async function getLedger(
+  fromDate?: string,
+  toDate?: string,
+  page?: number,
+  size?: number,
+  sort?: any
+): Promise<{ content: LedgerEntry[]; totalElements: number }> {
+  const { data } = await apiClient.get(`/ledger`, {
     params: {
       page,
       size,
@@ -29,8 +35,11 @@ export async function getLedger(fromDate?: string, toDate?: string, page?: numbe
 }
 
 //Update
-export async function putLedgerEntryById(id: number, ledgerEntry: LedgerEntry): Promise<LedgerEntry> {
-  const {data} = await apiClient.put(`/ledgerEntry/${id}`, toDTO(ledgerEntry))
+export async function putLedgerEntryById(
+  id: number,
+  ledgerEntry: LedgerEntry
+): Promise<LedgerEntry> {
+  const { data } = await apiClient.put(`/ledgerEntry/${id}`, toDTO(ledgerEntry))
   return fromDTO(data)
 }
 

@@ -1,53 +1,56 @@
 import type { ButtonConst, CardConst, DialogConst, FieldConst } from '@/types/form'
 import type { Menu } from '@/types/menu'
 
+/**
+ * Layout constants
+ */
 export const LAYOUT = {
   HEADER_SEARCH_LABEL: 'Cerca...',
-  SIDEBAR_USER_PREFIX: 'Utente: '
-}
+  SIDEBAR_USER_PREFIX: 'Utente: ',
+} as const
 
 export const LEDGER_TABLE: {
-  fromDate: FieldConst,
-  toDate: FieldConst,
+  fromDate: FieldConst
+  toDate: FieldConst
   reset: ButtonConst
-  search: ButtonConst,
-  print: ButtonConst,
+  search: ButtonConst
+  print: ButtonConst
 } = {
   fromDate: {
     label: 'Filtra da',
     messages: {
       required: 'Seleziona una data',
-      other: 'Data non valida'
-    }
+      other: 'Data non valida',
+    },
   },
   toDate: {
     label: 'Filtra a',
     messages: {
       required: 'Seleziona una data',
-      other: 'Data non valida'
-    }
+      other: 'Data non valida',
+    },
   },
   reset: {
-    icon: 'pi pi-times'
+    icon: 'pi pi-times',
   },
   print: {
-    icon: 'pi pi-print'
+    icon: 'pi pi-print',
   },
   search: {
-    icon: 'pi pi-search'
-  }
+    icon: 'pi pi-search',
+  },
 }
 
 export const LEDGER: {
-  card: CardConst,
-  date: FieldConst,
-  invoiceNumber: FieldConst,
-  invoiceDate: FieldConst,
-  description: FieldConst,
-  reason: FieldConst,
-  bank: FieldConst,
-  receiptNumber: FieldConst,
-  amount: FieldConst,
+  card: CardConst
+  date: FieldConst
+  invoiceNumber: FieldConst
+  invoiceDate: FieldConst
+  description: FieldConst
+  reason: FieldConst
+  bank: FieldConst
+  receiptNumber: FieldConst
+  amount: FieldConst
   notes: FieldConst
   close: ButtonConst
   cancel: ButtonConst
@@ -56,77 +59,79 @@ export const LEDGER: {
   resetDialog?: DialogConst
   save: ButtonConst
   saveDialog?: DialogConst
-  update: ButtonConst,
+  update: ButtonConst
   updateDialog?: DialogConst
-  delete: ButtonConst,
+  delete: ButtonConst
   deleteDialog?: DialogConst
 } = {
   card: {
     title: 'Nuovo Record',
-    subtitle: 'Dati Record'
+    subtitle: 'Dati Record',
   },
   date: {
     label: 'Data',
     messages: {
       required: 'Seleziona una data',
-      other: 'Data non valida'
-    }
-  }, invoiceNumber: {
+      other: 'Data non valida',
+    },
+  },
+  invoiceNumber: {
     label: 'Numero Fattura',
     messages: {
-      tooLong: 'Numero fattura troppo lungo'
-    }
-  }, invoiceDate: {
+      tooLong: 'Numero fattura troppo lungo',
+    },
+  },
+  invoiceDate: {
     label: 'Data Fattura',
     messages: {
-      other: 'Data non valida'
-    }
+      other: 'Data non valida',
+    },
   },
   description: {
     label: 'Descrizione',
     messages: {
       required: 'Inserisci la descrizione',
-      tooLong: 'Descrizione troppo lunga'
-    }
+      tooLong: 'Descrizione troppo lunga',
+    },
   },
   reason: {
     label: 'Causale',
     messages: {
-      tooLong: 'Causale troppo lunga'
-    }
+      tooLong: 'Causale troppo lunga',
+    },
   },
   bank: {
     label: 'Banca',
     messages: {
-      required: 'Seleziona la banca'
-    }
+      required: 'Seleziona la banca',
+    },
   },
   receiptNumber: {
     label: 'Ultime 3 Cifre a/b',
     messages: {
-      tooLong: 'Valore troppo lungo'
-    }
+      tooLong: 'Valore troppo lungo',
+    },
   },
   amount: {
     label: 'Importo',
     messages: {
-      required: 'Inserisci l\'importo',
-      other: 'L\'importo deve essere positivo'
-    }
+      required: "Inserisci l'importo",
+      other: "L'importo deve essere positivo",
+    },
   },
   notes: {
     label: 'Note',
     messages: {
-      tooLong: 'Note troppo lunghe'
-    }
+      tooLong: 'Note troppo lunghe',
+    },
   },
   close: {
     label: 'Chiudi',
-    icon: 'pi pi-times'
+    icon: 'pi pi-times',
   },
   cancel: {
     label: 'Annulla',
-    icon: 'pi pi-times'
+    icon: 'pi pi-times',
   },
   cancelDialog: {
     title: 'Annullare',
@@ -135,11 +140,11 @@ export const LEDGER: {
     acceptLabel: 'Annulla',
     rejectLabel: 'Chiudi',
     toastTitle: 'Annullato',
-    toastMessage: 'Operazione annullata, i dati non sono stati modificati.'
+    toastMessage: 'Operazione annullata, i dati non sono stati modificati.',
   },
   reset: {
     label: 'Ripristina',
-    icon: 'pi pi-undo'
+    icon: 'pi pi-undo',
   },
   resetDialog: {
     title: 'Ripristinare',
@@ -148,11 +153,11 @@ export const LEDGER: {
     acceptLabel: 'Ripristina',
     rejectLabel: 'Chiudi',
     toastTitle: 'Ripristinato',
-    toastMessage: 'I dati sono stati ripristinati correttamente.'
+    toastMessage: 'I dati sono stati ripristinati correttamente.',
   },
   save: {
     label: 'Aggiungi',
-    icon: 'pi pi-plus'
+    icon: 'pi pi-plus',
   },
   saveDialog: {
     title: 'Aggiungere',
@@ -161,11 +166,11 @@ export const LEDGER: {
     acceptLabel: 'Aggiungi',
     rejectLabel: 'Chiudi',
     toastTitle: 'Aggiunto',
-    toastMessage: 'I dati sono stati aggiunti correttamente.'
+    toastMessage: 'I dati sono stati aggiunti correttamente.',
   },
   update: {
     label: 'Aggiorna',
-    icon: 'pi pi-sync'
+    icon: 'pi pi-sync',
   },
   updateDialog: {
     title: 'Aggiornare',
@@ -174,11 +179,11 @@ export const LEDGER: {
     acceptLabel: 'Aggiorna',
     rejectLabel: 'Chiudi',
     toastTitle: 'Aggiornato',
-    toastMessage: 'I dati sono stati aggiornati correttamente.'
+    toastMessage: 'I dati sono stati aggiornati correttamente.',
   },
   delete: {
     label: 'Elimina',
-    icon: 'pi pi-trash'
+    icon: 'pi pi-trash',
   },
   deleteDialog: {
     title: 'Eliminare',
@@ -187,8 +192,8 @@ export const LEDGER: {
     acceptLabel: 'Elimina',
     rejectLabel: 'Chiudi',
     toastTitle: 'Eliminato',
-    toastMessage: 'I dati sono stati eliminati correttamente.'
-  }
+    toastMessage: 'I dati sono stati eliminati correttamente.',
+  },
 }
 
 export const INCOMING_INVOICE: {
@@ -205,56 +210,56 @@ export const INCOMING_INVOICE: {
   resetDialog?: DialogConst
   save: ButtonConst
   saveDialog?: DialogConst
-  update: ButtonConst,
+  update: ButtonConst
   updateDialog?: DialogConst
-  delete: ButtonConst,
+  delete: ButtonConst
   deleteDialog?: DialogConst
 } = {
   card: {
     title: 'Nuova Fattura',
-    subtitle: 'Dati Fattura'
+    subtitle: 'Dati Fattura',
   },
   supplier: {
     label: 'Fornitore',
     messages: {
       required: 'Seleziona o aggiungi un fornitore',
-      tooLong: 'Nome del fornitore troppo lungo'
-    }
+      tooLong: 'Nome del fornitore troppo lungo',
+    },
   },
   date: {
     label: 'Data',
     messages: {
       required: 'Seleziona una data',
-      other: 'Data non valida'
-    }
+      other: 'Data non valida',
+    },
   },
   number: {
     label: 'Numero Fattura',
     messages: {
       required: 'Inserisci il numero fattura',
-      tooLong: 'Numero fattura troppo lungo'
-    }
+      tooLong: 'Numero fattura troppo lungo',
+    },
   },
   amount: {
     label: 'Importo',
     messages: {
-      required: 'Inserisci l\'importo totale della fattura',
-      other: 'L\'importo deve essere positivo'
-    }
+      required: "Inserisci l'importo totale della fattura",
+      other: "L'importo deve essere positivo",
+    },
   },
   notes: {
     label: 'Note',
     messages: {
-      tooLong: 'Note troppo lunghe'
-    }
+      tooLong: 'Note troppo lunghe',
+    },
   },
   close: {
     label: 'Chiudi',
-    icon: 'pi pi-times'
+    icon: 'pi pi-times',
   },
   cancel: {
     label: 'Annulla',
-    icon: 'pi pi-times'
+    icon: 'pi pi-times',
   },
   cancelDialog: {
     title: 'Annullare',
@@ -263,11 +268,11 @@ export const INCOMING_INVOICE: {
     acceptLabel: 'Annulla',
     rejectLabel: 'Chiudi',
     toastTitle: 'Annullato',
-    toastMessage: 'Operazione annullata, i dati non sono stati modificati.'
+    toastMessage: 'Operazione annullata, i dati non sono stati modificati.',
   },
   reset: {
     label: 'Ripristina',
-    icon: 'pi pi-undo'
+    icon: 'pi pi-undo',
   },
   resetDialog: {
     title: 'Ripristinare',
@@ -276,11 +281,11 @@ export const INCOMING_INVOICE: {
     acceptLabel: 'Ripristina',
     rejectLabel: 'Chiudi',
     toastTitle: 'Ripristinato',
-    toastMessage: 'I dati sono stati ripristinati correttamente.'
+    toastMessage: 'I dati sono stati ripristinati correttamente.',
   },
   save: {
     label: 'Aggiungi',
-    icon: 'pi pi-plus'
+    icon: 'pi pi-plus',
   },
   saveDialog: {
     title: 'Aggiungere',
@@ -289,11 +294,11 @@ export const INCOMING_INVOICE: {
     acceptLabel: 'Aggiungi',
     rejectLabel: 'Chiudi',
     toastTitle: 'Aggiunto',
-    toastMessage: 'I dati sono stati aggiunti correttamente.'
+    toastMessage: 'I dati sono stati aggiunti correttamente.',
   },
   update: {
     label: 'Aggiorna',
-    icon: 'pi pi-sync'
+    icon: 'pi pi-sync',
   },
   updateDialog: {
     title: 'Aggiornare',
@@ -302,11 +307,11 @@ export const INCOMING_INVOICE: {
     acceptLabel: 'Aggiorna',
     rejectLabel: 'Chiudi',
     toastTitle: 'Aggiornato',
-    toastMessage: 'I dati sono stati aggiornati correttamente.'
+    toastMessage: 'I dati sono stati aggiornati correttamente.',
   },
   delete: {
     label: 'Elimina',
-    icon: 'pi pi-trash'
+    icon: 'pi pi-trash',
   },
   deleteDialog: {
     title: 'Eliminare',
@@ -315,8 +320,8 @@ export const INCOMING_INVOICE: {
     acceptLabel: 'Elimina',
     rejectLabel: 'Chiudi',
     toastTitle: 'Eliminato',
-    toastMessage: 'I dati sono stati eliminati correttamente.'
-  }
+    toastMessage: 'I dati sono stati eliminati correttamente.',
+  },
 }
 
 export const SIDEBAR_ITEMS: Menu[] = [
@@ -328,29 +333,29 @@ export const SIDEBAR_ITEMS: Menu[] = [
         icon: 'pi pi-file-plus',
         route: '/incomingInvoice',
       },
-      { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices', disabled: true }
-    ]
+      { label: 'Lista Fatture', icon: 'pi pi-list', route: '/incomingInvoices', disabled: true },
+    ],
   },
   {
     label: 'Usato',
     items: [
       { label: 'Nuova Ricevuta', icon: 'pi pi-plus', route: '/usedReceipt', disabled: true },
-      { label: 'Registro Usato', icon: 'pi pi-list', route: '/usedReceipts', disabled: true }
-    ]
+      { label: 'Registro Usato', icon: 'pi pi-list', route: '/usedReceipts', disabled: true },
+    ],
   },
   {
     label: 'Prodotti',
     items: [
       { label: 'Inserisci Prodotto', icon: 'pi pi-plus', route: '/product', disabled: true },
       { label: 'Ricerca Prodotto', icon: 'pi pi-search', route: '/product/search', disabled: true },
-      { label: 'Inventario', icon: 'pi pi-table', route: '/products', disabled: true }
-    ]
+      { label: 'Inventario', icon: 'pi pi-table', route: '/products', disabled: true },
+    ],
   },
   {
     label: 'Prima Nota',
     items: [
       { label: 'Inserisci Record', icon: 'pi pi-plus', route: '/ledgerEntry' },
-      { label: 'Brogliaccio', icon: 'pi pi-table', route: '/ledger' }
-    ]
-  }
+      { label: 'Brogliaccio', icon: 'pi pi-table', route: '/ledger' },
+    ],
+  },
 ]

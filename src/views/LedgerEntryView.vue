@@ -1,28 +1,36 @@
 <template>
-  <LedgerEntryForm :editable :id :backable @submit="onSubmit" @close="onClose" @edit="onEdit" @delete="onDelete">
+  <LedgerEntryForm
+    :editable
+    :id
+    :backable
+    @submit="onSubmit"
+    @close="onClose"
+    @edit="onEdit"
+    @delete="onDelete"
+  >
   </LedgerEntryForm>
 </template>
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import LedgerEntryForm from '@/components/form/LedgerEntryForm.vue'
+import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
 import router from '@/router'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 const route = useRoute()
 
 const id = Number(route.params.id)
 
 const editable = computed({
-  get: () => route.query.editable === "true",
+  get: () => route.query.editable === 'true',
   set: (val: boolean) => {
     router.replace({
       query: {
         ...route.query,
-        editable: String(val)
-      }
+        editable: String(val),
+      },
     })
-  }
+  },
 })
 
 const backable = computed(() => route.query.from !== 'add' || editable.value)
@@ -43,6 +51,4 @@ const onEdit = () => {
 const onDelete = () => {
   router.back()
 }
-
-
 </script>

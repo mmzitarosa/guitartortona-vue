@@ -1,38 +1,41 @@
 <template>
   <InputField :inputId :label :invalid :error="validation?.message">
+    <InputText v-if="readonly" :value="value" :id="inputId" readonly fluid class="p-filled" />
 
-    <InputText v-if="readonly" :value="value"
-               :id="inputId"
-               readonly fluid
-               class="p-filled" />
-
-    <Select v-else :modelValue="model"
-            @update:modelValue="onSelect"
-            :inputId :editable :loading :invalid
-            :options="tmpModel ? [ ...options, tmpModel].sort((a, b) => a.name.localeCompare(b.name)) : options"
-            :optionLabel="optionLabel as string" showClear
-            class="p-inputwrapper-filled" fluid/>
-
+    <Select
+      v-else
+      :modelValue="model"
+      @update:modelValue="onSelect"
+      :inputId
+      :editable
+      :loading
+      :invalid
+      :options="
+        tmpModel ? [...options, tmpModel].sort((a, b) => a.name.localeCompare(b.name)) : options
+      "
+      :optionLabel="optionLabel as string"
+      showClear
+      class="p-inputwrapper-filled"
+      fluid
+    />
   </InputField>
-
 </template>
 
-<script setup lang="ts" generic="T extends Record<string,any>">
-
+<script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, type Ref, watch } from 'vue'
 import { InputText, Select } from 'primevue'
-import InputField from '@/components/layouts/InputField.vue'
+import InputField from '@/components/layout/InputField.vue'
 
 interface ComboBoxProps<T extends Record<string, any>> {
-  inputId: string;
-  label: string,
-  editable?: boolean;
-  readonly?: boolean;
-  options: T[];
-  optionId: keyof T;
-  optionLabel: keyof T;
-  loading?: boolean;
-  validation?: { message?: string, valid: boolean };
+  inputId: string
+  label: string
+  editable?: boolean
+  readonly?: boolean
+  options: T[]
+  optionId: keyof T
+  optionLabel: keyof T
+  loading?: boolean
+  validation?: { message?: string; valid: boolean }
 }
 
 const props = defineProps<ComboBoxProps<T>>()
@@ -49,8 +52,7 @@ const value = computed(() => {
 
 watch(model, (value: T | undefined) => {
   // Quando cambia il value, resetto il modello temporaneo (mi evito eventuali duplicati)
-  if (tmpModel.value && value && value[props.optionId])
-    tmpModel.value = undefined
+  if (tmpModel.value && value && value[props.optionId]) tmpModel.value = undefined
 })
 
 // Funzione che gestisce la selezione / scrittura
@@ -73,7 +75,9 @@ function onSelect(v: T | string | undefined) {
     }
   } else if (v) {
     // Input da selezione, controllo se l'item selezionato è in lista
-    tmpModel.value = props.options.some((t: T) => t[props.optionId] === v[props.optionId]) ? undefined : v
+    tmpModel.value = props.options.some((t: T) => t[props.optionId] === v[props.optionId])
+      ? undefined
+      : v
     model.value = v
   } else {
     tmpModel.value = undefined
@@ -82,6 +86,7 @@ function onSelect(v: T | string | undefined) {
 }
 
 //TODO qui si può pulire
-const invalid = computed(() => !props.readonly && props.validation ? !props.validation.valid : false)
-
+const invalid = computed(() =>
+  !props.readonly && props.validation ? !props.validation.valid : false,
+)
 </script>

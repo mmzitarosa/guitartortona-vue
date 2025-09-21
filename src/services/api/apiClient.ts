@@ -3,26 +3,28 @@ import { API_CONFIG } from '@/config/api.ts'
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.baseURL + '/api/v1',
-  timeout: API_CONFIG.timeout,
+  timeout: API_CONFIG.timeout
 })
 
 // Interceptor per aggiungere token di autenticazione
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem('authToken')
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return config;
-});
+  return config
+})
 
 // Interceptor per gestione errori
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
-    // Qui puoi gestire redirect a login o notifiche globali
-    return Promise.reject(error);
-  }
-);
+    // Log error for debugging
+    console.error('API Error:', error.response?.data || error.message)
 
-export default apiClient;
+    // Re-throw the error to be handled by the calling code
+    return Promise.reject(error)
+  }
+)
+
+export default apiClient

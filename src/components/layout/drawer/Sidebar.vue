@@ -4,7 +4,7 @@
     <div class="pb-4 px-2 flex w-full justify-center border-b border-primary-600">
       <GuitarLogo
         class="w-48 h-auto object-contain fill-white cursor-pointer"
-        @click="router.push({name:'home'})"
+        @click="router.push({ name: 'home' })"
       />
     </div>
   </div>
@@ -25,7 +25,7 @@
     <div class="pt-2 flex w-full border-t border-primary-600">
       <div class="flex w-full items-center gap-1 text-sm">
         <!-- TODO: Link alle impostazioni -->
-        <Button icon="pi pi-cog" rounded @click="router.push({name:'settings'})" disabled/>
+        <Button icon="pi pi-cog" rounded @click="router.push({ name: 'settings' })" disabled />
         <!-- TODO: Impostare nome utente autenticato-->
         <p>{{ LAYOUT.SIDEBAR_USER_PREFIX }}<strong class="text-white">****</strong></p>
       </div>

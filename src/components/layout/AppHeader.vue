@@ -9,8 +9,8 @@
     <div class="flex-1">
       <div class="max-w-96 mx-auto">
         <InputGroup>
-          <InputText :placeholder="LAYOUT.HEADER_SEARCH_LABEL" disabled/>
-          <Button icon="pi pi-search" disabled/>
+          <InputText :placeholder="LAYOUT.HEADER_SEARCH_LABEL" disabled />
+          <Button icon="pi pi-search" disabled />
         </InputGroup>
       </div>
     </div>
