@@ -10,38 +10,6 @@ export interface ResolverResult {
 }
 
 /**
- * UI Constants types
- */
-export interface CardConst {
-  title?: string
-  subtitle?: string
-}
-
-export interface FieldConst {
-  label: string
-  messages: {
-    required?: string
-    tooLong?: string
-    other?: string
-  }
-}
-
-export interface ButtonConst {
-  label?: string
-  icon: string
-}
-
-export interface DialogConst {
-  title: string
-  message: string
-  icon: string
-  acceptLabel: string
-  rejectLabel: string
-  toastTitle?: string
-  toastMessage?: string
-}
-
-/**
  * Form field mapping types
  */
 export interface FieldMapping<T> {

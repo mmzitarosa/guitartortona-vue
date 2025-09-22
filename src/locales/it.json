@@ -1,27 +1,181 @@
 {
-  "form": {
-    "dialog": {
-      "save": {
-        "header": "Aggiungere",
-        "message": "Confermando i dati verranno aggiunti.",
-        "acceptLabel":"Aggiungi",
-        "toastSummary" : "Aggiunto",
-        "toastDetail": "I dati sono stati aggiunti correttamente."
-      },
-      "update": {
-        "header": "Aggiornare",
-        "message": "Confermando i dati verranno aggiornati.",
-        "acceptLabel":"Aggiorna",
-        "toastSummary" : "Aggiornato",
-        "toastDetail": "I dati sono stati aggiornati correttamente."
-      },
-      "reset": {
-        "header": "Ripristinare",
-        "message": "Confermando i dati verranno ripristinati.",
-        "acceptLabel":"Ripristina",
-        "toastSummary" : "Ripristinato",
-        "toastDetail": "I dati sono stati ripristinati correttamente."
-      }
+  "common": {
+    "labels": {
+      "date": "Data",
+      "amount": "Importo",
+      "notes": "Note",
+      "supplier": "Fornitore",
+      "description": "Descrizione",
+      "reason": "Causale",
+      "bank": "Banca",
+      "invoiceNumber": "Numero Fattura",
+      "invoiceDate": "Data Fattura",
+      "receiptNumber": "Ultime 3 Cifre a/b",
+      "paymentType": "Saldo / Acconto",
+      "paymentMethod": "Cassa / Banca",
+      "movementType": "Entrata / Uscita"
+    },
+    "messages": {
+      "dateRequired": "Seleziona una data",
+      "dateInvalid": "Data non valida",
+      "amountRequired": "Inserisci l'importo",
+      "amountInvalid": "L'importo deve essere positivo",
+      "supplierRequired": "Seleziona o aggiungi un fornitore",
+      "supplierTooLong": "Nome del fornitore troppo lungo",
+      "descriptionRequired": "Inserisci la descrizione",
+      "descriptionTooLong": "Descrizione troppo lunga",
+      "reasonTooLong": "Causale troppo lunga",
+      "bankRequired": "Seleziona la banca",
+      "receiptNumberTooLong": "Valore troppo lungo",
+      "notesTooLong": "Note troppo lunghe",
+      "invoiceNumberRequired": "Inserisci il numero fattura",
+      "invoiceNumberTooLong": "Numero fattura troppo lungo",
+      "amountTotalRequired": "Inserisci l'importo totale della fattura"
+    },
+    "placeholders": {
+      "dateFormat": "gg/mm/aaaa"
+    }
+  },
+  "buttons": {
+    "close": {
+      "label": "Chiudi",
+      "icon": "pi pi-times"
+    },
+    "cancel": {
+      "label": "Annulla",
+      "icon": "pi pi-times"
+    },
+    "reset": {
+      "label": "Ripristina",
+      "icon": "pi pi-undo"
+    },
+    "save": {
+      "label": "Aggiungi",
+      "icon": "pi pi-plus"
+    },
+    "update": {
+      "label": "Aggiorna",
+      "icon": "pi pi-sync"
+    },
+    "delete": {
+      "label": "Elimina",
+      "icon": "pi pi-trash"
+    },
+    "search": {
+      "label": "Cerca",
+      "icon": "pi pi-search"
+    },
+    "print": {
+      "label": "Stampa",
+      "icon": "pi pi-print"
+    }
+  },
+  "dialogs": {
+    "cancel": {
+      "title": "Annullare",
+      "message": "Confermando i dati verranno ripristinati.",
+      "icon": "pi pi-exclamation-triangle",
+      "acceptLabel": "Annulla",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Annullato",
+      "toastMessage": "Operazione annullata, i dati non sono stati modificati."
+    },
+    "reset": {
+      "title": "Ripristinare",
+      "message": "Confermando i dati verranno ripristinati.",
+      "icon": "pi pi-exclamation-circle",
+      "acceptLabel": "Ripristina",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Ripristinato",
+      "toastMessage": "I dati sono stati ripristinati correttamente."
+    },
+    "save": {
+      "title": "Aggiungere",
+      "message": "Confermando i dati verranno aggiunti.",
+      "icon": "pi pi-info-circle",
+      "acceptLabel": "Aggiungi",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Aggiunto",
+      "toastMessage": "I dati sono stati aggiunti correttamente."
+    },
+    "update": {
+      "title": "Aggiornare",
+      "message": "Confermando i dati verranno aggiornati.",
+      "icon": "pi pi-info-circle",
+      "acceptLabel": "Aggiorna",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Aggiornato",
+      "toastMessage": "I dati sono stati aggiornati correttamente."
+    },
+    "delete": {
+      "title": "Eliminare",
+      "message": "Confermando i dati verranno eliminati.",
+      "icon": "pi pi-times-circle",
+      "acceptLabel": "Elimina",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Eliminato",
+      "toastMessage": "I dati sono stati eliminati correttamente."
+    },
+    "close": {
+      "title": "Chiudere",
+      "message": "Confermando la finestra verrà chiusa.",
+      "acceptLabel": "Chiudi",
+      "rejectLabel": "Annulla",
+      "toastTitle": "Chiuso",
+      "toastMessage": "La finestra è stata chiusa."
+    }
+  },
+  "cards": {
+    "newRecord": {
+      "title": "Nuovo Record",
+      "subtitle": "Dati Record"
+    },
+    "newInvoice": {
+      "title": "Nuova Fattura",
+      "subtitle": "Dati Fattura"
+    }
+  },
+  "filters": {
+    "fromDate": {
+      "label": "Filtra da"
+    },
+    "toDate": {
+      "label": "Filtra a"
+    }
+  },
+  "layout": {
+    "header": {
+      "searchLabel": "Cerca..."
+    },
+    "sidebar": {
+      "userPrefix": "Utente: "
+    }
+  },
+  "navigation": {
+    "titles": {
+      "home": "Home",
+      "addInvoice": "Aggiungi Fattura",
+      "invoiceDetail": "Dettaglio Fattura",
+      "addRecord": "Aggiungi Record",
+      "recordDetail": "Dettaglio Record",
+      "ledger": "Brogliaccio"
+    },
+    "sections": {
+      "incomingInvoices": "Fatture in Entrata",
+      "used": "Usato",
+      "products": "Prodotti",
+      "ledger": "Prima Nota"
+    },
+    "items": {
+      "insertInvoice": "Inserisci Fattura",
+      "invoiceList": "Lista Fatture",
+      "newReceipt": "Nuova Ricevuta",
+      "usedRegister": "Registro Usato",
+      "insertProduct": "Inserisci Prodotto",
+      "searchProduct": "Ricerca Prodotto",
+      "inventory": "Inventario",
+      "insertRecord": "Inserisci Record",
+      "ledger": "Brogliaccio"
     }
   }
 }

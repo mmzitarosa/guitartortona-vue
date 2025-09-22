@@ -1,7 +1,7 @@
 <template>
   <!-- Sidebar Desktop -->
   <aside class="w-58 bg-primary text-white hidden lg:flex flex-col">
-    <Sidebar :items="items"></Sidebar>
+    <Sidebar :items="sidebarItems"></Sidebar>
   </aside>
 
   <!-- TODO: Qui si potrebbe usare il Drawer -->
@@ -12,18 +12,19 @@
     v-if="model"
     @click="closeMenu"
   >
-    <Sidebar :items="items"></Sidebar>
+    <Sidebar :items="sidebarItems"></Sidebar>
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { useTemplateRef } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { SIDEBAR_ITEMS } from '@/utils/constants'
+import { useSidebarItems } from '@/utils/i18nConstants'
 import Sidebar from '@/components/layout/drawer/Sidebar.vue'
 
 const model = defineModel<boolean>()
 const target = useTemplateRef<HTMLElement>('target')
+const sidebarItems = useSidebarItems()
 
 // Per chiudere la Sidebar Mobile al click di fuori
 onClickOutside(target, () => closeMenu())
@@ -31,6 +32,4 @@ onClickOutside(target, () => closeMenu())
 const closeMenu = (): void => {
   model.value = false
 }
-
-const items = ref(SIDEBAR_ITEMS)
 </script>

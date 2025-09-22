@@ -23,11 +23,13 @@
   <!-- Footer Sidebar -->
   <div class="pb-2 px-2">
     <div class="pt-2 flex w-full border-t border-primary-600">
-      <div class="flex w-full items-center gap-1 text-sm">
-        <!-- TODO: Link alle impostazioni -->
-        <Button icon="pi pi-cog" rounded @click="router.push({ name: 'settings' })" disabled />
-        <!-- TODO: Impostare nome utente autenticato-->
-        <p>{{ LAYOUT.SIDEBAR_USER_PREFIX }}<strong class="text-white">****</strong></p>
+      <div class="flex w-full items-center justify-between text-sm">
+        <div class="flex items-center gap-1">
+          <!-- TODO: Link alle impostazioni -->
+          <Button icon="pi pi-cog" rounded @click="router.push({ name: 'settings' })" disabled />
+          <!-- TODO: Impostare nome utente autenticato-->
+          <p>{{ layoutConstants.userPrefix }}<strong class="text-white">****</strong></p>
+        </div>
       </div>
     </div>
   </div>
@@ -38,8 +40,10 @@ import type { Menu } from '@/types/menu'
 import GuitarLogo from '@/components/GuitarLogo.vue'
 import { Button } from 'primevue'
 import router from '@/router'
-import { LAYOUT } from '@/utils/constants'
+import { useLayoutConstants } from '@/utils/i18nConstants'
 import SidebarMenu from './SidebarMenu.vue'
+
+const layoutConstants = useLayoutConstants()
 
 defineProps<{ items: Menu[] }>()
 </script>

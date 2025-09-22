@@ -1,5 +1,5 @@
 <template>
-  <Card class="gap-1">
+  <Card>
     <template #title>{{ constants.card.title }}</template>
     <template #subtitle>{{ constants.card.subtitle }}</template>
     <template #content>
@@ -128,7 +128,7 @@
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
             v-else-if="newItem"
-            type="submit"
+            type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
             @click="onFormSubmit"
@@ -171,11 +171,11 @@ import InputDateField from '@/components/layout/InputDateField.vue'
 import InputAmountField from '@/components/layout/InputAmountField.vue'
 import TextAreaField from '@/components/layout/TextAreaField.vue'
 import InputTextField from '@/components/layout/InputTextField.vue'
-import { INCOMING_INVOICE } from '@/utils/constants.ts'
+import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
-const constants = INCOMING_INVOICE
+const constants = useIncomingInvoiceConstants()
 
 interface IncomingInvoiceFormProps extends FormOptions {
   backable?: boolean
@@ -209,45 +209,46 @@ const {
   fieldMappings: [
     {
       key: 'supplier',
-      label: 'Fornitore',
+      label: constants.supplier.label,
       getter: (supplier: Supplier | undefined) => supplier?.id,
       labeler: (supplier: Supplier | undefined) => supplier?.name,
       validator: (supplier: Supplier | undefined) => {
-        if (!supplier) return { message: 'Required' }
-        else if (supplier.name && supplier.name.length > 150) return { message: 'TooLong' }
+        if (!supplier) return { message: constants.supplier.messages.required }
+        else if (supplier.name && supplier.name.length > 150)
+          return { message: constants.supplier.messages.tooLong }
       },
     },
     {
       key: 'date',
-      label: 'Data',
+      label: constants.date.label,
       validator: (date: string | undefined) => {
-        if (!date) return { message: 'Required' }
-        else if (!validateDate(date)) return { message: 'Invalid' }
+        if (!date) return { message: constants.date.messages.required }
+        else if (!validateDate(date)) return { message: constants.date.messages.invalid }
       },
     },
     {
       key: 'number',
-      label: 'Numero',
+      label: constants.number.label,
       validator: (number: string | undefined) => {
-        if (!number) return { message: 'Required' }
-        else if (number.length > 50) return { message: 'TooLong' }
+        if (!number) return { message: constants.number.messages.required }
+        else if (number.length > 50) return { message: constants.number.messages.tooLong }
       },
     },
     {
       key: 'amount',
-      label: 'Importo',
+      label: constants.amount.label,
       labeler: (amount: number | undefined) =>
         amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }),
       validator: (amount: number | undefined) => {
-        if (!amount) return { message: 'Required' }
-        else if (amount < 0) return { message: 'Invalid' }
+        if (!amount) return { message: constants.amount.messages.required }
+        else if (amount < 0) return { message: constants.amount.messages.invalid }
       },
     },
-    { key: 'notes', label: 'Note' },
+    { key: 'notes', label: constants.notes.label },
   ],
 })
 
-const { readonly, editable, newItem, existingItem } = useFormState(props)
+const { readonly, newItem, existingItem } = useFormState(props)
 
 onMounted(async () => {
   formLoading.value = true

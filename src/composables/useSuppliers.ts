@@ -1,4 +1,4 @@
-import { type Ref, ref } from 'vue'
+import { ref } from 'vue'
 import type { Supplier } from '@/types/supplier.ts'
 import { getSuppliers } from '@/services/api/supplierService.ts'
 
@@ -11,11 +11,11 @@ export const useSuppliers = () => {
     if (!current) return
 
     // Controllo per evitare l'aggiunta di duplicati
-    const exists = suppliers.value.some(supplier => supplier.id === current.id);
+    const exists = suppliers.value.some((supplier) => supplier.id === current.id)
     if (exists) return // Se esiste già, ritorno
 
     // Aggiungo il nuovo supplier alla lista
-    suppliers.value.push(current);
+    suppliers.value.push(current)
   }
 
   const loadSuppliers = async () => {

@@ -12,9 +12,9 @@
         <div class="flex flex-col gap-2" >
           <div v-for="change in changes" :key="change.field">
           <span>{{ change.field }}:</span>
-          <span class="ml-1" v-if="change.oldValue">{{ change.oldValue }}</span>
+          <span class="text-primary-700 ml-1" v-if="change.oldValue">{{ change.oldValue }}</span>
           <span class="ml-1" v-if="change.oldValue">-></span>
-          <span :class="'text-primary-500'" class="ml-1">{{ change.newValue }}</span>
+          <span class="text-primary-500 ml-1">{{ change.newValue }}</span>
           </div>
         </div>
       </div>

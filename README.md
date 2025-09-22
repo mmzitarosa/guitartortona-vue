@@ -34,6 +34,7 @@ src/
 │   └── ui/             # UI components
 ├── composables/        # Vue composables
 ├── config/             # Configuration files
+├── docs/               # Documentation
 ├── locales/            # i18n translations
 ├── router/             # Vue Router configuration
 ├── services/           # API services
@@ -99,6 +100,25 @@ VITE_APP_VERSION=1.0.0
 VITE_DEV_TOOLS=true
 ```
 
+## 🌍 Internationalization
+
+The application supports multiple languages:
+
+- **Italian (IT)** - Default language
+- **English (EN)** - Secondary language
+
+### Using i18n in components
+
+```vue
+<script setup lang="ts">
+import { useLedgerConstants } from '@/utils/i18nConstants'
+
+const constants = useLedgerConstants()
+</script>
+```
+
+See `src/docs/i18n-usage.md` for detailed documentation.
+
 ## 📝 Code Style
 
 This project follows Vue.js and TypeScript best practices:
@@ -109,6 +129,7 @@ This project follows Vue.js and TypeScript best practices:
 - **Prettier** for code formatting
 - **Multi-word component names** for Vue components
 - **Consistent file naming** (kebab-case for components, camelCase for utilities)
+- **i18n composables** for internationalized constants
 
 ## 🤝 Contributing
 

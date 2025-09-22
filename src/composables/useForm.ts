@@ -2,11 +2,13 @@ import { computed, type ComputedRef, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { type ConfirmDialogParams, useConfirmDialog } from '@/composables/useConfirmDialog.ts'
 import type { FormOptions } from '@/types/form'
+import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   const { getById, create, update, remove, fieldMappings } = options
 
   const confirmDialog = useConfirmDialog()
+  const constants = useConfirmDialogConstants()
   const { t } = useI18n()
 
   const item: Ref<T> = ref({}) as Ref<T>
@@ -96,13 +98,13 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Preparo il dialog di update (se esiste id) o insert (nuovo item)
       const params: ConfirmDialogParams<T> = existingItem.value
         ? {
-            header: t('form.dialog.update.header'),
-            message: t('form.dialog.update.message'),
+            header: constants.updateDialog.title,
+            message: constants.updateDialog.message,
             group: 'differences', // Così mostra le diff rispetto al precedente
             icon: 'pi pi-info-circle',
-            acceptLabel: t('form.dialog.update.acceptLabel'),
-            toastSummary: t('form.dialog.update.toastSummary'),
-            toastDetail: t('form.dialog.update.toastDetail'),
+            acceptLabel: constants.updateDialog.acceptLabel,
+            toastSummary: constants.updateDialog.toastTitle,
+            toastDetail: constants.updateDialog.toastMessage,
             accept: async () => {
               // Chiamo servizio di update
               const result = await update(<number>item.value.id, item.value)
@@ -115,13 +117,13 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
             },
           }
         : {
-            header: t('form.dialog.save.header'),
-            message: t('form.dialog.save.message'),
+            header: constants.saveDialog.title,
+            message: constants.saveDialog.message,
             group: 'differences', // Così mostra le diff rispetto al precedente
             icon: 'pi pi-info-circle',
-            acceptLabel: t('form.dialog.save.acceptLabel'),
-            toastSummary: t('form.dialog.save.toastSummary'),
-            toastDetail: t('form.dialog.save.toastDetail'),
+            acceptLabel: constants.saveDialog.acceptLabel,
+            toastSummary: constants.saveDialog.toastTitle,
+            toastDetail: constants.saveDialog.toastMessage,
             accept: async () => {
               // Chiamo servizio di insert
               const result = await create(item.value)
@@ -146,12 +148,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Attivo il loading --> uno unico loading per tutto
       loading.value = true
       const params: ConfirmDialogParams<void> = {
-        header: t('form.dialog.reset.header'),
-        message: t('form.dialog.reset.message'),
+        header: constants.resetDialog.title,
+        message: constants.resetDialog.message,
         icon: 'pi pi-exclamation-circle',
-        acceptLabel: t('form.dialog.reset.acceptLabel'),
-        toastSummary: t('form.dialog.reset.toastSummary'),
-        toastDetail: t('form.dialog.reset.toastDetail'),
+        acceptLabel: constants.resetDialog.acceptLabel,
+        toastSummary: constants.resetDialog.toastTitle,
+        toastDetail: constants.resetDialog.toastMessage,
         accept: async () => {
           item.value = { ...original.value }
           validate.value = false
@@ -170,12 +172,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Attivo il loading --> uno unico loading per tutto
       loading.value = true
       const params: ConfirmDialogParams<void> = {
-        header: t('form.dialog.close.header'),
-        message: t('form.dialog.close.message'),
+        header: constants.cancelDialog.title,
+        message: constants.cancelDialog.message,
         icon: 'pi pi-exclamation-circle',
-        acceptLabel: t('form.dialog.close.acceptLabel'),
-        toastSummary: t('form.dialog.close.toastSummary'),
-        toastDetail: t('form.dialog.close.toastDetail'),
+        acceptLabel: constants.cancelDialog.acceptLabel,
+        toastSummary: constants.cancelDialog.toastTitle,
+        toastDetail: constants.cancelDialog.toastMessage,
         accept: async () => {
           item.value = { ...original.value }
           validate.value = false
@@ -195,12 +197,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Attivo il loading --> uno unico loading per tutto
       loading.value = true
       const params: ConfirmDialogParams<void> = {
-        header: t('form.dialog.delete.header'),
-        message: t('form.dialog.delete.message'),
+        header: constants.deleteDialog.title,
+        message: constants.deleteDialog.message,
         icon: 'pi pi-exclamation-circle',
-        acceptLabel: t('form.dialog.delete.acceptLabel'),
-        toastSummary: t('form.dialog.delete.toastSummary'),
-        toastDetail: t('form.dialog.delete.toastDetail'),
+        acceptLabel: constants.deleteDialog.acceptLabel,
+        toastSummary: constants.deleteDialog.toastTitle,
+        toastDetail: constants.deleteDialog.toastMessage,
         accept: async () => {
           await options.remove!(item.value.id as number)
           item.value = { ...original.value }

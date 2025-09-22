@@ -3,7 +3,7 @@
     <Textarea
       v-model="model"
       :id="inputId"
-      rows="2"
+      :rows="rows ?? 2"
       auto-resize
       :readonly
       :invalid
@@ -23,6 +23,7 @@ interface TextAreaFieldProps {
   label: string
   readonly?: boolean
   validation?: { message?: string; valid: boolean }
+  rows?: number
 }
 
 const props = defineProps<TextAreaFieldProps>()

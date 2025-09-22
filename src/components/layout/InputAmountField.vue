@@ -14,6 +14,7 @@
       class="p-inputwrapper-filled"
       fluid
       @input="(event) => (model = event.value as number | undefined)"
+      @update:modelValue="(val) => (model = val === null ? undefined : val)"
     />
   </InputField>
 </template>

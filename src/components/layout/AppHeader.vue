@@ -9,7 +9,7 @@
     <div class="flex-1">
       <div class="max-w-96 mx-auto">
         <InputGroup>
-          <InputText :placeholder="LAYOUT.HEADER_SEARCH_LABEL" disabled />
+          <InputText :placeholder="layoutConstants.search" disabled />
           <Button icon="pi pi-search" disabled />
         </InputGroup>
       </div>
@@ -18,10 +18,11 @@
 </template>
 
 <script setup lang="ts">
-import { LAYOUT } from '@/utils/constants'
+import { useLayoutConstants } from '@/utils/i18nConstants'
 import { Button, InputGroup, InputText } from 'primevue'
 
 const model = defineModel<boolean>()
+const layoutConstants = useLayoutConstants()
 
 const openMenu = (): void => {
   model.value = true

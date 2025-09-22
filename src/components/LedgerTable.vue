@@ -1,48 +1,58 @@
 <template>
   <Card>
     <template #content>
-      <Form @submit="onFormSubmit" :validate-on-value-update="true" :resolver>
-        <div class="flex gap-4 pb-4 justify-end">
-          <FormField v-slot="$field" name="fromDate">
-            <FloatLabel variant="on">
-              <InputMask id="fromDate" v-model="fromDate" mask="99/99/9999" class="p-filled"
-                         placeholder="gg/mm/aaaa" :autoClear="false" />
+      <!-- Filtro per data-->
+      <div class="flex gap-4 pb-4 justify-end">
+        <!-- Da data -->
+        <!-- TODO validation -->
+        <InputDateField v-model="fromDate" inputId="fromDate" :label="constants.fromDate.label" />
 
-              <label for="fromDate">{{ constants.fromDate.label }}</label>
-            </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                $field.error?.message
-              }}
-            </Message>
-          </FormField>
-          <FormField v-slot="$field" name="toDate">
-            <FloatLabel variant="on">
-              <InputMask id="toDate" v-model="toDate" mask="99/99/9999" class="p-filled"
-                         placeholder="gg/mm/aaaa" :autoClear="false" />
+        <!-- A data -->
+        <!-- TODO validation -->
+        <InputDateField v-model="toDate" inputId="toDate" :label="constants.toDate.label" />
 
-              <label for="toDate">{{ constants.toDate.label }}</label>
-            </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{
-                $field.error?.message
-              }}
-            </Message>
-          </FormField>
-          <div> <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
-            <Button v-if="hasDateFilter" type="button" :icon="constants.print.icon" severity="secondary"
-                    @click="printTable" class="mr-2" />
-            <Button v-if="hasDateFilter" type="button" :icon="constants.reset.icon" severity="secondary"
-                    @click="resetForm" class="mr-2" />
-            <Button type="submit" :icon="constants.search.icon" />
-          </div>
+        <div>
+          <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
+          <Button
+            v-if="hasDateFilter"
+            type="button"
+            :icon="constants.print.icon"
+            severity="secondary"
+            @click="printTable"
+            class="mr-2"
+          />
+          <Button
+            v-if="hasDateFilter"
+            type="button"
+            :icon="constants.reset.icon"
+            severity="secondary"
+            @click="resetForm"
+            class="mr-2"
+          />
+          <Button type="button" :icon="constants.search.icon" @click="onFormSubmit" />
         </div>
-      </Form>
+      </div>
 
       <!-- TODO Da telefono fa un po' cagare -->
-      <DataTable v-model:selection="selectedLedgerEntry" :value="ledger" paginator @page="onPage"
-                 :rows="filter.size" :first="filter.first" :totalRecords lazy
-                 tableStyle="min-width: 50rem" stripedRows
-                 scrollable scroll-height="flex" selectionMode="single" dataKey="id"
-                 @rowSelect="onRowSelect" :loading rowHover>
+      <DataTable
+        v-model:selection="selectedLedgerEntry"
+        :value="ledger"
+        paginator
+        @page="onPage"
+        :rows="filter.size"
+        :first="filter.first"
+        :totalRecords
+        lazy
+        tableStyle="min-width: 50rem"
+        stripedRows
+        scrollable
+        scroll-height="flex"
+        selectionMode="single"
+        dataKey="id"
+        @rowSelect="onRowSelect"
+        :loading
+        rowHover
+      >
         <Column field="date" header="Data"></Column>
         <Column field="invoiceNumber" header="NumeroF"></Column>
         <Column field="invoiceDate" header="DataF"></Column>
@@ -51,71 +61,59 @@
         <Column field="bank.name" header="Banca"></Column>
         <Column header="S/A" bodyStyle="text-align:center">
           <template #body="slotProps">
-            {{ slotProps.data.paymentType ? paymentTypesMap[slotProps.data.paymentType].char : undefined
+            {{
+              slotProps.data.paymentType
+                ? paymentTypesMap[slotProps.data.paymentType].char
+                : undefined
             }}
           </template>
         </Column>
         <Column field="receiptNumber" header="Ultime3" bodyStyle="text-align:center"></Column>
         <Column header="Importo" bodyStyle="text-align:right">
-          <template #body="{ data}">
-            <p v-if="data.amount && data.movementType"
-               :class="movementTypesMap[data.movementType].style">
-              {{ movementTypesMap[data.movementType].char + data.amount.toLocaleString('it-IT', {
-              style: 'currency',
-              currency: 'EUR'
-            }) }}
+          <template #body="{ data }">
+            <p
+              v-if="data.amount && data.movementType"
+              :class="movementTypesMap[data.movementType].style"
+            >
+              {{
+                movementTypesMap[data.movementType].char +
+                data.amount.toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'EUR',
+                })
+              }}
             </p>
           </template>
         </Column>
         <Column class="pl-0!">
-          <template #body=" {data}">
+          <template #body="{ data }">
             <i v-if="data.paymentMethod" :class="paymentMethodsMap[data.paymentMethod].icon"></i>
           </template>
         </Column>
       </DataTable>
     </template>
   </Card>
-
 </template>
 
 <script setup lang="ts">
-
-import {
-  Button,
-  Card,
-  Column,
-  DataTable,
-  type DataTablePageEvent,
-  FloatLabel,
-  InputMask,
-  Message
-} from 'primevue'
+import { Button, Card, Column, DataTable, type DataTablePageEvent } from 'primevue'
 import { computed, onMounted, type Ref, ref, watch } from 'vue'
 import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
 import { useLedgerTable } from '@/composables/useLedgerTable.ts'
-import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { print } from '@/services/api/ledgerService.ts'
-import { ledgerTableFilterResolver } from '@/utils/resolver.ts'
-import { LEDGER_TABLE } from '@/utils/constants.ts'
+import { useLedgerTableConstants } from '@/utils/i18nConstants'
+import InputDateField from '@/components/layout/InputDateField.vue'
 
-const constants = LEDGER_TABLE
+const constants = useLedgerTableConstants()
 
-const {
-  ledger,
-  selectedLedgerEntry,
-  totalRecords,
-  loadLedger,
-  loading
-} = useLedgerTable()
-
-const resolver = ledgerTableFilterResolver
+const { ledger, selectedLedgerEntry, totalRecords, loadLedger, loading } = useLedgerTable()
 
 const props = defineProps<{
   filter: {
-    page: number,
-    size: number,
-    first: number,
-    from?: string,
+    page: number
+    size: number
+    first: number
+    from?: string
     to?: string
   }
 }>()
@@ -131,9 +129,12 @@ onMounted(() => {
 
 // La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
 // sidebar. Mettendo il listener sulle proprietà, è stato rimosso il load dall'onPage e onFormSubmit
-watch(() => props.filter, (value) => {
-  loadLedger(value.from, value.to, value.page, value.size, undefined)
-})
+watch(
+  () => props.filter,
+  (value) => {
+    loadLedger(value.from, value.to, value.page, value.size, undefined)
+  },
+)
 
 const onRowSelect = (): void => {
   emit('rowSelect', selectedLedgerEntry.value?.id)
@@ -147,8 +148,7 @@ const onPage = async (event: DataTablePageEvent) => {
 }
 
 // DateForm
-const onFormSubmit = (event: FormSubmitEvent) => {
-  if (!event.valid) return
+const onFormSubmit = () => {
   const from = fromDate.value?.replace(/\//g, '-')
   const to = toDate.value?.replace(/\//g, '-')
   emit('search', from, to)
@@ -165,7 +165,6 @@ const hasDateFilter = computed(() => {
 })
 
 const printTable = () => {
-  if (hasDateFilter) print(props.filter.from!, props.filter.to!)
+  if (hasDateFilter.value) print(props.filter.from!, props.filter.to!)
 }
-
 </script>

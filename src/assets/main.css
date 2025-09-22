@@ -4,3 +4,25 @@
 .p-floatlabel:has(input.p-filled.p-invalid) label {
   color: #dc2626;
 }
+.p-floatlabel:has(textarea.p-filled.p-invalid) label {
+  color: #dc2626;
+}
+
+.p-selectbutton .p-togglebutton:disabled {
+  opacity: 1;
+  cursor: pointer;
+  background: var(--p-togglebutton-background);
+  border-color: var(--p-togglebutton-border-color);
+  color: var(--p-togglebutton-color);
+}
+
+.p-selectbutton .p-togglebutton-checked:disabled {
+  background: var(--p-togglebutton-checked-background);
+  border-color: var(--p-togglebutton-checked-border-color);
+  color: var(--p-togglebutton-checked-color);
+}
+
+.p-togglebutton:disabled:not(.p-togglebutton-checked):hover {
+  background: var(--p-togglebutton-hover-background);
+  color: var(--p-togglebutton-hover-color);
+}

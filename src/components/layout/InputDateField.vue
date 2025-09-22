@@ -8,7 +8,7 @@
       @update:model-value="updateValue"
       :inputId
       :invalid
-      placeholder="gg/mm/aaaa"
+      :placeholder="constants.dateFormat"
       dateFormat="dd/mm/yy"
       show-icon
       icon-display="input"
@@ -23,6 +23,7 @@ import { computed } from 'vue'
 import { DatePicker, InputText } from 'primevue'
 import InputField from '@/components/layout/InputField.vue'
 import { validateDate } from '@/utils/dateUtils.ts'
+import { useLayoutConstants } from '@/utils/i18nConstants.ts'
 
 interface InputDateFieldProps {
   inputId: string
@@ -34,6 +35,7 @@ interface InputDateFieldProps {
 const props = defineProps<InputDateFieldProps>()
 
 const model = defineModel<string | undefined>()
+const constants = useLayoutConstants()
 
 const date = computed(() => validateDate(model.value))
 
