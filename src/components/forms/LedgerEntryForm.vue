@@ -198,7 +198,7 @@
           />
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-else-if="newItem"
+            v-else-if="!existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -226,7 +226,6 @@ import { useBanks } from '@/composables/useBanks.ts'
 import { onMounted } from 'vue'
 
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import { type FormOptions, useFormState } from '@/composables/useFormState.ts'
 import { useForm } from '@/composables/useForm.ts'
 import {
   type LedgerEntry,
@@ -255,7 +254,9 @@ const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
 const constants = useLedgerEntryConstants()
 
-interface LedgerEntryFormProps extends FormOptions {
+interface LedgerEntryFormProps {
+  id?: string | number | null | undefined
+  editable?: boolean
   backable?: boolean
 }
 
@@ -274,11 +275,14 @@ const {
   pristine,
   loadItem: loadLedgerEntry,
   validation,
+  readonly,
+  existingItem,
   handleSubmit,
   handleReset,
   handleClose,
   handleDelete,
 } = useForm<LedgerEntry>({
+  editable: props.editable,
   getById: getLedgerEntryById,
   create: postLedgerEntry,
   update: putLedgerEntryById,
@@ -387,8 +391,6 @@ const {
     },
   ],
 })
-
-const { readonly, newItem, existingItem } = useFormState(props)
 
 onMounted(async () => {
   formLoading.value = true

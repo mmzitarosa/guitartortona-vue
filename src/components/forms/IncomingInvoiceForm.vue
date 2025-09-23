@@ -127,7 +127,7 @@
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-else-if="newItem"
+            v-else-if="!existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -156,7 +156,6 @@ import { useSuppliers } from '@/composables/useSuppliers.ts'
 import { onMounted } from 'vue'
 import type { Supplier } from '@/types/supplier.ts'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import { type FormOptions, useFormState } from '@/composables/useFormState.ts'
 import { useForm } from '@/composables/useForm.ts'
 import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
 import {
@@ -177,7 +176,9 @@ const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
 const constants = useIncomingInvoiceConstants()
 
-interface IncomingInvoiceFormProps extends FormOptions {
+interface IncomingInvoiceFormProps {
+  id?: string | number | null | undefined
+  editable?: boolean
   backable?: boolean
 }
 
@@ -196,11 +197,14 @@ const {
   pristine,
   loadItem: loadIncomingInvoice,
   validation,
+  readonly,
+  existingItem,
   handleSubmit,
   handleReset,
   handleClose,
   handleDelete,
 } = useForm<IncomingInvoice>({
+  editable: props.editable,
   getById: getIncomingInvoiceById,
   create: postIncomingInvoice,
   update: putIncomingInvoiceById,
@@ -247,8 +251,6 @@ const {
     { key: 'notes', label: constants.notes.label },
   ],
 })
-
-const { readonly, newItem, existingItem } = useFormState(props)
 
 onMounted(async () => {
   formLoading.value = true

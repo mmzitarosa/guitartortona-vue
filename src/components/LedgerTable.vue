@@ -4,12 +4,20 @@
       <!-- Filtro per data-->
       <div class="flex gap-4 pb-4 justify-end">
         <!-- Da data -->
-        <!-- TODO validation -->
-        <InputDateField v-model="fromDate" inputId="fromDate" :label="constants.fromDate.label" />
+        <InputDateField
+          v-model="searchFormItem.fromDate"
+          inputId="fromDate"
+          :label="constants.fromDate.label"
+          :validation="validation.fields.fromDate"
+        />
 
         <!-- A data -->
-        <!-- TODO validation -->
-        <InputDateField v-model="toDate" inputId="toDate" :label="constants.toDate.label" />
+        <InputDateField
+          v-model="searchFormItem.toDate"
+          inputId="toDate"
+          :label="constants.toDate.label"
+          :validation="validation.fields.toDate"
+        />
 
         <div>
           <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
@@ -26,7 +34,7 @@
             type="button"
             :icon="constants.reset.icon"
             severity="secondary"
-            @click="resetForm"
+            @click="onFormReset"
             class="mr-2"
           />
           <Button type="button" :icon="constants.search.icon" @click="onFormSubmit" />
@@ -97,12 +105,15 @@
 
 <script setup lang="ts">
 import { Button, Card, Column, DataTable, type DataTablePageEvent } from 'primevue'
-import { computed, onMounted, type Ref, ref, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
 import { useLedgerTable } from '@/composables/useLedgerTable.ts'
+import { useSearchForm } from '@/composables/useSearchForm.ts'
 import { print } from '@/services/api/ledgerService.ts'
 import { useLedgerTableConstants } from '@/utils/i18nConstants'
 import InputDateField from '@/components/layout/InputDateField.vue'
+import { validateDate } from '@/utils/dateUtils.ts'
+import { type FromDateToDate } from '@/composables/useSearchForm.ts'
 
 const constants = useLedgerTableConstants()
 
@@ -118,13 +129,12 @@ const props = defineProps<{
   }
 }>()
 
-const fromDate: Ref<string | undefined> = ref(props.filter.from)
-const toDate: Ref<string | undefined> = ref(props.filter.to)
 const emit = defineEmits(['search', 'page', 'rowSelect', 'reset'])
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {
-  loadLedger(props.filter.from, props.filter.to, props.filter.page, props.filter.size, undefined)
+  const { from, to, page, size } = props.filter
+  reload(from, to, page, size)
 })
 
 // La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
@@ -132,9 +142,15 @@ onMounted(() => {
 watch(
   () => props.filter,
   (value) => {
-    loadLedger(value.from, value.to, value.page, value.size, undefined)
+    reload(value.from, value.to, value.page, value.size)
   },
 )
+
+const reload = (from?: string, to?: string, page?: number, size?: number) => {
+  searchFormItem.value.fromDate = from?.replace(/-/g, '/')
+  searchFormItem.value.toDate = to?.replace(/-/g, '/')
+  loadLedger(from, to, page, size, undefined)
+}
 
 const onRowSelect = (): void => {
   emit('rowSelect', selectedLedgerEntry.value?.id)
@@ -149,14 +165,13 @@ const onPage = async (event: DataTablePageEvent) => {
 
 // DateForm
 const onFormSubmit = () => {
-  const from = fromDate.value?.replace(/\//g, '-')
-  const to = toDate.value?.replace(/\//g, '-')
-  emit('search', from, to)
+  const result = handleSubmit()
+  if (!result) return
+  emit('search', result.from, result.to)
 }
 
-const resetForm = () => {
-  fromDate.value = undefined
-  toDate.value = undefined
+const onFormReset = () => {
+  handleReset()
   emit('reset')
 }
 
@@ -167,4 +182,41 @@ const hasDateFilter = computed(() => {
 const printTable = () => {
   if (hasDateFilter.value) print(props.filter.from!, props.filter.to!)
 }
+
+const {
+  item: searchFormItem,
+  validation,
+  handleSubmit,
+  handleReset,
+} = useSearchForm<FromDateToDate>({
+  fieldMappings: [
+    {
+      key: 'fromDate',
+      label: constants.fromDate.label,
+      validator: (fromDate: string | undefined) => {
+        if (!fromDate) return { message: constants.fromDate.messages.required }
+        else if (
+          !validateDate(fromDate) ||
+          (searchFormItem.value.toDate && fromDate > searchFormItem.value.toDate)
+        )
+          return { message: constants.fromDate.messages.invalid }
+      },
+    },
+    {
+      key: 'toDate',
+      label: constants.toDate.label,
+      validator: (toDate: string | undefined) => {
+        if (!toDate) return { message: constants.toDate.messages.required }
+        else if (!validateDate(toDate)) return { message: constants.toDate.messages.invalid }
+        else if (searchFormItem.value.fromDate && searchFormItem.value.fromDate > toDate)
+          return { message: constants.toDate.messages.beforeFromDate }
+      },
+    },
+  ],
+  onSubmit: (item: FromDateToDate) => {
+    const from = item.fromDate?.replace(/\//g, '-')
+    const to = item.toDate?.replace(/\//g, '-')
+    return { from, to }
+  },
+})
 </script>

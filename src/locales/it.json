@@ -17,7 +17,12 @@
     },
     "messages": {
       "dateRequired": "Seleziona una data",
+      "dateRequiredFrom": "Seleziona una data di inizio",
+      "dateRequiredTo": "Seleziona una data di fine",
       "dateInvalid": "Data non valida",
+      "dateInvalidFrom": "Data di inizio non valida",
+      "dateInvalidTo": "Data di fine non valida",
+      "dateBeforeFromDate": "La data di fine deve essere successiva alla data di inizio",
       "amountRequired": "Inserisci l'importo",
       "amountInvalid": "L'importo deve essere positivo",
       "supplierRequired": "Seleziona o aggiungi un fornitore",

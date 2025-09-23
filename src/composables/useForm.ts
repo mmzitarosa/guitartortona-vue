@@ -1,22 +1,21 @@
 import { computed, type ComputedRef, ref, type Ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { type ConfirmDialogParams, useConfirmDialog } from '@/composables/useConfirmDialog.ts'
 import type { FormOptions } from '@/types/form'
 import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { getById, create, update, remove, fieldMappings } = options
+  const { getById, create, update, remove, fieldMappings, editable } = options
 
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
-  const { t } = useI18n()
 
   const item: Ref<T> = ref({}) as Ref<T>
   const original: Ref<T> = ref({}) as Ref<T>
   const loading = ref(false)
   const validate = ref(false)
 
-  const newItem = computed(() => !item.value.id)
+  const readonly = computed(() => !editable)
+
   const existingItem = computed(() => !!item.value.id)
 
   const loadItem = async (id: number) => {
@@ -191,8 +190,6 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   }
 
   const handleDelete = () => {
-    //TODO Capire perché questo primo controllo non è sufficiente
-    if (item.value.id === undefined || options.remove === undefined) return
     try {
       // Attivo il loading --> uno unico loading per tutto
       loading.value = true
@@ -204,7 +201,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         toastSummary: constants.deleteDialog.toastTitle,
         toastDetail: constants.deleteDialog.toastMessage,
         accept: async () => {
-          await options.remove!(item.value.id as number)
+          await remove(item.value.id as number)
           item.value = { ...original.value }
           validate.value = false
         },
@@ -223,6 +220,8 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     dirty,
     pristine,
     loadItem,
+    readonly,
+    existingItem,
     validation,
     handleSubmit,
     handleReset,

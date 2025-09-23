@@ -25,15 +25,16 @@ export const useLedgerTableConstants = () => {
     fromDate: {
       label: t('filters.fromDate.label'),
       messages: {
-        required: t('common.messages.dateRequired'),
-        invalid: t('common.messages.dateInvalid'),
+        required: t('common.messages.dateRequiredFrom'),
+        invalid: t('common.messages.dateInvalidFrom'),
       },
     },
     toDate: {
       label: t('filters.toDate.label'),
       messages: {
-        required: t('common.messages.dateRequired'),
-        invalid: t('common.messages.dateInvalid'),
+        required: t('common.messages.dateRequiredTo'),
+        invalid: t('common.messages.dateInvalidTo'),
+        beforeFromDate: t('common.messages.dateBeforeFromDate'),
       },
     },
     reset: {
