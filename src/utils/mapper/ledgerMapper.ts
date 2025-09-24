@@ -16,7 +16,7 @@ export function toDTO(ledgerEntry: LedgerEntry): LedgerEntryDTO {
     bankId: ledgerEntry.bank?.id,
     movementType: ledgerEntry.movementType,
     amount: ledgerEntry.amount,
-    notes: ledgerEntry.notes
+    notes: ledgerEntry.notes,
   }
 }
 
@@ -35,11 +35,16 @@ export function fromDTO(dto: LedgerEntryDTO): LedgerEntry {
     bank: dto.bank,
     movementType: dto.movementType,
     amount: dto.amount,
-    notes: dto.notes
+    notes: dto.notes,
   }
 }
 
-export function fromDTOPage(dtoPage: { content: LedgerEntryDTO[], totalElements: number}): {content: LedgerEntry[], totalElements: number} {
-  return {content: dtoPage.content.flatMap(dto => fromDTO(dto)), totalElements: dtoPage.totalElements}
+export function fromDTOPage(dtoPage: {
+  content: LedgerEntryDTO[]
+  page: { totalElements: number }
+}): { content: LedgerEntry[]; totalElements: number } {
+  return {
+    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
+    totalElements: dtoPage.page.totalElements,
+  }
 }
-
