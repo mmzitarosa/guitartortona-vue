@@ -13,7 +13,8 @@
       "receiptNumber": "Ultime 3 Cifre a/b",
       "paymentType": "Saldo / Acconto",
       "paymentMethod": "Cassa / Banca",
-      "movementType": "Entrata / Uscita"
+      "movementType": "Entrata / Uscita",
+      "vat": "IVA"
     },
     "messages": {
       "dateRequired": "Seleziona una data",
@@ -35,7 +36,9 @@
       "notesTooLong": "Note troppo lunghe",
       "invoiceNumberRequired": "Inserisci il numero fattura",
       "invoiceNumberTooLong": "Numero fattura troppo lungo",
-      "amountTotalRequired": "Inserisci l'importo totale della fattura"
+      "amountTotalRequired": "Inserisci l'importo totale della fattura",
+      "vatRequired": "Seleziona l'IVA",
+      "vatInvalid": "L'IVA deve essere compresa tra 0 e 100"
     },
     "placeholders": {
       "dateFormat": "gg/mm/aaaa"

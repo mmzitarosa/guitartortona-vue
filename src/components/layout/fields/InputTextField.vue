@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { InputText } from 'primevue'
-import InputField from '@/components/layout/InputField.vue'
+import InputField from '@/components/layout/fields/InputField.vue'
 
 interface InputTextFieldProps {
   inputId: string

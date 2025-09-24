@@ -111,7 +111,7 @@ import { useLedgerTable } from '@/composables/useLedgerTable.ts'
 import { useSearchForm } from '@/composables/useSearchForm.ts'
 import { print } from '@/services/api/ledgerService.ts'
 import { useLedgerTableConstants } from '@/utils/i18nConstants'
-import InputDateField from '@/components/layout/InputDateField.vue'
+import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import { validateDate } from '@/utils/dateUtils.ts'
 import { type FromDateToDate } from '@/composables/useSearchForm.ts'
 

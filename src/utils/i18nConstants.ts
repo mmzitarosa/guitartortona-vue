@@ -198,6 +198,13 @@ export const useIncomingInvoiceConstants = () => {
         tooLong: t('common.messages.notesTooLong'),
       },
     },
+    vat: {
+      label: t('common.labels.vat'),
+      messages: {
+        required: t('common.messages.vatRequired'),
+        invalid: t('common.messages.vatInvalid'),
+      },
+    },
     close: {
       label: t('buttons.close.label'),
       icon: t('buttons.close.icon'),

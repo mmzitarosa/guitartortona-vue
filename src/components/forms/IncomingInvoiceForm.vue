@@ -11,17 +11,19 @@
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: fornitore e data-->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-          <ComboBox
+          <SelectField
             v-model="incomingInvoice.supplier"
             inputId="supplier"
             optionId="id"
             optionLabel="name"
             :options="suppliers"
             editable
+            showClear
             :label="constants.supplier.label"
             :readonly
             :loading="suppliersLoading"
             :validation="validation.fields.supplier"
+            :formatter="supplierFormatter"
           />
 
           <InputDateField
@@ -153,7 +155,7 @@
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
 import { useSuppliers } from '@/composables/useSuppliers.ts'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import type { Supplier } from '@/types/supplier.ts'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import { useForm } from '@/composables/useForm.ts'
@@ -165,12 +167,12 @@ import {
   putIncomingInvoiceById,
 } from '@/services/api/incomingInvoiceService.ts'
 import { validateDate } from '@/utils/dateUtils.ts'
-import ComboBox from '@/components/layout/ComboBox.vue'
-import InputDateField from '@/components/layout/InputDateField.vue'
-import InputAmountField from '@/components/layout/InputAmountField.vue'
-import TextAreaField from '@/components/layout/TextAreaField.vue'
-import InputTextField from '@/components/layout/InputTextField.vue'
+import InputDateField from '@/components/layout/fields/InputDateField.vue'
+import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
+import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
+import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
+import SelectField from '../layout/fields/SelectField.vue'
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
@@ -197,14 +199,12 @@ const {
   pristine,
   loadItem: loadIncomingInvoice,
   validation,
-  readonly,
   existingItem,
   handleSubmit,
   handleReset,
   handleClose,
   handleDelete,
 } = useForm<IncomingInvoice>({
-  editable: props.editable,
   getById: getIncomingInvoiceById,
   create: postIncomingInvoice,
   update: putIncomingInvoiceById,
@@ -214,7 +214,6 @@ const {
     {
       key: 'supplier',
       label: constants.supplier.label,
-      getter: (supplier: Supplier | undefined) => supplier?.id,
       labeler: (supplier: Supplier | undefined) => supplier?.name,
       validator: (supplier: Supplier | undefined) => {
         if (!supplier) return { message: constants.supplier.messages.required }
@@ -252,6 +251,8 @@ const {
   ],
 })
 
+const readonly = computed(() => !props.editable)
+
 onMounted(async () => {
   formLoading.value = true
   await loadSuppliers()
@@ -259,6 +260,10 @@ onMounted(async () => {
 
   formLoading.value = false
 })
+
+const supplierFormatter = (value: string) => {
+  return { id: undefined, name: value } as Supplier
+}
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()

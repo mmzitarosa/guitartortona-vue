@@ -10,8 +10,8 @@ export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
     date: invoice.date,
     number: invoice.number,
     amount: invoice.amount,
-    notes: invoice.notes
-  };
+    notes: invoice.notes,
+  }
 }
 
 // DTO → Domain
@@ -22,6 +22,6 @@ export function fromDTO(dto: IncomingInvoiceDTO): IncomingInvoice {
     date: dto.date,
     number: dto.number,
     amount: dto.amount,
-    notes: dto.notes
-  };
+    notes: dto.notes,
+  }
 }

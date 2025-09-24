@@ -4,17 +4,15 @@ import type { FormOptions } from '@/types/form'
 import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { getById, create, update, remove, fieldMappings, editable } = options
+  const { initialItem, getById, create, update, remove, fieldMappings } = options
 
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
 
-  const item: Ref<T> = ref({}) as Ref<T>
+  const item: Ref<T> = ref({ ...(initialItem ?? {}) }) as Ref<T>
   const original: Ref<T> = ref({}) as Ref<T>
   const loading = ref(false)
   const validate = ref(false)
-
-  const readonly = computed(() => !editable)
 
   const existingItem = computed(() => !!item.value.id)
 
@@ -36,14 +34,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
 
   const changes: ComputedRef<{ field: string; oldValue: any; newValue: any }[]> = computed(() => {
     if (!item.value || !original.value) return []
-    return fieldMappings.flatMap(({ key, label, getter, labeler }) => {
-      const oldVal = getter ? getter(original.value[key]) : original.value[key]
-      const newVal = getter ? getter(item.value[key]) : item.value[key]
+    return fieldMappings.flatMap(({ key, label: field, labeler }) => {
+      const oldValue = labeler ? labeler(original.value[key]) : original.value[key]
+      const newValue = labeler ? labeler(item.value[key]) : item.value[key]
 
-      if (oldVal !== newVal) {
-        const oldLabel = labeler ? labeler(original.value[key]) : original.value[key]
-        const newLabel = labeler ? labeler(item.value[key]) : item.value[key]
-        return [{ field: label, oldValue: oldLabel, newValue: newLabel }]
+      if (oldValue !== newValue) {
+        return [{ field, oldValue, newValue }]
       }
       return []
     })
@@ -220,7 +216,6 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     dirty,
     pristine,
     loadItem,
-    readonly,
     existingItem,
     validation,
     handleSubmit,

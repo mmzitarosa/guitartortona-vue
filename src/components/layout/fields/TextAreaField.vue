@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Textarea } from 'primevue'
-import InputField from '@/components/layout/InputField.vue'
+import InputField from '@/components/layout/fields/InputField.vue'
 
 interface TextAreaFieldProps {
   inputId: string

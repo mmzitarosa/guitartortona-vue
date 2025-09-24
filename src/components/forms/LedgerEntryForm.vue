@@ -93,7 +93,7 @@
             :validation="validation.fields.paymentMethod"
           />
 
-          <ComboBox
+          <SelectField
             v-model="ledgerEntry.bank"
             inputId="bank"
             optionId="id"
@@ -101,6 +101,7 @@
             :options="banks"
             :label="constants.bank.label"
             :readonly
+            showClear
             :loading="banksLoading"
             :validation="validation.fields.bank"
           />
@@ -223,7 +224,7 @@
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
 import { useBanks } from '@/composables/useBanks.ts'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import { useForm } from '@/composables/useForm.ts'
@@ -240,15 +241,15 @@ import {
   putLedgerEntryById,
 } from '@/services/api/ledgerService.ts'
 import { validateDate } from '@/utils/dateUtils.ts'
-import InputDateField from '@/components/layout/InputDateField.vue'
-import InputTextField from '@/components/layout/InputTextField.vue'
-import TextAreaField from '@/components/layout/TextAreaField.vue'
-import InputAmountField from '@/components/layout/InputAmountField.vue'
-import ComboBox from '@/components/layout/ComboBox.vue'
+import InputDateField from '@/components/layout/fields/InputDateField.vue'
+import InputTextField from '@/components/layout/fields/InputTextField.vue'
+import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
+import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
-import SelectButtonField from '@/components/layout/SelectButtonField.vue'
+import SelectButtonField from '@/components/layout/fields/SelectButtonField.vue'
 import type { Bank } from '@/types/bank.ts'
 import { paymentTypesMap, paymentMethodsMap, movementTypesMap } from '@/types/ledgerEntry.ts'
+import SelectField from '../layout/fields/SelectField.vue'
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 
@@ -275,14 +276,12 @@ const {
   pristine,
   loadItem: loadLedgerEntry,
   validation,
-  readonly,
   existingItem,
   handleSubmit,
   handleReset,
   handleClose,
   handleDelete,
 } = useForm<LedgerEntry>({
-  editable: props.editable,
   getById: getLedgerEntryById,
   create: postLedgerEntry,
   update: putLedgerEntryById,
@@ -346,7 +345,6 @@ const {
     {
       key: 'bank',
       label: constants.bank.label,
-      getter: (bank: Bank | undefined) => bank?.id,
       labeler: (bank: Bank | undefined) => bank?.name,
       validator: (bank: Bank | undefined) => {
         if (!bank && ledgerEntry.value.paymentMethod === 'BANK')
@@ -391,6 +389,8 @@ const {
     },
   ],
 })
+
+const readonly = computed(() => !props.editable)
 
 onMounted(async () => {
   formLoading.value = true

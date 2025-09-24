@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DatePicker, InputText } from 'primevue'
-import InputField from '@/components/layout/InputField.vue'
+import InputField from '@/components/layout/fields/InputField.vue'
 import { validateDate } from '@/utils/dateUtils.ts'
 import { useLayoutConstants } from '@/utils/i18nConstants.ts'
 
