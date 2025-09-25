@@ -171,8 +171,8 @@ import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
-import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
-import SelectField from '../layout/fields/SelectField.vue'
+import { useIncomingInvoiceConstants } from '@/utils/i18nConstants.ts'
+import SelectField from '../../layout/fields/SelectField.vue'
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
 

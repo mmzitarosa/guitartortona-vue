@@ -1,5 +1,5 @@
 <template>
-  <InputField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message">
     <InputText v-if="readonly" :value="value" :id="inputId" readonly fluid class="p-filled" />
 
     <Select
@@ -17,13 +17,13 @@
       class="p-inputwrapper-filled"
       fluid
     />
-  </InputField>
+  </InputValidationField>
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, unknown>">
 import { computed } from 'vue'
 import { InputText, Select } from 'primevue'
-import InputField from '@/components/layout/fields/InputField.vue'
+import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface SelectFieldProps<T extends Record<string, unknown>> {
   inputId: string
@@ -44,7 +44,7 @@ const props = defineProps<SelectFieldProps<T>>()
 const model = defineModel<T | T[keyof T]>()
 
 const value = computed(() => {
-  if (model.value === undefined) return ''
+  if (model.value === undefined || model.value === null) return ''
 
   // Se optionValue è definito, model.value contiene il valore della proprietà specificata
   if (props.optionValue) {

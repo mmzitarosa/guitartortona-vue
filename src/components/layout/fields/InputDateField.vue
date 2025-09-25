@@ -1,5 +1,5 @@
 <template>
-  <InputField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message">
     <InputText v-if="readonly" :value="model" :id="inputId" readonly fluid class="p-filled" />
 
     <DatePicker
@@ -15,15 +15,15 @@
       class="p-inputwrapper-filled"
       fluid
     />
-  </InputField>
+  </InputValidationField>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DatePicker, InputText } from 'primevue'
-import InputField from '@/components/layout/fields/InputField.vue'
 import { validateDate } from '@/utils/dateUtils.ts'
 import { useLayoutConstants } from '@/utils/i18nConstants.ts'
+import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface InputDateFieldProps {
   inputId: string

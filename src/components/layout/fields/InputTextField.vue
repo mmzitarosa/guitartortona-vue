@@ -1,13 +1,13 @@
 <template>
-  <InputField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message">
     <InputText v-model="model" :id="inputId" :readonly :invalid class="p-filled" fluid />
-  </InputField>
+  </InputValidationField>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { InputText } from 'primevue'
-import InputField from '@/components/layout/fields/InputField.vue'
+import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface InputTextFieldProps {
   inputId: string

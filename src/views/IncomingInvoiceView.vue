@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import IncomingInvoiceForm from '@/components/forms/IncomingInvoiceForm.vue'
+import IncomingInvoiceForm from '@/components/forms/incomininvoice/IncomingInvoiceForm.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import router from '@/router'

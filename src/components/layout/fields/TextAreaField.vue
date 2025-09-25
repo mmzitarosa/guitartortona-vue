@@ -1,5 +1,5 @@
 <template>
-  <InputField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message">
     <Textarea
       v-model="model"
       :id="inputId"
@@ -10,13 +10,13 @@
       class="p-filled resize-none"
       fluid
     />
-  </InputField>
+  </InputValidationField>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Textarea } from 'primevue'
-import InputField from '@/components/layout/fields/InputField.vue'
+import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface TextAreaFieldProps {
   inputId: string

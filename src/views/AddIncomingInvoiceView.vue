@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import router from '@/router'
-import IncomingInvoiceForm from '@/components/forms/IncomingInvoiceForm.vue'
+import IncomingInvoiceForm from '@/components/forms/incomininvoice/IncomingInvoiceForm.vue'
 import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
 
 const onSubmit = (incomingInvoice: IncomingInvoice) => {

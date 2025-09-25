@@ -1,5 +1,5 @@
 <template>
-  <InputField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message">
     <InputNumber
       v-model="model"
       :inputId="inputId"
@@ -16,13 +16,13 @@
       @input="(event) => (model = event.value as number | undefined)"
       @update:modelValue="(val) => (model = val === null ? undefined : val)"
     />
-  </InputField>
+  </InputValidationField>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { InputNumber } from 'primevue'
-import InputField from '@/components/layout/fields/InputField.vue'
+import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface InputAmountFieldProps {
   inputId: string
