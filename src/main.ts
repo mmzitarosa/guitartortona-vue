@@ -7,7 +7,7 @@ import router from './router'
 
 import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
-import { ToastService } from 'primevue'
+import { ToastService, Tooltip } from 'primevue'
 import KeyFilter from 'primevue/keyfilter'
 
 import { customThemePreset, italianLocale } from '@/config/theme.config'
@@ -38,6 +38,7 @@ app.use(i18n)
 
 // Configure directives
 app.directive('keyfilter', KeyFilter)
+app.directive('tooltip', Tooltip);
 
 // Mount the app
 app.mount('#app')

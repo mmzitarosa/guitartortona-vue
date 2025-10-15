@@ -1,6 +1,6 @@
 <template xmlns="http://www.w3.org/1999/html">
   <ValidationField :invalid :error>
-    <InputField :inputId :label>
+    <InputField :inputId :label :class>
       <slot />
     </InputField>
   </ValidationField>
@@ -16,6 +16,7 @@ interface InputFieldProps {
   label: string,
   invalid?: boolean
   error?: string,
+  class?: string,
 }
 
 defineProps<InputFieldProps>()

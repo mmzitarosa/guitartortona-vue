@@ -1,4 +1,8 @@
 import type { IncomingInvoice, IncomingInvoiceDTO } from '@/types/incomingInvoice.ts'
+import type {
+  IncomingInvoiceProduct,
+  IncomingInvoiceProductDTO
+} from '@/types/incominInvoiceProduct.ts'
 
 // Domain → DTO
 export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
@@ -11,6 +15,7 @@ export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
     number: invoice.number,
     amount: invoice.amount,
     notes: invoice.notes,
+    items: invoice.items?.map(toProductDTO)
   }
 }
 
@@ -23,5 +28,30 @@ export function fromDTO(dto: IncomingInvoiceDTO): IncomingInvoice {
     number: dto.number,
     amount: dto.amount,
     notes: dto.notes,
+    items: dto.items?.map(fromProductDTO)
+  }
+}
+
+// Domain → DTO
+export function toProductDTO(incomingInvoiceProduct: IncomingInvoiceProduct): IncomingInvoiceProductDTO {
+  return {
+    id: incomingInvoiceProduct.id,
+    product: incomingInvoiceProduct.product,
+    productId: incomingInvoiceProduct.product?.id,
+    vat: incomingInvoiceProduct.vat,
+    purchasePrice: incomingInvoiceProduct.purchasePrice,
+    quantity: incomingInvoiceProduct.quantity
+  }
+}
+
+
+// DTO → Domain
+export function fromProductDTO(dto: IncomingInvoiceProductDTO): IncomingInvoiceProduct {
+  return {
+    id: dto.id,
+    product: dto.product,
+    vat: dto.vat,
+    purchasePrice: dto.purchasePrice,
+    quantity: dto.quantity
   }
 }

@@ -8,6 +8,8 @@
     @edit="onEdit"
     @delete="onDelete"
   ></IncomingInvoiceForm>
+
+  <IncomingInvoiceProduct v-if="editable" class="mt-4" :editable :id></IncomingInvoiceProduct>
 </template>
 
 <script setup lang="ts">
@@ -15,7 +17,7 @@ import IncomingInvoiceForm from '@/components/forms/incomininvoice/IncomingInvoi
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import router from '@/router'
-import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
+import IncomingInvoiceProduct from '@/components/IncomingInvoiceProduct.vue'
 
 const route = useRoute()
 

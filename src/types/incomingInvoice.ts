@@ -1,4 +1,8 @@
 import type { Supplier } from '@/types/supplier.ts'
+import type {
+  IncomingInvoiceProduct,
+  IncomingInvoiceProductDTO
+} from '@/types/incominInvoiceProduct.ts'
 
 export interface IncomingInvoice {
   id?: number
@@ -7,9 +11,9 @@ export interface IncomingInvoice {
   number?: string
   amount?: number
   notes?: string
+  items?: IncomingInvoiceProduct[]
 }
 
-// Il DTO ha date come stringa perché così vuole il backend
 export interface IncomingInvoiceDTO {
   id?: number
   supplier?: Supplier
@@ -19,4 +23,5 @@ export interface IncomingInvoiceDTO {
   number?: string
   amount?: number
   notes?: string
+  items?: IncomingInvoiceProductDTO[]
 }

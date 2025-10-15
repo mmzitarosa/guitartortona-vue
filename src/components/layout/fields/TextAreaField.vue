@@ -1,5 +1,5 @@
 <template>
-  <InputValidationField :inputId :label :invalid :error="validation?.message">
+  <InputValidationField :inputId :label :invalid :error="validation?.message" class="mb-[-4px]">
     <Textarea
       v-model="model"
       :id="inputId"

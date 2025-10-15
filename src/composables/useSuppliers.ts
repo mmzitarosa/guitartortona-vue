@@ -27,5 +27,9 @@ export const useSuppliers = () => {
     }
   }
 
-  return { suppliers, loading, loadSuppliers, addSupplier }
+  const formatter = (value: string) => {
+    return { id: undefined, name: value } as Supplier
+  }
+
+  return { suppliers, loading, loadSuppliers, formatter, addSupplier }
 }

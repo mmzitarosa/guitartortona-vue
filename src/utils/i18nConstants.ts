@@ -232,6 +232,110 @@ export const useIncomingInvoiceConstants = () => {
   }
 }
 
+
+/**
+ * Incoming invoice - Product constants using i18n
+ */
+export const useIncomingInvoiceProductConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    fieldset: {
+      legend: t('fieldset.product.legend'),
+    },
+    barcode: {
+      label: t('common.labels.barcode'),
+    },
+    add: {
+      label: t('buttons.add.label'),
+      icon: t('buttons.add.icon'),
+    },
+    code: {
+      label: t('common.labels.code'),
+      messages: {
+        tooLong: t('common.messages.codeTooLong'),
+      },
+    },
+    internalCode: {
+      label: t('common.labels.internalCode'),
+    },
+    category: {
+      label: t('common.labels.category'),
+      messages: {
+        required: t('common.messages.categoryRequired'),
+      },
+    },
+    brand: {
+      label: t('common.labels.brand'),
+      messages: {
+        invalid: t('common.messages.brandTooLong'),
+      },
+    },
+    description: {
+      label: t('common.labels.description'),
+      messages: {
+        required: t('common.messages.descriptionRequired'),
+        tooLong: t('common.messages.descriptionTooLong'),
+      },
+    },
+    price: {
+      label: t('common.labels.price'),
+      messages: {
+        invalid: t('common.messages.priceInvalid'),
+      },
+    },
+    notes: {
+      label: t('common.labels.notes'),
+      messages: {
+        tooLong: t('common.messages.notesTooLong'),
+      },
+    },
+    vat: {
+      label: t('common.labels.vat'),
+      messages: {
+        invalid: t('common.messages.vatInvalid'),
+      },
+    },
+    purchasePrice: {
+      label: t('common.labels.purchasePrice'),
+      messages: {
+        invalid: t('common.messages.priceInvalid'),
+      },
+    },
+    quantity: {
+      label: t('common.labels.quantity'),
+      messages: {
+        required: t('common.messages.quantityRequired'),
+        invalid: t('common.messages.quantityInvalid'),
+      },
+    },
+    close: {
+      label: t('buttons.close.label'),
+      icon: t('buttons.close.icon'),
+    },
+    cancel: {
+      label: t('buttons.cancel.label'),
+      icon: t('buttons.cancel.icon'),
+    },
+    reset: {
+      label: t('buttons.reset.label'),
+      icon: t('buttons.reset.icon'),
+    },
+    save: {
+      label: t('buttons.save.label'),
+      icon: t('buttons.save.icon'),
+    },
+    update: {
+      label: t('buttons.update.label'),
+      icon: t('buttons.update.icon'),
+    },
+    delete: {
+      label: t('buttons.delete.label'),
+      icon: t('buttons.delete.icon'),
+    },
+  }
+}
+
 export const useConfirmDialogConstants = () => {
   const { t } = useI18n()
 

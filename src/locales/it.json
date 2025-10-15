@@ -14,7 +14,15 @@
       "paymentType": "Saldo / Acconto",
       "paymentMethod": "Cassa / Banca",
       "movementType": "Entrata / Uscita",
-      "vat": "IVA"
+      "barcode": "Codice a barre",
+      "code": "Codice",
+      "internalCode":  "Codice Interno",
+      "category": "Categoria",
+      "brand": "Marca",
+      "price": "Prezzo di Vendita",
+      "vat": "IVA",
+      "purchasePrice": "Prezzo di Acquisto (IVA Esclusa)",
+      "quantity": "Quantità"
     },
     "messages": {
       "dateRequired": "Seleziona una data",
@@ -37,6 +45,12 @@
       "invoiceNumberRequired": "Inserisci il numero fattura",
       "invoiceNumberTooLong": "Numero fattura troppo lungo",
       "amountTotalRequired": "Inserisci l'importo totale della fattura",
+      "codeTooLong": "Codice troppo lungo",
+      "categoryRequired": "Seleziona la categoria",
+      "brandTooLong": "Marca troppo lunga",
+      "priceInvalid": "Il prezzo deve essere positivo",
+      "quantityRequired": "Inserisci la quantità",
+      "quantityInvalid": "La quantità deve essere almeno 1",
       "vatRequired": "Seleziona l'IVA",
       "vatInvalid": "L'IVA deve essere compresa tra 0 e 100"
     },
@@ -56,6 +70,10 @@
     "reset": {
       "label": "Ripristina",
       "icon": "pi pi-undo"
+    },
+    "add": {
+      "label": "Inserisci",
+      "icon": "pi pi-plus"
     },
     "save": {
       "label": "Aggiungi",
@@ -141,6 +159,11 @@
     "newInvoice": {
       "title": "Nuova Fattura",
       "subtitle": "Dati Fattura"
+    }
+  },
+  "fieldset": {
+    "product": {
+      "legend": "Inserisci Prodotto"
     }
   },
   "filters": {

@@ -13,11 +13,12 @@ export interface ResolverResult {
  * Form field mapping types
  */
 export interface FieldMapping<T> {
-  key: keyof T
+  key: string
   label: string
   getter?: (v: any) => unknown
   labeler?: (v: any) => unknown
   validator?: (v: any) => { message?: string } | undefined
+  defaultValue?: boolean
 }
 
 /**
@@ -29,6 +30,7 @@ export interface FormOptions<T> extends ValidationFormOptions<T> {
   create: (item: T) => Promise<T>
   update: (id: number, item: T) => Promise<T>
   remove: (id: number) => Promise<void>
+  group?: string
 }
 
 /**
@@ -43,5 +45,5 @@ export interface SubmitFormOptions<T, R> {
  * Generic Form options interface
  */
 export interface ValidationFormOptions<T> {
-  fieldMappings: FieldMapping<T>[]
+  fieldMappings: FieldMapping<T>[],
 }

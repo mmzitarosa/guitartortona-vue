@@ -189,7 +189,7 @@ const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
   backable: true,
 })
 
-const { suppliers, loading: suppliersLoading, loadSuppliers, addSupplier } = useSuppliers()
+const { suppliers, loading: suppliersLoading, loadSuppliers, formatter: supplierFormatter, addSupplier } = useSuppliers()
 
 const {
   item: incomingInvoice,
@@ -260,10 +260,6 @@ onMounted(async () => {
 
   formLoading.value = false
 })
-
-const supplierFormatter = (value: string) => {
-  return { id: undefined, name: value } as Supplier
-}
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()

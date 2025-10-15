@@ -1,5 +1,5 @@
 <template>
-  <ConfirmDialog group="differences">
+  <ConfirmDialog :group>
     <template #message="slotProps">
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-4">
@@ -12,8 +12,8 @@
         <div class="flex flex-col gap-2" >
           <div v-for="change in changes" :key="change.field">
           <span>{{ change.field }}:</span>
-          <span class="text-primary-700 ml-1" v-if="change.oldValue">{{ change.oldValue }}</span>
-          <span class="ml-1" v-if="change.oldValue">-></span>
+          <span class="text-primary-700 ml-1" v-if="change.oldValue && !change.ignore">{{ change.oldValue }}</span>
+          <span class="ml-1" v-if="change.oldValue && !change.ignore">-></span>
           <span class="text-primary-500 ml-1">{{ change.newValue }}</span>
           </div>
         </div>
@@ -27,7 +27,9 @@
 import { ConfirmDialog } from 'primevue'
 import { computed } from 'vue'
 
-defineProps<{ changes: { field: string, oldValue: any, newValue: any }[] }>()
+const props = withDefaults(defineProps<{ changes: { field: string, oldValue: any, newValue: any, ignore: boolean }[], group?: string }>(), {
+  group: "differences"
+})
 
 const reset = computed(() => {})
 

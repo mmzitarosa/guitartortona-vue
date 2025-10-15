@@ -3,11 +3,8 @@
     <InputNumber
       v-model="model"
       :inputId="inputId"
-      mode="currency"
-      currency="EUR"
-      locale="it-IT"
-      :minFractionDigits="2"
-      :maxFractionDigits="2"
+      :minFractionDigits="0"
+      :maxFractionDigits="0"
       :min="0"
       :readonly
       :invalid

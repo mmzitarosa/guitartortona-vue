@@ -1,6 +1,6 @@
 <template>
   <InputValidationField :inputId :label :invalid :error="validation?.message">
-    <InputText v-model="model" :id="inputId" :readonly :invalid class="p-filled" fluid />
+    <InputText v-model="model" :id="inputId" :readonly :invalid class="p-filled" fluid :placeholder />
   </InputValidationField>
 </template>
 
@@ -14,6 +14,7 @@ interface InputTextFieldProps {
   label: string
   readonly?: boolean
   validation?: { message?: string; valid: boolean }
+  placeholder?: string
 }
 
 const props = defineProps<InputTextFieldProps>()

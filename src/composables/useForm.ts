@@ -1,20 +1,32 @@
-import { computed, type ComputedRef, ref, type Ref } from 'vue'
+import { computed, ref } from 'vue'
 import { type ConfirmDialogParams, useConfirmDialog } from '@/composables/useConfirmDialog.ts'
 import type { FormOptions } from '@/types/form'
 import { useConfirmDialogConstants } from '@/utils/i18nConstants'
+import { useOriginalData } from '@/composables/useOriginalData'
+import { getNestedValue } from '@/utils/object.ts'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { initialItem, getById, create, update, remove, fieldMappings } = options
+  const { initialItem, getById, create, update, remove, fieldMappings, group } = options
 
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
 
-  const item: Ref<T> = ref({ ...(initialItem ?? {}) }) as Ref<T>
-  const original: Ref<T> = ref({}) as Ref<T>
+  // Usa il nuovo composable per gestire item, original, changes, dirty, pristine
+  const {
+    item,
+    changes,
+    dirty,
+    pristine,
+    reset: resetOriginalData,
+    setOriginal,
+    existingItem
+  } = useOriginalData<T>({
+    initialValue: initialItem,
+    fieldMappings,
+  })
+
   const loading = ref(false)
   const validate = ref(false)
-
-  const existingItem = computed(() => !!item.value.id)
 
   const loadItem = async (id: number) => {
     // Attivo il loading --> uno unico loading per tutto
@@ -23,8 +35,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Chiamo servizio di update
       const result = await getById(id)
       // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
-      item.value = result
-      original.value = { ...result }
+      setOriginal(result)
       return result
     } finally {
       // In ogni caso, al termine, disattivo il loading
@@ -32,29 +43,13 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     }
   }
 
-  const changes: ComputedRef<{ field: string; oldValue: any; newValue: any }[]> = computed(() => {
-    if (!item.value || !original.value) return []
-    return fieldMappings.flatMap(({ key, label: field, labeler }) => {
-      const oldValue = labeler ? labeler(original.value[key]) : original.value[key]
-      const newValue = labeler ? labeler(item.value[key]) : item.value[key]
-
-      if (oldValue !== newValue) {
-        return [{ field, oldValue, newValue }]
-      }
-      return []
-    })
-  })
-
   const validation = computed(() => {
-    const fieldResults = {} as Record<
-      keyof T,
-      { message?: string; _valid: boolean; validate: boolean; valid: boolean }
-    >
+    const fieldResults = {} as Record<string, { message?: string; _valid: boolean; validate: boolean; valid: boolean }>
 
     let valid = true
 
     for (const { key, validator } of fieldMappings) {
-      const rawResult = validator ? validator(item.value[key]) : undefined
+      const rawResult = validator ? validator(getNestedValue(item.value, key)) : undefined
       const validationResult = {
         message: rawResult?.message, // Messaggio da mostrare
         validate: validate.value, // Validazione attiva
@@ -73,12 +68,6 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     }
   })
 
-  const dirty: ComputedRef<boolean> = computed(() => {
-    return changes.value.length > 0
-  })
-
-  const pristine: ComputedRef<boolean> = computed(() => !dirty.value)
-
   const handleSubmit = () => {
     // Al primo submit attivo la validazione del form,
     // poi rimane attivo fino all'esito, close o reset
@@ -93,43 +82,41 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Preparo il dialog di update (se esiste id) o insert (nuovo item)
       const params: ConfirmDialogParams<T> = existingItem.value
         ? {
-            header: constants.updateDialog.title,
-            message: constants.updateDialog.message,
-            group: 'differences', // Così mostra le diff rispetto al precedente
-            icon: 'pi pi-info-circle',
-            acceptLabel: constants.updateDialog.acceptLabel,
-            toastSummary: constants.updateDialog.toastTitle,
-            toastDetail: constants.updateDialog.toastMessage,
-            accept: async () => {
-              // Chiamo servizio di update
-              const result = await update(<number>item.value.id, item.value)
-              // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
-              item.value = result
-              original.value = { ...result }
-              // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
-              validate.value = false
-              return result
-            },
-          }
+          header: constants.updateDialog.title,
+          message: constants.updateDialog.message,
+          group: group ?? 'differences', // Così mostra le diff rispetto al precedente
+          icon: 'pi pi-info-circle',
+          acceptLabel: constants.updateDialog.acceptLabel,
+          toastSummary: constants.updateDialog.toastTitle,
+          toastDetail: constants.updateDialog.toastMessage,
+          accept: async () => {
+            // Chiamo servizio di update
+            const result = await update(<number>item.value.id, item.value)
+            // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
+            setOriginal(result)
+            // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
+            validate.value = false
+            return result
+          },
+        }
         : {
-            header: constants.saveDialog.title,
-            message: constants.saveDialog.message,
-            group: 'differences', // Così mostra le diff rispetto al precedente
-            icon: 'pi pi-info-circle',
-            acceptLabel: constants.saveDialog.acceptLabel,
-            toastSummary: constants.saveDialog.toastTitle,
-            toastDetail: constants.saveDialog.toastMessage,
-            accept: async () => {
-              // Chiamo servizio di insert
-              const result = await create(item.value)
-              // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
-              item.value = result
-              original.value = { ...result }
-              // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
-              validate.value = false
-              return result
-            },
-          }
+          header: constants.saveDialog.title,
+          message: constants.saveDialog.message,
+          group: group ?? 'differences', // Così mostra le diff rispetto al precedente
+          icon: 'pi pi-info-circle',
+          acceptLabel: constants.saveDialog.acceptLabel,
+          toastSummary: constants.saveDialog.toastTitle,
+          toastDetail: constants.saveDialog.toastMessage,
+          accept: async () => {
+            // Chiamo servizio di insert
+            const result = await create(item.value)
+            // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
+            setOriginal(result)
+            // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
+            validate.value = false
+            return result
+          },
+        }
       // Apro il dialog
       return confirmDialog.require<T>(params)
     } finally {
@@ -150,7 +137,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         toastSummary: constants.resetDialog.toastTitle,
         toastDetail: constants.resetDialog.toastMessage,
         accept: async () => {
-          item.value = { ...original.value }
+          resetOriginalData()
           validate.value = false
         },
       }
@@ -174,7 +161,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         toastSummary: constants.cancelDialog.toastTitle,
         toastDetail: constants.cancelDialog.toastMessage,
         accept: async () => {
-          item.value = { ...original.value }
+          resetOriginalData()
           validate.value = false
         },
       }
@@ -198,7 +185,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         toastDetail: constants.deleteDialog.toastMessage,
         accept: async () => {
           await remove(item.value.id as number)
-          item.value = { ...original.value }
+          resetOriginalData()
           validate.value = false
         },
       }
@@ -222,5 +209,6 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     handleReset,
     handleClose,
     handleDelete,
+    setOriginal,
   }
 }
