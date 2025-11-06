@@ -29,10 +29,10 @@ export function useOriginalData<T extends { id?: number }>(options: UseOriginalD
       const oldValue = labeler ? labeler(oldRaw) : oldRaw
       const newValue = labeler ? labeler(newRaw) : newRaw
 
-      const defaultVal = !existingItem.value && oldValue === newValue && defaultValue
+      const ignore = !existingItem.value && oldValue === newValue && !!defaultValue
 
-      if (defaultVal || oldValue !== newValue) {
-        return [{ field, oldValue, newValue, ignore: defaultVal }]
+      if (ignore || oldValue !== newValue) {
+        return [{ field, oldValue, newValue, ignore }]
       }
       return []
     })
@@ -62,8 +62,8 @@ export function useOriginalData<T extends { id?: number }>(options: UseOriginalD
     changes,
     dirty,
     pristine,
-    reset,
     existingItem,
+    reset,
     setOriginal,
   }
 }

@@ -1,27 +1,57 @@
 <template>
   <IncomingInvoiceForm
+    v-model="incomingInvoice"
     :editable
-    :id
     :backable
+    :loading
+    :validation
+    :changes
+    :dirty
+    :pristine
+    :existingItem
     @submit="onSubmit"
     @close="onClose"
     @edit="onEdit"
     @delete="onDelete"
-  ></IncomingInvoiceForm>
+    @reset="onReset" />
 
-  <IncomingInvoiceProduct v-if="editable" class="mt-4" :editable :id></IncomingInvoiceProduct>
+  <IncomingInvoiceProduct
+    v-model="incomingInvoice"
+    class="mt-4"
+    :editable />
 </template>
 
 <script setup lang="ts">
 import IncomingInvoiceForm from '@/components/forms/incomininvoice/IncomingInvoiceForm.vue'
-import { useRoute } from 'vue-router'
-import { computed } from 'vue'
-import router from '@/router'
 import IncomingInvoiceProduct from '@/components/IncomingInvoiceProduct.vue'
+import { useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import router from '@/router'
+import { useIncomingInvoice } from '@/composables/useIncomingInvoice'
 
 const route = useRoute()
-
 const id = Number(route.params.id)
+
+// Usa il composable centralizzato per gestire l'invoice
+const {
+  item: incomingInvoice,
+  loading,
+  validation,
+  changes,
+  dirty,
+  pristine,
+  existingItem,
+  loadItem,
+  handleSubmit,
+  handleReset,
+  handleClose,
+  handleDelete
+} = useIncomingInvoice()
+
+// Carica la fattura
+onMounted(async () => {
+  await loadItem(id)
+})
 
 const editable = computed({
   get: () => route.query.editable === 'true',
@@ -29,28 +59,40 @@ const editable = computed({
     router.replace({
       query: {
         ...route.query,
-        editable: String(val),
-      },
+        editable: String(val)
+      }
     })
-  },
+  }
 })
 
 const backable = computed(() => route.query.from !== 'add' || editable.value)
 
-const onSubmit = () => {
-  editable.value = false
+const onSubmit = async () => {
+  const result = await handleSubmit()
+  if (result) {
+    editable.value = false
+  }
 }
 
-const onClose = () => {
-  if (editable.value) editable.value = false
-  else router.back()
+const onClose = async () => {
+  await handleClose()
+  if (editable.value) {
+    editable.value = false
+  } else {
+    router.back()
+  }
+}
+
+const onReset = async () => {
+  await handleReset()
 }
 
 const onEdit = () => {
   editable.value = true
 }
 
-const onDelete = () => {
+const onDelete = async () => {
+  await handleDelete()
   router.back()
 }
 </script>

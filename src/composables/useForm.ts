@@ -6,7 +6,7 @@ import { useOriginalData } from '@/composables/useOriginalData'
 import { getNestedValue } from '@/utils/object.ts'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { initialItem, getById, create, update, remove, fieldMappings, group } = options
+  const { initialValue, getById, create, update, remove, fieldMappings, group } = options
 
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
@@ -21,7 +21,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     setOriginal,
     existingItem
   } = useOriginalData<T>({
-    initialValue: initialItem,
+    initialValue,
     fieldMappings,
   })
 
@@ -203,12 +203,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     dirty,
     pristine,
     loadItem,
+    setItem: setOriginal,
     existingItem,
     validation,
     handleSubmit,
     handleReset,
     handleClose,
     handleDelete,
-    setOriginal,
   }
 }

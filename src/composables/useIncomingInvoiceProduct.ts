@@ -2,41 +2,58 @@ import type { ValidationFormOptions } from '@/types/form'
 import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
 import { useForm } from '@/composables/useForm.ts'
 import type { Product } from '@/types/product.ts'
+import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants.ts'
+import {
+  deleteIncomingInvoiceProductById,
+  getIncomingInvoiceProductById,
+  postIncomingInvoiceProduct, putIncomingInvoiceProductById
+} from '@/services/api/incomingInvoiceService.ts'
+import type { Category } from '@/types/category.ts'
+import type { Brand } from '@/types/brand.ts'
 
-interface IncomingInvoiceProductFormOptions extends ValidationFormOptions<IncomingInvoiceProduct> {
-  invoiceId: number,
-  initialItem?: IncomingInvoiceProduct,
-  getById: (invoiceId: number, id: number) => Promise<IncomingInvoiceProduct>
-  create: (invoiceId: number, item: IncomingInvoiceProduct) => Promise<IncomingInvoiceProduct>
-  update: (invoiceId: number, id: number, item: IncomingInvoiceProduct) => Promise<IncomingInvoiceProduct>
-  remove: (invoiceId: number, id: number) => Promise<void>
-}
+export function useIncomingInvoiceProduct(incomingInvoiceId: number) {
+  const constants = useIncomingInvoiceProductConstants()
 
-export function useIncomingInvoiceProduct(options: IncomingInvoiceProductFormOptions) {
+  const initialValue = {
+    quantity: 1,
+    vat: 22
+  }
 
-  const { invoiceId, initialItem, getById, create, update, remove, fieldMappings } = options
-
-  // Wrapper delle funzioni CRUD che aggiungono incomingInvoiceId come primo parametro
   const form = useForm<IncomingInvoiceProduct>({
-    initialItem: initialItem,
-    getById: (id: number) => getById(invoiceId, id),
-    create: (item: IncomingInvoiceProduct) => create(invoiceId, item),
-    update: (id: number, item: IncomingInvoiceProduct) => update(invoiceId, id, item),
-    remove: (id: number) => remove(invoiceId, id),
-    fieldMappings: fieldMappings,
+    initialValue,
+    getById: (id: number) => getIncomingInvoiceProductById(incomingInvoiceId, id),
+    create: (item: IncomingInvoiceProduct) => postIncomingInvoiceProduct(incomingInvoiceId, item),
+    update: (id: number, item: IncomingInvoiceProduct) => putIncomingInvoiceProductById(incomingInvoiceId, id, item),
+    remove: (id: number) => deleteIncomingInvoiceProductById(incomingInvoiceId, id),
+    fieldMappings: [
+      {key: 'product.code', label: constants.code.label},
+      {key: 'product.internalCode', label: constants.internalCode.label},
+      {key: 'product.category', label: constants.category.label, labeler: (category: Category | undefined) => category?.name},
+      {key: 'product.brand', label: constants.brand.label, labeler: (brand: Brand | undefined) => brand?.name},
+      {key: 'product.description', label: constants.description.label},
+      {key: 'vat', label: constants.vat.label, labeler: (vat: number | undefined) => vat ? vat+'%' : undefined, defaultValue: true},
+      {key: 'product.price', label: constants.price.label, labeler: (amount: number | undefined) => amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })},
+      {key: 'quantity', label: constants.quantity.label, defaultValue: true},
+      {key: 'purchasePrice', label: constants.purchasePrice.label, labeler: (amount: number | undefined) => amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })},
+      {key: 'product.notes', label: constants.notes.label}
+    ],
     group: 'productDifferences'
   })
 
   const setProduct = (product?: Product) => {
-    form.setOriginal({
-      ...initialItem,
+    form.setItem({
+      ...initialValue,
       product: { ...product ?? {} }
-    } as IncomingInvoiceProduct)
+    })
   }
+
 
   return {
     ...form,
-    setProduct
+    setProduct,
+    constants
   }
+
+
 
 }

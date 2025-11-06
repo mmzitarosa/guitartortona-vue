@@ -1,12 +1,12 @@
 <template>
   <Fieldset :legend="constants.fieldset.legend"
-            :class="incomingInvoiceProduct.product ? 'w-full md:max-w-1/2' : ''">
+            :class="model.product ? 'w-full md:max-w-1/2' : ''">
     <ProgressBar
-      :mode="formLoading ? 'indeterminate' : 'determinate'"
+      :mode="loading ? 'indeterminate' : 'determinate'"
       class="mt-2 bg-gre"
       style="height: 1px"
     ></ProgressBar>
-    <div class="grid gap-4 mt-6" v-if="incomingInvoiceProduct.product === undefined">
+    <div class="grid gap-4 mt-6" v-if="model.product === undefined">
       <!-- Campo di input per codice a barre o nome prodotto -->
       <div class="w-72 mx-auto">
         <ProductSearch @search="onSearch" :label="constants.barcode.label"></ProductSearch>
@@ -19,7 +19,7 @@
           severity="secondary"
           :label="constants.add.label"
           :icon="constants.add.icon"
-          @click="setProduct({})"
+          @click="onSearch(undefined)"
         />
       </div>
 
@@ -28,22 +28,22 @@
     <!-- Form di inserimento/modifica prodotto -->
     <div class="grid gap-4 mt-6" v-else>
 
-      <InputTextField v-if="incomingInvoiceProduct.product.code"
-                      v-model="incomingInvoiceProduct.product.code"
+      <InputTextField v-if="model.product.code"
+                      v-model="model.product.code"
                       inputId="code"
                       :label="constants.code.label"
                       readonly
       />
 
-      <InputTextField v-if="incomingInvoiceProduct.product.internalCode"
-                      v-model="incomingInvoiceProduct.product.internalCode"
+      <InputTextField v-if="model.product.internalCode"
+                      v-model="model.product.internalCode"
                       inputId="internalCode"
                       :label="constants.internalCode.label"
                       readonly
       />
 
       <SelectField
-        v-model="incomingInvoiceProduct.product.category"
+        v-model="model.product.category"
         inputId="category"
         optionId="id"
         optionLabel="name"
@@ -55,7 +55,7 @@
       />
 
       <SelectField
-        v-model="incomingInvoiceProduct.product.brand"
+        v-model="model.product.brand"
         inputId="brand"
         optionId="id"
         optionLabel="name"
@@ -69,7 +69,7 @@
       />
 
       <TextAreaField
-        v-model="incomingInvoiceProduct.product.description"
+        v-model="model.product.description"
         inputId="description"
         :rows="2"
         :label="constants.description.label"
@@ -78,11 +78,11 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
 
-        <VatRateField input-id="vat" label="IVA" v-model="incomingInvoiceProduct.vat" />
+        <VatRateField input-id="vat" label="IVA" v-model="model.vat" />
 
         <div class="md:col-span-2">
           <InputAmountField
-            v-model="incomingInvoiceProduct.purchasePrice"
+            v-model="model.purchasePrice"
             inputId="purchasePrice"
             :label="constants.purchasePrice.label"
             :tooltip="taxedPurchasePrice"
@@ -94,11 +94,11 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
 
-        <InputNumberField v-model="incomingInvoiceProduct.quantity" inputId="quantity" :label="constants.quantity.label" :readonly />
+        <InputNumberField v-model="model.quantity" inputId="quantity" :label="constants.quantity.label" :readonly />
 
         <div class="md:col-span-2">
           <InputAmountField
-            v-model="incomingInvoiceProduct.product.price"
+            v-model="model.product.price"
             inputId="price"
             :label="constants.price.label"
             :readonly
@@ -108,7 +108,7 @@
       </div>
 
       <TextAreaField
-        v-model="incomingInvoiceProduct.product.notes"
+        v-model="model.product.notes"
         inputId="notes"
         :label="constants.notes.label"
         :readonly />
@@ -220,20 +220,27 @@ import {
   postIncomingInvoiceProduct,
   putIncomingInvoiceProductById
 } from '@/services/api/incomingInvoiceService.ts'
-
-const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
+import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
 
 const constants = useIncomingInvoiceProductConstants()
 
 interface IncomingInvoiceProductFormProps {
-  incomingInvoiceId: number
-  id?: number
   editable?: boolean
+  loading?: boolean
+  validation: any
+  changes: any[]
+  dirty: boolean
+  pristine: boolean
+  existingItem: boolean
 }
 
 const props = withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
-  editable: false
+  editable: false,
+  loading: false
 })
+
+const emit = defineEmits(['submit', 'close', 'edit', 'delete', 'reset', 'search'])
+const model = defineModel<IncomingInvoiceProduct>({required: true})
 
 const {
   brands,
@@ -249,81 +256,17 @@ const {
   loadCategories,
 } = useCategories()
 
-const {
-  item: incomingInvoiceProduct,
-  loading: formLoading,
-  changes,
-  dirty,
-  pristine,
-  loadItem: loadProduct,
-  validation,
-  existingItem,
-  handleSubmit,
-  handleReset,
-  handleClose,
-  handleDelete,
-  setProduct
-} = useIncomingInvoiceProduct({
-  initialItem: {
-    quantity: 1,
-    vat: 22
-  },
-  invoiceId: props.incomingInvoiceId,
-  create: postIncomingInvoiceProduct,
-  getById: getIncomingInvoiceProductById,
-  update: putIncomingInvoiceProductById,
-  remove: deleteIncomingInvoiceProductById,
-  fieldMappings: [
-    {key: 'product.code', label: constants.code.label},
-    {key: 'product.internalCode', label: constants.internalCode.label},
-    {key: 'product.category', label: constants.category.label, labeler: (category: Category | undefined) => category?.name},
-    {key: 'product.brand', label: constants.brand.label, labeler: (brand: Brand | undefined) => brand?.name},
-    {key: 'product.description', label: constants.description.label},
-    {key: 'vat', label: constants.vat.label, labeler: (vat: number | undefined) => vat ? vat+'%' : undefined, defaultValue: true},
-    {key: 'product.price', label: constants.price.label, labeler: (amount: number | undefined) => amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })},
-    {key: 'quantity', label: constants.quantity.label, defaultValue: true},
-    {key: 'purchasePrice', label: constants.purchasePrice.label, labeler: (amount: number | undefined) => amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })},
-    {key: 'product.notes', label: constants.notes.label}
-  ],
-})
-
 const readonly = computed(() => !props.editable)
 
 onMounted(async () => {
-  formLoading.value = true
   await loadBrands()
   await loadCategories()
-  formLoading.value = false
 })
 
-const onFormSubmit = async () => {
-  const result = await handleSubmit()
-  if (!result) return
-  addBrand(result.product?.brand)
-  emit('submit', result)
-}
-
-const onFormReset = async () => {
-  await handleReset()
-}
-
-const onFormEdit = () => {
-  emit('edit')
-}
-
-const onFormDelete = async () => {
-  await handleDelete()
-  emit('delete')
-}
-
-const onFormClose = async () => {
-  await handleClose()
-  emit('close')
-}
 
 const taxedPurchasePrice = computed(() => {
-  if (incomingInvoiceProduct.value.purchasePrice && incomingInvoiceProduct.value.vat) {
-    return (incomingInvoiceProduct.value.purchasePrice * (1 + incomingInvoiceProduct.value.vat / 100)).toLocaleString('it-IT', {
+  if (model.value.purchasePrice && model.value.vat) {
+    return (model.value.purchasePrice * (1 + model.value.vat / 100)).toLocaleString('it-IT', {
       style: 'currency',
       currency: 'EUR'
     })
@@ -331,12 +274,8 @@ const taxedPurchasePrice = computed(() => {
   return undefined
 })
 
-const onSearch = async (value: string) => {
-  try {
-    setProduct(await getProduct(value))
-  } catch (error) {
-    setProduct({ code: value })
-  }
+const onSearch = async (value?: string) => {
+  emit('search', value)
 }
 
 
