@@ -1,6 +1,7 @@
 import apiClient from '@/services/api/apiClient.ts'
 import type { LedgerEntry } from '@/types/ledgerEntry.ts'
 import { fromDTO, fromDTOPage, toDTO } from '@/utils/mapper/ledgerMapper.ts'
+import { API_CONFIG } from '@/config/api.ts'
 
 //Create
 export async function postLedgerEntry(ledgerEntry: LedgerEntry): Promise<LedgerEntry> {
@@ -14,12 +15,14 @@ export async function getLedgerEntryById(id: number): Promise<LedgerEntry> {
   return fromDTO(data)
 }
 
-export async function getLedger(page?: number, size?: number, sort?: any): Promise<{content: LedgerEntry[], totalElements: number}> {
+export async function getLedger(fromDate?: string, toDate?: string, page?: number, size?: number, sort?: any): Promise<{content: LedgerEntry[], totalElements: number}> {
   const {data} = await apiClient.get(`/ledger`, {
     params: {
       page,
       size,
-      sort: sort
+      sort: sort,
+      from: fromDate,
+      to: toDate
     }
   })
   return fromDTOPage(data)
@@ -34,4 +37,8 @@ export async function putLedgerEntryById(id: number, ledgerEntry: LedgerEntry): 
 //Detele
 export async function deleteLedgerEntryById(id: number): Promise<void> {
   await apiClient.delete(`/ledgerEntry/${id}`)
+}
+
+export function print(fromDate: string, toDate: string) {
+  window.open(API_CONFIG.baseURL + '/api/v1/ledger/print?from=' + fromDate + '&to=' + toDate, '_blank')
 }
