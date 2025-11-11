@@ -1,4 +1,4 @@
-import apiClient, { baseURL } from '@/services/api/apiClient.ts'
+import apiClient from '@/services/api/apiClient.ts'
 import type { LedgerEntry } from '@/types/ledgerEntry.ts'
 import { fromDTO, fromDTOPage, toDTO } from '@/utils/mapper/ledgerMapper.ts'
 import { API_CONFIG } from '@/config/api.ts'

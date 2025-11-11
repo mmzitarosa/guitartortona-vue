@@ -1,5 +1,6 @@
 import { computed, ref, type Ref } from 'vue'
 import type { SubmitFormOptions } from '@/types/form'
+import { getNestedValue } from '@/utils/object'
 
 export interface FromDateToDate {
   fromDate?: string
@@ -14,14 +15,15 @@ export function useSearchForm<T>(options: SubmitFormOptions<T, { from?: string; 
 
   const validation = computed(() => {
     const fieldResults = {} as Record<
-      keyof T,
+      string,
       { message?: string; _valid: boolean; validate: boolean; valid: boolean }
     >
 
     let valid = true
 
     for (const { key, validator } of fieldMappings) {
-      const rawResult = validator ? validator(item.value[key]) : undefined
+      const rawValue = getNestedValue(item.value as Record<string, unknown>, key)
+      const rawResult = validator ? validator(rawValue) : undefined
       const validationResult = {
         message: rawResult?.message, // Messaggio da mostrare
         validate: validate.value, // Validazione attiva

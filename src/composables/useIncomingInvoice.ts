@@ -14,7 +14,7 @@ export function useIncomingInvoice() {
   const constants = useIncomingInvoiceConstants()
 
   const form = useForm<IncomingInvoice>({
-    initialItem: {
+    initialValue: {
       items: [], // Inizializza la lista prodotti
     },
     getById: getIncomingInvoiceById,

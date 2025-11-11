@@ -1,10 +1,7 @@
-import { type Ref, ref } from 'vue'
-import type { Bank } from '@/types/bank.ts'
-import { getBanks } from '@/services/api/bankService.ts'
+import { ref } from 'vue'
 import { getProduct } from '@/services/api/productService.ts'
 
 export const useProduct = () => {
-  const item: Ref<T> = ref({ ...(initialItem ?? {}) })
   const loading = ref(false)
 
   const loadProduct = async (code: string) => {

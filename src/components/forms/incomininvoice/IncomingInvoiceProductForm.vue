@@ -1,6 +1,5 @@
 <template>
-  <Fieldset :legend="constants.fieldset.legend"
-            :class="model.product ? 'w-full md:max-w-1/2' : ''">
+  <Fieldset :legend="constants.fieldset.legend" :class="model.product ? 'w-full md:max-w-1/2' : ''">
     <ProgressBar
       :mode="loading ? 'indeterminate' : 'determinate'"
       class="mt-2 bg-gre"
@@ -13,7 +12,6 @@
       </div>
 
       <div class="flex items-center justify-center">
-
         <Button
           type="button"
           severity="secondary"
@@ -22,24 +20,23 @@
           @click="onSearch(undefined)"
         />
       </div>
-
-
     </div>
     <!-- Form di inserimento/modifica prodotto -->
     <div class="grid gap-4 mt-6" v-else>
-
-      <InputTextField v-if="model.product.code"
-                      v-model="model.product.code"
-                      inputId="code"
-                      :label="constants.code.label"
-                      readonly
+      <InputTextField
+        v-if="model.product.code"
+        v-model="model.product.code"
+        inputId="code"
+        :label="constants.code.label"
+        readonly
       />
 
-      <InputTextField v-if="model.product.internalCode"
-                      v-model="model.product.internalCode"
-                      inputId="internalCode"
-                      :label="constants.internalCode.label"
-                      readonly
+      <InputTextField
+        v-if="model.product.internalCode"
+        v-model="model.product.internalCode"
+        inputId="internalCode"
+        :label="constants.internalCode.label"
+        readonly
       />
 
       <SelectField
@@ -77,7 +74,6 @@
       />
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
-
         <VatRateField input-id="vat" label="IVA" v-model="model.vat" />
 
         <div class="md:col-span-2">
@@ -89,12 +85,15 @@
             :readonly
           />
         </div>
-
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
-
-        <InputNumberField v-model="model.quantity" inputId="quantity" :label="constants.quantity.label" :readonly />
+        <InputNumberField
+          v-model="model.quantity"
+          inputId="quantity"
+          :label="constants.quantity.label"
+          :readonly
+        />
 
         <div class="md:col-span-2">
           <InputAmountField
@@ -104,14 +103,14 @@
             :readonly
           />
         </div>
-
       </div>
 
       <TextAreaField
         v-model="model.product.notes"
         inputId="notes"
         :label="constants.notes.label"
-        :readonly />
+        :readonly
+      />
 
       <div class="flex justify-between items-center w-full mt-2">
         <!-- Bottoni di sinistra -->
@@ -199,7 +198,6 @@
 <script setup lang="ts">
 import { Button, Fieldset, ProgressBar } from 'primevue'
 import ProductSearch from '@/components/forms/incomininvoice/ProductSearch.vue'
-import { getProduct } from '@/services/api/productService.ts'
 import { computed, onMounted } from 'vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import SelectField from '@/components/layout/fields/SelectField.vue'
@@ -218,7 +216,7 @@ import {
   deleteIncomingInvoiceProductById,
   getIncomingInvoiceProductById,
   postIncomingInvoiceProduct,
-  putIncomingInvoiceProductById
+  putIncomingInvoiceProductById,
 } from '@/services/api/incomingInvoiceService.ts'
 import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
 
@@ -236,25 +234,21 @@ interface IncomingInvoiceProductFormProps {
 
 const props = withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
   editable: false,
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits(['submit', 'close', 'edit', 'delete', 'reset', 'search'])
-const model = defineModel<IncomingInvoiceProduct>({required: true})
+const model = defineModel<IncomingInvoiceProduct>({ required: true })
 
 const {
   brands,
   loading: brandsLoading,
   loadBrands,
   formatter: brandFormatter,
-  addBrand
+  addBrand,
 } = useBrands()
 
-const {
-  categories,
-  loading: categoriesLoading,
-  loadCategories,
-} = useCategories()
+const { categories, loading: categoriesLoading, loadCategories } = useCategories()
 
 const readonly = computed(() => !props.editable)
 
@@ -263,12 +257,11 @@ onMounted(async () => {
   await loadCategories()
 })
 
-
 const taxedPurchasePrice = computed(() => {
   if (model.value.purchasePrice && model.value.vat) {
     return (model.value.purchasePrice * (1 + model.value.vat / 100)).toLocaleString('it-IT', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     })
   }
   return undefined
@@ -278,5 +271,23 @@ const onSearch = async (value?: string) => {
   emit('search', value)
 }
 
+const onFormClose = () => {
+  emit('close')
+}
 
+const onFormReset = () => {
+  emit('reset')
+}
+
+const onFormDelete = () => {
+  emit('delete')
+}
+
+const onFormEdit = () => {
+  emit('edit')
+}
+
+const onFormSubmit = () => {
+  emit('submit')
+}
 </script>

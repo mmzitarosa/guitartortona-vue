@@ -21,8 +21,8 @@ interface SelectButtonFieldProps<T extends Record<string, any>> {
   inputId: string
   readonly?: boolean
   options: T[]
-  optionValue: keyof T
-  optionLabel: keyof T
+  optionValue: Extract<keyof T, string>
+  optionLabel: Extract<keyof T, string>
   validation?: { message?: string; valid: boolean }
 }
 
