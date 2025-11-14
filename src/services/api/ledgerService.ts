@@ -15,13 +15,10 @@ export async function getLedgerEntryById(id: number): Promise<LedgerEntry> {
   return fromDTO(data)
 }
 
-export async function getLedger(
-  fromDate?: string,
-  toDate?: string,
-  page?: number,
-  size?: number,
-  sort?: any
-): Promise<{ content: LedgerEntry[]; totalElements: number }> {
+export async function getLedger(fromDate?: string, toDate?: string, page?: number, size?: number, sort?: any): Promise<{
+  content: LedgerEntry[];
+  totalElements: number
+}> {
   const { data } = await apiClient.get(`/ledger`, {
     params: {
       page,

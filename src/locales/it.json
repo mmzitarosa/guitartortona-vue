@@ -151,6 +151,12 @@
       "toastMessage": "La finestra è stata chiusa."
     }
   },
+  "status": {
+    "draft": {
+      "label": "BOZZA",
+      "severity": "warn"
+    }
+  },
   "cards": {
     "newRecord": {
       "title": "Nuovo Record",

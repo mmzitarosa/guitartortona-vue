@@ -336,6 +336,20 @@ export const useIncomingInvoiceProductConstants = () => {
   }
 }
 
+/**
+ * IncomingInvoices table constants using i18n
+ */
+export const useIncomingInvoicesTableConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    draft: {
+      label: t('status.draft.label'),
+      severity: t('status.draft.severity'),
+    }
+  }
+}
+
 export const useConfirmDialogConstants = () => {
   const { t } = useI18n()
 
@@ -407,7 +421,6 @@ export const useSidebarItems = (): Menu[] => {
           label: t('navigation.items.invoiceList'),
           icon: 'pi pi-list',
           route: '/incomingInvoices',
-          disabled: true,
         },
       ],
     },

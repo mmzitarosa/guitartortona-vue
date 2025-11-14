@@ -28,7 +28,15 @@ export function fromDTO(dto: IncomingInvoiceDTO): IncomingInvoice {
     number: dto.number,
     amount: dto.amount,
     notes: dto.notes,
+    status: dto.status,
     items: dto.items?.map(fromProductDTO)
+  }
+}
+
+export function fromDTOPage(dtoPage: { content: IncomingInvoiceDTO[], page: { totalElements: number } }): { content: IncomingInvoice[]; totalElements: number } {
+  return {
+    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
+    totalElements: dtoPage.page.totalElements,
   }
 }
 

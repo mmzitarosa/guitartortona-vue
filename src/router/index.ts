@@ -4,6 +4,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 const HomeView = () => import('@/views/HomeView.vue')
 const AddIncomingInvoiceView = () => import('@/views/AddIncomingInvoiceView.vue')
 const IncomingInvoiceView = () => import('@/views/IncomingInvoiceView.vue')
+const IncomingInvoicesListView = () => import('@/views/IncomingInvoicesListView.vue')
 const AddLedgerEntryView = () => import('@/views/AddLedgerEntryView.vue')
 const LedgerEntryView = () => import('@/views/LedgerEntryView.vue')
 const LedgerView = () => import('@/views/LedgerView.vue')
@@ -34,6 +35,14 @@ const routes: RouteRecordRaw[] = [
     component: IncomingInvoiceView,
     meta: {
       title: 'Dettaglio Fattura',
+    },
+  },
+  {
+    path: '/incomingInvoices',
+    name: 'incomingInvoicesList',
+    component: IncomingInvoicesListView,
+    meta: {
+      title: 'Lista Fatture',
     },
   },
   {

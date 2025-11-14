@@ -11,6 +11,7 @@ export interface IncomingInvoice {
   number?: string
   amount?: number
   notes?: string
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED' | 'ARCHIVED'
   items?: IncomingInvoiceProduct[]
 }
 
@@ -23,5 +24,6 @@ export interface IncomingInvoiceDTO {
   number?: string
   amount?: number
   notes?: string
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED' | 'ARCHIVED'
   items?: IncomingInvoiceProductDTO[]
 }
