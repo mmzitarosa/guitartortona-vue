@@ -3,6 +3,7 @@
     :filter
     @page="onPage"
     @rowSelect="onRowSelect"
+    @filter="onFilter"
   ></IncomingInvoicesTable>
 </template>
 
@@ -15,14 +16,16 @@ import IncomingInvoicesTable from '@/components/IncomingInvoicesTable.vue'
 const route = useRoute()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, from, to } = route.query
+  const { page = 0, size = 15, supplier, status } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
   return {
     page: pageN,
     size: sizeN,
-    first: pageN * sizeN
+    first: pageN * sizeN,
+    supplier: supplier ? (supplier as string) : undefined,
+    status: status ? (status as string) : undefined,
   }
 })
 
@@ -41,4 +44,12 @@ const onRowSelect = (id: number, edit: boolean): void => {
   router.push({ name: 'incomingInvoice', params: { id: id }, query: { editable } })
 }
 
+const onFilter = (supplier?: string, status?: string) => {
+  router.replace({
+    query: {
+      supplier,
+      status,
+    },
+  })
+}
 </script>

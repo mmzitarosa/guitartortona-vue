@@ -21,11 +21,12 @@ export async function getIncomingInvoiceById(id: number): Promise<IncomingInvoic
   return fromDTO(data)
 }
 
-export async function getIncomingInvoices(page?: number, size?: number, sort?: any): Promise<{
+export async function getIncomingInvoices(page?: number, size?: number, sort?: any, status?: string): Promise<{
   content: IncomingInvoice[];
-  totalElements: number
+  totalElements: number,
+  totalDrafts: number
 }> {
-  const { data } = await apiClient.get(`/incomingInvoices`, { params: { page, size, sort } })
+  const { data } = await apiClient.get(`/incomingInvoices`, { params: { page, size, sort, status } })
   return fromDTOPage(data)
 }
 
