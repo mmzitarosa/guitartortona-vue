@@ -129,7 +129,7 @@
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-else-if="!existingItem"
+            v-if="!readonly && !existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -138,11 +138,20 @@
 
           <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
           <Button
-            v-else-if="dirty"
+            v-else-if="!readonly && dirty"
             type="button"
             :label="constants.update.label"
             :icon="constants.update.icon"
             @click="emit('submit')"
+          />
+
+          <Button
+            v-else-if="isEditable(model)"
+            type="button"
+            outlined
+            label="Conferma"
+            icon="pi pi-check"
+            @click="emit('complete')"
           />
         </div>
       </div>
@@ -157,7 +166,7 @@ import { Button, ProgressBar } from 'primevue'
 import { useSuppliers } from '@/composables/useSuppliers.ts'
 import { computed, onMounted } from 'vue'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
+import { isEditable, type IncomingInvoice } from '@/types/incomingInvoice.ts'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
@@ -181,17 +190,17 @@ interface IncomingInvoiceFormProps {
 const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
   editable: false,
   backable: true,
-  loading: false
+  loading: false,
 })
 
-const emit = defineEmits(['submit', 'close', 'edit', 'delete', 'reset'])
+const emit = defineEmits(['submit', 'complete', 'close', 'edit', 'delete', 'reset'])
 const model = defineModel<IncomingInvoice>({ required: true })
 
 const {
   suppliers,
   loading: suppliersLoading,
   loadSuppliers,
-  formatter: supplierFormatter
+  formatter: supplierFormatter,
 } = useSuppliers()
 
 const readonly = computed(() => !props.editable)
@@ -199,5 +208,4 @@ const readonly = computed(() => !props.editable)
 onMounted(async () => {
   await loadSuppliers()
 })
-
 </script>

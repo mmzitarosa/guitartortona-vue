@@ -92,7 +92,7 @@
         </Column>
         <Column class="w-0 !text-end">
           <template #body="{ data }">
-            <span class="flex">
+            <span class="flex flex-row-reverse">
               <Button
                 type="button"
                 icon="pi pi-eye"
@@ -102,6 +102,7 @@
                 rounded
               ></Button>
               <Button
+                v-show="isEditable(data)"
                 type="button"
                 icon="pi pi-pencil"
                 @click="onRowSelect(data, true)"
@@ -131,7 +132,7 @@ import {
 import { onMounted, type Ref, ref, watch } from 'vue'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable.ts'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants.ts'
-import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
+import { isEditable, type IncomingInvoice } from '@/types/incomingInvoice.ts'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTableFilterMetaData } from 'primevue/datatable'
 

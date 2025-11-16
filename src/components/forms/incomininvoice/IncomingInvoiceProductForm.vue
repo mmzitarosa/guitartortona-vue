@@ -1,5 +1,5 @@
 <template>
-  <Fieldset :legend="constants.fieldset.legend" :class="model.product ? 'w-full md:max-w-1/2' : ''">
+  <Fieldset :legend="constants.fieldset.legend" :class="model.product ? 'w-full md:max-w-3/4' : ''">
     <ProgressBar
       :mode="loading ? 'indeterminate' : 'determinate'"
       class="mt-2 bg-gre"
@@ -23,47 +23,50 @@
     </div>
     <!-- Form di inserimento/modifica prodotto -->
     <div class="grid gap-4 mt-6" v-else>
-      <InputTextField
-        v-if="model.product.code"
-        v-model="model.product.code"
-        inputId="code"
-        :label="constants.code.label"
-        readonly
-      />
+      <div class="grid grid-cols-1 md:grid-cols-2 grid-rows-1 gap-4 col-span-full">
+        <InputTextField
+          v-model="model.product.code"
+          inputId="code"
+          :label="constants.code.label"
+          readonly
+        />
 
-      <InputTextField
-        v-if="model.product.internalCode"
-        v-model="model.product.internalCode"
-        inputId="internalCode"
-        :label="constants.internalCode.label"
-        readonly
-      />
+        <InputTextField
+          placeholder="AUTO"
+          v-model="model.product.internalCode"
+          inputId="internalCode"
+          :label="constants.internalCode.label"
+          readonly
+        />
+      </div>
 
-      <SelectField
-        v-model="model.product.category"
-        inputId="category"
-        optionId="id"
-        optionLabel="name"
-        :options="categories"
-        :label="constants.category.label"
-        :readonly
-        showClear
-        :loading="categoriesLoading"
-      />
+      <div class="grid grid-cols-1 md:grid-cols-2 grid-rows-1 gap-4 col-span-full">
+        <SelectField
+          v-model="model.product.category"
+          inputId="category"
+          optionId="id"
+          optionLabel="name"
+          :options="categories"
+          :label="constants.category.label"
+          :readonly
+          showClear
+          :loading="categoriesLoading"
+        />
 
-      <SelectField
-        v-model="model.product.brand"
-        inputId="brand"
-        optionId="id"
-        optionLabel="name"
-        :options="brands"
-        editable
-        showClear
-        :label="constants.brand.label"
-        :readonly
-        :loading="brandsLoading"
-        :formatter="brandFormatter"
-      />
+        <SelectField
+          v-model="model.product.brand"
+          inputId="brand"
+          optionId="id"
+          optionLabel="name"
+          :options="brands"
+          editable
+          showClear
+          :label="constants.brand.label"
+          :readonly
+          :loading="brandsLoading"
+          :formatter="brandFormatter"
+        />
+      </div>
 
       <TextAreaField
         v-model="model.product.description"
@@ -73,7 +76,15 @@
         :readonly
       />
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
+      <Divider align="right" type="dashed" class="!m-0 !mb-1">Acquisto</Divider>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-1 gap-4 col-span-full">
+        <InputNumberField
+          v-model="model.quantity"
+          inputId="quantity"
+          :label="constants.quantity.label"
+          :readonly
+        />
         <VatRateField input-id="vat" label="IVA" v-model="model.vat" />
 
         <div class="md:col-span-2">
@@ -81,28 +92,24 @@
             v-model="model.purchasePrice"
             inputId="purchasePrice"
             :label="constants.purchasePrice.label"
-            :tooltip="taxedPurchasePrice"
             :readonly
           />
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 col-span-full">
-        <InputNumberField
-          v-model="model.quantity"
-          inputId="quantity"
-          :label="constants.quantity.label"
+      <Divider align="right" type="dashed" class="!m-0 !mb-1">Vendita</Divider>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full items-center">
+        <p class="text-end px-3">
+          {{ taxedPurchasePrice ? 'Acquisto (IVA Inclusa): ' + taxedPurchasePrice : '' }}
+        </p>
+
+        <InputAmountField
+          v-model="model.product.price"
+          inputId="price"
+          :label="constants.price.label"
           :readonly
         />
-
-        <div class="md:col-span-2">
-          <InputAmountField
-            v-model="model.product.price"
-            inputId="price"
-            :label="constants.price.label"
-            :readonly
-          />
-        </div>
       </div>
 
       <TextAreaField
@@ -122,7 +129,7 @@
             severity="secondary"
             :label="constants.close.label"
             :icon="constants.close.icon"
-            @click="onFormClose"
+            @click="emit('close')"
           />
           <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
           <Button
@@ -131,7 +138,7 @@
             severity="secondary"
             :label="constants.cancel.label"
             :icon="constants.cancel.icon"
-            @click="onFormClose"
+            @click="emit('close')"
           />
 
           <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
@@ -143,7 +150,7 @@
             variant="text"
             rounded
             aria-label="Filter"
-            @click="onFormReset"
+            @click="emit('reset')"
           />
         </div>
 
@@ -157,7 +164,7 @@
             text
             icon="pi pi-trash"
             severity="secondary"
-            @click="onFormDelete"
+            @click="emit('delete')"
           />
 
           <!-- Tasto Edit - Visualizzazione  -->
@@ -168,25 +175,25 @@
             text
             icon="pi pi-pen-to-square"
             severity="secondary"
-            @click="onFormEdit"
+            @click="emit('edit')"
           />
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-else-if="!existingItem"
+            v-if="!readonly && !existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
-            @click="onFormSubmit"
+            @click="emit('submit')"
           />
 
           <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
           <Button
-            v-else-if="dirty"
+            v-else-if="!readonly && dirty"
             type="button"
             :label="constants.update.label"
             :icon="constants.update.icon"
-            @click="onFormSubmit"
+            @click="emit('submit')"
           />
         </div>
       </div>
@@ -196,7 +203,7 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Fieldset, ProgressBar } from 'primevue'
+import { Button, Fieldset, ProgressBar, Divider } from 'primevue'
 import ProductSearch from '@/components/forms/incomininvoice/ProductSearch.vue'
 import { computed, onMounted } from 'vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
@@ -269,25 +276,5 @@ const taxedPurchasePrice = computed(() => {
 
 const onSearch = async (value?: string) => {
   emit('search', value)
-}
-
-const onFormClose = () => {
-  emit('close')
-}
-
-const onFormReset = () => {
-  emit('reset')
-}
-
-const onFormDelete = () => {
-  emit('delete')
-}
-
-const onFormEdit = () => {
-  emit('edit')
-}
-
-const onFormSubmit = () => {
-  emit('submit')
 }
 </script>

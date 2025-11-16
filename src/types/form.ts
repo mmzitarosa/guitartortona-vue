@@ -29,6 +29,7 @@ export interface FormOptions<T> extends ValidationFormOptions<T> {
   getById: (id: number) => Promise<T>
   create: (item: T) => Promise<T>
   update: (id: number, item: T) => Promise<T>
+  complete?: (id: number) => Promise<T>
   remove: (id: number) => Promise<void>
   group?: string
 }
@@ -45,5 +46,5 @@ export interface SubmitFormOptions<T, R> {
  * Generic Form options interface
  */
 export interface ValidationFormOptions<T> {
-  fieldMappings: FieldMapping<T>[],
+  fieldMappings: FieldMapping<T>[]
 }

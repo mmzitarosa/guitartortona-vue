@@ -6,6 +6,7 @@ import {
   getIncomingInvoiceById,
   postIncomingInvoice,
   putIncomingInvoiceById,
+  completeIncomingInvoiceById,
 } from '@/services/api/incomingInvoiceService'
 import { validateDate } from '@/utils/dateUtils'
 import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
@@ -20,6 +21,7 @@ export function useIncomingInvoice() {
     getById: getIncomingInvoiceById,
     create: postIncomingInvoice,
     update: putIncomingInvoiceById,
+    complete: completeIncomingInvoiceById,
     remove: deleteIncomingInvoiceById,
     fieldMappings: [
       {

@@ -1,7 +1,7 @@
 import type { Supplier } from '@/types/supplier.ts'
 import type {
   IncomingInvoiceProduct,
-  IncomingInvoiceProductDTO
+  IncomingInvoiceProductDTO,
 } from '@/types/incominInvoiceProduct.ts'
 
 export interface IncomingInvoice {
@@ -26,4 +26,17 @@ export interface IncomingInvoiceDTO {
   notes?: string
   status?: 'DRAFT' | 'PENDING' | 'COMPLETED' | 'ARCHIVED'
   items?: IncomingInvoiceProductDTO[]
+}
+
+export function isEditable(invoice: IncomingInvoice): boolean {
+  return invoice.status === 'DRAFT'
+}
+export function addProductToInvoice(
+  invoice: IncomingInvoice,
+  product: IncomingInvoiceProduct,
+): void {
+  if (!invoice.items) {
+    invoice.items = []
+  }
+  invoice.items.push(product)
 }

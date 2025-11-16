@@ -13,12 +13,16 @@
     @close="onClose"
     @edit="onEdit"
     @delete="onDelete"
-    @reset="onReset" />
+    @reset="onReset"
+    @complete="onComplete"
+  />
 
   <IncomingInvoiceProduct
     v-model="incomingInvoice"
     class="mt-4"
-    :editable />
+    :editable
+    :id="incomingInvoice.id!"
+  />
 </template>
 
 <script setup lang="ts">
@@ -43,9 +47,10 @@ const {
   existingItem,
   loadItem,
   handleSubmit,
+  handleComplete,
   handleReset,
   handleClose,
-  handleDelete
+  handleDelete,
 } = useIncomingInvoice()
 
 // Carica la fattura
@@ -59,10 +64,10 @@ const editable = computed({
     router.replace({
       query: {
         ...route.query,
-        editable: String(val)
-      }
+        editable: String(val),
+      },
     })
-  }
+  },
 })
 
 const backable = computed(() => route.query.from !== 'add' || editable.value)
@@ -72,6 +77,10 @@ const onSubmit = async () => {
   if (result) {
     editable.value = false
   }
+}
+
+const onComplete = async () => {
+  await handleComplete()
 }
 
 const onClose = async () => {

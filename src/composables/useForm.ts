@@ -6,7 +6,7 @@ import { useOriginalData } from '@/composables/useOriginalData'
 import { getNestedValue } from '@/utils/object.ts'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { initialValue, getById, create, update, remove, fieldMappings, group } = options
+  const { initialValue, getById, create, update, complete, remove, fieldMappings, group } = options
 
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
@@ -19,7 +19,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     pristine,
     reset: resetOriginalData,
     setOriginal,
-    existingItem
+    existingItem,
   } = useOriginalData<T>({
     initialValue,
     fieldMappings,
@@ -44,7 +44,10 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   }
 
   const validation = computed(() => {
-    const fieldResults = {} as Record<string, { message?: string; _valid: boolean; validate: boolean; valid: boolean }>
+    const fieldResults = {} as Record<
+      string,
+      { message?: string; _valid: boolean; validate: boolean; valid: boolean }
+    >
 
     let valid = true
 
@@ -82,41 +85,68 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       // Preparo il dialog di update (se esiste id) o insert (nuovo item)
       const params: ConfirmDialogParams<T> = existingItem.value
         ? {
-          header: constants.updateDialog.title,
-          message: constants.updateDialog.message,
-          group: group ?? 'differences', // Così mostra le diff rispetto al precedente
-          icon: 'pi pi-info-circle',
-          acceptLabel: constants.updateDialog.acceptLabel,
-          toastSummary: constants.updateDialog.toastTitle,
-          toastDetail: constants.updateDialog.toastMessage,
-          accept: async () => {
-            // Chiamo servizio di update
-            const result = await update(<number>item.value.id, item.value)
-            // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
-            setOriginal(result)
-            // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
-            validate.value = false
-            return result
-          },
-        }
+            header: constants.updateDialog.title,
+            message: constants.updateDialog.message,
+            group: group ?? 'differences', // Così mostra le diff rispetto al precedente
+            icon: 'pi pi-info-circle',
+            acceptLabel: constants.updateDialog.acceptLabel,
+            toastSummary: constants.updateDialog.toastTitle,
+            toastDetail: constants.updateDialog.toastMessage,
+            accept: async () => {
+              // Chiamo servizio di update
+              const result = await update(<number>item.value.id, item.value)
+              // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
+              setOriginal(result)
+              // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
+              validate.value = false
+              return result
+            },
+          }
         : {
-          header: constants.saveDialog.title,
-          message: constants.saveDialog.message,
-          group: group ?? 'differences', // Così mostra le diff rispetto al precedente
-          icon: 'pi pi-info-circle',
-          acceptLabel: constants.saveDialog.acceptLabel,
-          toastSummary: constants.saveDialog.toastTitle,
-          toastDetail: constants.saveDialog.toastMessage,
-          accept: async () => {
-            // Chiamo servizio di insert
-            const result = await create(item.value)
-            // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
-            setOriginal(result)
-            // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
-            validate.value = false
-            return result
-          },
-        }
+            header: constants.saveDialog.title,
+            message: constants.saveDialog.message,
+            group: group ?? 'differences', // Così mostra le diff rispetto al precedente
+            icon: 'pi pi-info-circle',
+            acceptLabel: constants.saveDialog.acceptLabel,
+            toastSummary: constants.saveDialog.toastTitle,
+            toastDetail: constants.saveDialog.toastMessage,
+            accept: async () => {
+              // Chiamo servizio di insert
+              const result = await create(item.value)
+              // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
+              setOriginal(result)
+              // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
+              validate.value = false
+              return result
+            },
+          }
+      // Apro il dialog
+      return confirmDialog.require<T>(params)
+    } finally {
+      // In ogni caso, al termine, disattivo il loading
+      loading.value = false
+    }
+  }
+
+  const handleComplete = () => {
+    try {
+      // Attivo il loading --> uno unico loading per tutto
+      loading.value = true
+      const params: ConfirmDialogParams<T> = {
+        header: 'title',
+        message: 'message',
+        icon: 'pi pi-info-circle',
+        acceptLabel: 'acceptLabel',
+        toastSummary: 'toastTitle',
+        toastDetail: 'toastMessage',
+        accept: async () => {
+          // Chiamo servizio di confirm
+          const result = await complete!(<number>item.value.id)
+          // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
+          setOriginal(result)
+          return result
+        },
+      }
       // Apro il dialog
       return confirmDialog.require<T>(params)
     } finally {
@@ -207,6 +237,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     existingItem,
     validation,
     handleSubmit,
+    handleComplete,
     handleReset,
     handleClose,
     handleDelete,
