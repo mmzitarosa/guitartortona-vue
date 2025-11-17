@@ -11,36 +11,37 @@ export function useOriginalData<T extends { id?: number }>(options: UseOriginalD
   const { initialValue, fieldMappings } = options
 
   // L'item corrente - parte con initialValue se presente
-  const item: Ref<T> = ref({ ...initialValue ?? {} }) as Ref<T>
+  const item: Ref<T> = ref({ ...(initialValue ?? {}) }) as Ref<T>
 
   // Il valore originale con cui confrontare - parte SENZA initialValue
-  const original: Ref<T> = ref({ ...initialValue ?? {} }) as Ref<T>
+  const original: Ref<T> = ref({ ...(initialValue ?? {}) }) as Ref<T>
 
   const existingItem = computed(() => !!item.value.id)
 
   // Calcolo delle differenze tra item e original
-  const changes: ComputedRef<{ field: string; oldValue: any; newValue: any, ignore: boolean }[]> = computed(() => {
-    if (!item.value || !original.value) return []
+  const changes: ComputedRef<{ field: string; oldValue: any; newValue: any; ignore: boolean }[]> =
+    computed(() => {
+      if (!item.value || !original.value) return []
 
-    return fieldMappings.flatMap(({ key, label: field, labeler, defaultValue }) => {
-      const oldRaw = getNestedValue(original.value, key)
-      const newRaw = getNestedValue(item.value, key)
+      return fieldMappings.flatMap(({ key, label: field, labeler, defaultValue }) => {
+        const oldRaw = getNestedValue(original.value, key)
+        const newRaw = getNestedValue(item.value, key)
 
-      const oldValue = labeler ? labeler(oldRaw) : oldRaw
-      const newValue = labeler ? labeler(newRaw) : newRaw
+        const oldValue = labeler ? labeler(oldRaw) : oldRaw
+        const newValue = labeler ? labeler(newRaw) : newRaw
 
-      const ignore = !existingItem.value && oldValue === newValue && !!defaultValue
+        const ignore = !existingItem.value && oldValue === newValue && !!defaultValue
 
-      if (ignore || oldValue !== newValue) {
-        return [{ field, oldValue, newValue, ignore }]
-      }
-      return []
+        if (ignore || oldValue !== newValue) {
+          return [{ field, oldValue, newValue, ignore }]
+        }
+        return []
+      })
     })
-  })
 
   // L'item è stato modificato rispetto all'original
   const dirty: ComputedRef<boolean> = computed(() => {
-    return changes.value.some(change => !change.ignore)
+    return changes.value.some((change) => !change.ignore)
   })
 
   // L'item è ancora vergine (non modificato)

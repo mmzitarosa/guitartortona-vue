@@ -158,24 +158,13 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="readonly"
+            v-if="!readonly && existingItem"
             type="button"
             rounded
             text
             icon="pi pi-trash"
             severity="secondary"
             @click="emit('delete')"
-          />
-
-          <!-- Tasto Edit - Visualizzazione  -->
-          <Button
-            v-if="readonly"
-            type="button"
-            rounded
-            text
-            icon="pi pi-pen-to-square"
-            severity="secondary"
-            @click="emit('edit')"
           />
 
           <!-- Tasto Aggiungi - Inserimento  -->
@@ -214,17 +203,9 @@ import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import VatRateField from '@/components/layout/fields/VatRateField.vue'
 import InputNumberField from '@/components/layout/fields/InputNumberField.vue'
-import { useIncomingInvoiceProduct } from '@/composables/useIncomingInvoiceProduct.ts'
 import { useCategories } from '@/composables/useCategories.ts'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import type { Category } from '@/types/category.ts'
-import type { Brand } from '@/types/brand.ts'
-import {
-  deleteIncomingInvoiceProductById,
-  getIncomingInvoiceProductById,
-  postIncomingInvoiceProduct,
-  putIncomingInvoiceProductById,
-} from '@/services/api/incomingInvoiceService.ts'
+
 import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
 
 const constants = useIncomingInvoiceProductConstants()
@@ -244,16 +225,10 @@ const props = withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
   loading: false,
 })
 
-const emit = defineEmits(['submit', 'close', 'edit', 'delete', 'reset', 'search'])
+const emit = defineEmits(['submit', 'close', 'delete', 'reset', 'search'])
 const model = defineModel<IncomingInvoiceProduct>({ required: true })
 
-const {
-  brands,
-  loading: brandsLoading,
-  loadBrands,
-  formatter: brandFormatter,
-  addBrand,
-} = useBrands()
+const { brands, loading: brandsLoading, loadBrands, formatter: brandFormatter } = useBrands()
 
 const { categories, loading: categoriesLoading, loadCategories } = useCategories()
 

@@ -107,7 +107,7 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="readonly"
+            v-if="!readonly && existingItem"
             type="button"
             rounded
             text

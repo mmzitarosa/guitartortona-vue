@@ -1,5 +1,3 @@
-import type { Brand } from '@/types/brand.ts'
-import type { Category } from '@/types/category.ts'
 import type { Product } from '@/types/product.ts'
 
 export interface IncomingInvoiceProduct {

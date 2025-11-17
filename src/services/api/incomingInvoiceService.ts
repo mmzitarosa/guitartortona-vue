@@ -90,7 +90,10 @@ export async function putIncomingInvoiceProductById(
   incomingInvoiceProduct: IncomingInvoiceProduct,
 ): Promise<IncomingInvoiceProduct> {
   if (incomingInvoiceProduct.product)
-    incomingInvoiceProduct.product = await putProductById(id, incomingInvoiceProduct.product)
+    incomingInvoiceProduct.product = await putProductById(
+      incomingInvoiceProduct.product.id!,
+      incomingInvoiceProduct.product,
+    )
   const { data } = await apiClient.put(
     `/incomingInvoice/${invoiceId}/product/${id}`,
     toProductDTO(incomingInvoiceProduct),

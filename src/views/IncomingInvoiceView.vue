@@ -17,12 +17,7 @@
     @complete="onComplete"
   />
 
-  <IncomingInvoiceProduct
-    v-model="incomingInvoice"
-    class="mt-4"
-    :editable
-    :id="incomingInvoice.id!"
-  />
+  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable />
 </template>
 
 <script setup lang="ts">

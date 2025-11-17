@@ -31,6 +31,7 @@ export interface IncomingInvoiceDTO {
 export function isEditable(invoice: IncomingInvoice): boolean {
   return invoice.status === 'DRAFT'
 }
+
 export function addProductToInvoice(
   invoice: IncomingInvoice,
   product: IncomingInvoiceProduct,
@@ -38,5 +39,34 @@ export function addProductToInvoice(
   if (!invoice.items) {
     invoice.items = []
   }
+
+  // Se il prodotto ha un id, cerca se esiste già nella lista
+  if (product.id !== undefined) {
+    const existingIndex = invoice.items.findIndex((item) => item.id === product.id)
+    if (existingIndex !== -1) {
+      // Aggiorna il prodotto esistente
+      invoice.items[existingIndex] = product
+      return
+    }
+  }
+
+  // Se non esiste o non ha id, aggiungilo
   invoice.items.push(product)
+}
+
+export function removeProductFromInvoice(
+  invoice: IncomingInvoice,
+  IncomingInvoiceProductId: number,
+): boolean {
+  if (!invoice.items || invoice.items.length === 0) {
+    return false
+  }
+
+  const existingIndex = invoice.items.findIndex((item) => item.id === IncomingInvoiceProductId)
+  if (existingIndex !== -1) {
+    invoice.items.splice(existingIndex, 1)
+    return true
+  }
+
+  return false
 }

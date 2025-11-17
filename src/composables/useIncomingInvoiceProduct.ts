@@ -69,6 +69,12 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
     group: 'productDifferences',
   })
 
+  const setIncominInvoiceProduct = (incominInvoiceProduct: IncomingInvoiceProduct) => {
+    console.log(incominInvoiceProduct)
+
+    form.setItem(incominInvoiceProduct)
+  }
+
   const setProduct = (product?: Product) => {
     form.setItem({
       ...initialValue,
@@ -76,9 +82,17 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
     })
   }
 
+  const closeProduct = () => {
+    form.setItem({
+      ...initialValue,
+    })
+  }
+
   return {
     ...form,
     setProduct,
+    closeProduct,
+    setIncominInvoiceProduct,
     constants,
   }
 }
