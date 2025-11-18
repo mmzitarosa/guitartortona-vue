@@ -79,13 +79,15 @@
           <template #filter="{ filterModel, filterCallback }">
             <Select
               v-model="filterModel.value"
-              @change="filterCallback()"
-              :options="['DRAFT']"
+              @change="filterCallback"
+              :options="[{ label: 'BOZZA', value: 'DRAFT', severity: 'warn' }]"
+              optionValue="value"
+              optionLabel="label"
               placeholder="Selezionane uno"
               :showClear="true"
             >
               <template #option="{ option }">
-                <Tag :value="option" :severity="'warn'" />
+                <Tag :value="option.label" :severity="option.severity" />
               </template>
             </Select>
           </template>
