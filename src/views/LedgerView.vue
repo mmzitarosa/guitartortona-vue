@@ -40,11 +40,13 @@ const onPage = (page: number, size: number) => {
   })
 }
 
-const onRowSelect = (id: number): void => {
-  router.push({ name: 'ledgerEntry', params: { id: id } })
+const onRowSelect = (id?: number): void => {
+  if (id) {
+    router.push({ name: 'ledgerEntry', params: { id: id } })
+  }
 }
 
-const onSearch = (from: string, to: string): void => {
+const onSearch = (from?: string, to?: string): void => {
   router.replace({
     query: {
       from: from?.replace(/\//g, '-'),

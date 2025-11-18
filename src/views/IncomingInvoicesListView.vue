@@ -39,9 +39,11 @@ const onPage = (page: number, size: number) => {
   })
 }
 
-const onRowSelect = (id: number, edit: boolean): void => {
-  const editable: string = edit ? 'true' : 'false'
-  router.push({ name: 'incomingInvoice', params: { id: id }, query: { editable } })
+const onRowSelect = (id?: number, edit?: boolean): void => {
+  if (id !== undefined) {
+    const editable: string = edit ? 'true' : 'false'
+    router.push({ name: 'incomingInvoice', params: { id: id }, query: { editable } })
+  }
 }
 
 const onFilter = (supplier?: string, status?: string) => {

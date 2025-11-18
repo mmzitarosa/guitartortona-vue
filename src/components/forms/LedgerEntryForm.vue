@@ -221,37 +221,43 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
-import { useBanks } from '@/composables/useBanks.ts'
-import { computed, onMounted } from 'vue'
-
-import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import { useForm } from '@/composables/useForm.ts'
+import type { Bank } from '@/types/bank'
+import type { LedgerEntry } from '@/types/ledgerEntry'
 import {
-  type LedgerEntry,
   movementTypes,
   paymentMethods,
   paymentTypes,
-} from '@/types/ledgerEntry.ts'
+  paymentTypesMap,
+  paymentMethodsMap,
+  movementTypesMap,
+} from '@/types/ledgerEntry'
+import ChangesDialog from '@/components/layout/ChangesDialog.vue'
+import InputDateField from '@/components/layout/fields/InputDateField.vue'
+import InputTextField from '@/components/layout/fields/InputTextField.vue'
+import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
+import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
+import SelectButtonField from '@/components/layout/fields/SelectButtonField.vue'
+import SelectField from '@/components/layout/fields/SelectField.vue'
+import { useBanks } from '@/composables/useBanks'
+import { useForm } from '@/composables/useForm'
 import {
   deleteLedgerEntryById,
   getLedgerEntryById,
   postLedgerEntry,
   putLedgerEntryById,
-} from '@/services/api/ledgerService.ts'
-import { validateDate } from '@/utils/dateUtils.ts'
-import InputDateField from '@/components/layout/fields/InputDateField.vue'
-import InputTextField from '@/components/layout/fields/InputTextField.vue'
-import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
-import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
+} from '@/services/api/ledgerService'
+import { validateDate } from '@/utils/dateUtils'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
-import SelectButtonField from '@/components/layout/fields/SelectButtonField.vue'
-import type { Bank } from '@/types/bank.ts'
-import { paymentTypesMap, paymentMethodsMap, movementTypesMap } from '@/types/ledgerEntry.ts'
-import SelectField from '../layout/fields/SelectField.vue'
 
-const emit = defineEmits(['submit', 'close', 'edit', 'delete'])
+const emit = defineEmits<{
+  submit: [ledgerEntry: LedgerEntry]
+  close: []
+  edit: []
+  delete: []
+}>()
 
 const constants = useLedgerEntryConstants()
 

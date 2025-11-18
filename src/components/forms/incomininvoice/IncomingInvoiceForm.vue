@@ -161,18 +161,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
-import { useSuppliers } from '@/composables/useSuppliers.ts'
-import { computed, onMounted } from 'vue'
+import type { IncomingInvoice } from '@/types/incomingInvoice'
+import { isEditable } from '@/types/incomingInvoice'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
-import { isEditable, type IncomingInvoice } from '@/types/incomingInvoice.ts'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
-import { useIncomingInvoiceConstants } from '@/utils/i18nConstants.ts'
-import SelectField from '../../layout/fields/SelectField.vue'
+import SelectField from '@/components/layout/fields/SelectField.vue'
+import { useSuppliers } from '@/composables/useSuppliers'
+import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
 
 const constants = useIncomingInvoiceConstants()
 
@@ -180,8 +181,11 @@ interface IncomingInvoiceFormProps {
   editable?: boolean
   backable?: boolean
   loading?: boolean
-  validation: any
-  changes: any[]
+  validation: {
+    fields: Record<string, { message?: string; valid: boolean }>
+    valid: boolean
+  }
+  changes: Array<{ field: string; oldValue: unknown; newValue: unknown; ignore: boolean }>
   dirty: boolean
   pristine: boolean
   existingItem: boolean
@@ -193,7 +197,14 @@ const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
   loading: false,
 })
 
-const emit = defineEmits(['submit', 'complete', 'close', 'edit', 'delete', 'reset'])
+const emit = defineEmits<{
+  submit: []
+  complete: []
+  close: []
+  edit: []
+  delete: []
+  reset: []
+}>()
 const model = defineModel<IncomingInvoice>({ required: true })
 
 const {

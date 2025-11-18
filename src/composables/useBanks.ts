@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import type { Bank } from '@/types/bank.ts'
-import { getBanks } from '@/services/api/bankService.ts'
+import type { Bank } from '@/types/bank'
+import { getBanks } from '@/services/api/bankService'
 
 export const useBanks = () => {
   const banks = ref<Bank[]>([])

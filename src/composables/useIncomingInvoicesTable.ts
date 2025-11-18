@@ -1,5 +1,5 @@
 import { type Ref, ref } from 'vue'
-import { getIncomingInvoices } from '@/services/api/incomingInvoiceService.ts'
+import { getIncomingInvoices } from '@/services/api/incomingInvoiceService'
 
 export const useIncomingInvoicesTable = () => {
   const incomingInvoices = ref([{}])
@@ -11,7 +11,7 @@ export const useIncomingInvoicesTable = () => {
     page?: number,
     size?: number,
     sort?: any,
-    status?: string
+    status?: string,
   ) => {
     loading.value = true
     try {
@@ -29,6 +29,6 @@ export const useIncomingInvoicesTable = () => {
     totalRecords,
     totalDrafts,
     loadIncomingInvoices,
-    loading
+    loading,
   }
 }

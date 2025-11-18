@@ -1,4 +1,3 @@
-import type { paymentMethods } from '@/types/ledgerEntry'
 import type { Menu } from '@/types/menu'
 import { useI18n } from 'vue-i18n'
 
@@ -232,7 +231,6 @@ export const useIncomingInvoiceConstants = () => {
   }
 }
 
-
 /**
  * Incoming invoice - Product constants using i18n
  */
@@ -346,7 +344,38 @@ export const useIncomingInvoicesTableConstants = () => {
     draft: {
       label: t('status.draft.label'),
       severity: t('status.draft.severity'),
-    }
+    },
+  }
+}
+
+/**
+ * IncomingInvoiceProducts table constants using i18n
+ */
+export const useIncomingInvoiceProductsTableConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    table: {
+      title: t('incomingInvoiceProducts.table.title'),
+      subtitle: t('incomingInvoiceProducts.table.subtitle'),
+      empty: t('incomingInvoiceProducts.table.empty'),
+      loading: t('incomingInvoiceProducts.table.loading'),
+      columns: {
+        category: t('incomingInvoiceProducts.table.columns.category'),
+        brand: t('incomingInvoiceProducts.table.columns.brand'),
+        description: t('incomingInvoiceProducts.table.columns.description'),
+        quantity: t('incomingInvoiceProducts.table.columns.quantity'),
+        purchase: t('incomingInvoiceProducts.table.columns.purchase'),
+        amount: t('incomingInvoiceProducts.table.columns.amount'),
+        vat: t('incomingInvoiceProducts.table.columns.vat'),
+        sale: t('incomingInvoiceProducts.table.columns.sale'),
+      },
+      footer: {
+        total: t('incomingInvoiceProducts.table.footer.total'),
+        vatExcluded: t('incomingInvoiceProducts.table.footer.vatExcluded'),
+        vatIncluded: t('incomingInvoiceProducts.table.footer.vatIncluded'),
+      },
+    },
   }
 }
 
@@ -451,16 +480,9 @@ export const useSidebarItems = (): Menu[] => {
           disabled: true,
         },
         {
-          label: t('navigation.items.searchProduct'),
-          icon: 'pi pi-search',
-          route: '/product/search',
-          disabled: true,
-        },
-        {
           label: t('navigation.items.inventory'),
           icon: 'pi pi-table',
           route: '/products',
-          disabled: true,
         },
       ],
     },

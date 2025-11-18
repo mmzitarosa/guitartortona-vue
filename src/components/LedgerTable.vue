@@ -104,16 +104,15 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Card, Column, DataTable, type DataTablePageEvent } from 'primevue'
 import { computed, onMounted, watch } from 'vue'
-import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry.ts'
-import { useLedgerTable } from '@/composables/useLedgerTable.ts'
-import { useSearchForm } from '@/composables/useSearchForm.ts'
-import { print } from '@/services/api/ledgerService.ts'
-import { useLedgerTableConstants } from '@/utils/i18nConstants'
+import { Button, Card, Column, DataTable, type DataTablePageEvent } from 'primevue'
+import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
-import { validateDate } from '@/utils/dateUtils.ts'
-import { type FromDateToDate } from '@/composables/useSearchForm.ts'
+import { useLedgerTable } from '@/composables/useLedgerTable'
+import { useSearchForm, type FromDateToDate } from '@/composables/useSearchForm'
+import { print } from '@/services/api/ledgerService'
+import { validateDate } from '@/utils/dateUtils'
+import { useLedgerTableConstants } from '@/utils/i18nConstants'
 
 const constants = useLedgerTableConstants()
 
@@ -129,7 +128,12 @@ const props = defineProps<{
   }
 }>()
 
-const emit = defineEmits(['search', 'page', 'rowSelect', 'reset'])
+const emit = defineEmits<{
+  search: [from?: string, to?: string]
+  page: [page: number, size: number]
+  rowSelect: [id?: number]
+  reset: []
+}>()
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {

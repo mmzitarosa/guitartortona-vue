@@ -1,9 +1,9 @@
 import { computed, ref } from 'vue'
-import { type ConfirmDialogParams, useConfirmDialog } from '@/composables/useConfirmDialog.ts'
 import type { FormOptions } from '@/types/form'
-import { useConfirmDialogConstants } from '@/utils/i18nConstants'
+import { type ConfirmDialogParams, useConfirmDialog } from '@/composables/useConfirmDialog'
 import { useOriginalData } from '@/composables/useOriginalData'
-import { getNestedValue } from '@/utils/object.ts'
+import { getNestedValue } from '@/utils/object'
+import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 
 export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   const { initialValue, getById, create, update, complete, remove, fieldMappings, group } = options

@@ -1,17 +1,16 @@
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
-import { useForm } from '@/composables/useForm.ts'
-import type { Product } from '@/types/product.ts'
-import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants.ts'
+import { computed, type MaybeRef, toValue } from 'vue'
+import type { Brand } from '@/types/brand'
+import type { Category } from '@/types/category'
+import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
+import type { Product } from '@/types/product'
 import {
   deleteIncomingInvoiceProductById,
   getIncomingInvoiceProductById,
   postIncomingInvoiceProduct,
   putIncomingInvoiceProductById,
-} from '@/services/api/incomingInvoiceService.ts'
-import type { Category } from '@/types/category.ts'
-import type { Brand } from '@/types/brand.ts'
-import { computed, type MaybeRef } from 'vue'
-import { toValue } from 'vue'
+} from '@/services/api/incomingInvoiceService'
+import { useForm } from '@/composables/useForm'
+import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants'
 
 export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | undefined>) {
   const constants = useIncomingInvoiceProductConstants()
@@ -69,10 +68,10 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
     group: 'productDifferences',
   })
 
-  const setIncominInvoiceProduct = (incominInvoiceProduct: IncomingInvoiceProduct) => {
-    console.log(incominInvoiceProduct)
+  const setIncomingInvoiceProduct = (incomingInvoiceProduct: IncomingInvoiceProduct) => {
+    console.log(incomingInvoiceProduct)
 
-    form.setItem(incominInvoiceProduct)
+    form.setItem(incomingInvoiceProduct)
   }
 
   const setProduct = (product?: Product) => {
@@ -92,7 +91,7 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
     ...form,
     setProduct,
     closeProduct,
-    setIncominInvoiceProduct,
+    setIncomingInvoiceProduct,
     constants,
   }
 }

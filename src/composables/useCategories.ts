@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import type { Category } from '@/types/category.ts'
-import { getCategories } from '@/services/api/categoryService.ts'
+import type { Category } from '@/types/category'
+import { getCategories } from '@/services/api/categoryService'
 
 export const useCategories = () => {
   const categories = ref<Category[]>([])

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import type { Supplier } from '@/types/supplier.ts'
-import { getSuppliers } from '@/services/api/supplierService.ts'
+import type { Supplier } from '@/types/supplier'
+import { getSuppliers } from '@/services/api/supplierService'
 
 export const useSuppliers = () => {
   const suppliers = ref<Supplier[]>([])

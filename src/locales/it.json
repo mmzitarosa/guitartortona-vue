@@ -209,10 +209,32 @@
       "newReceipt": "Nuova Ricevuta",
       "usedRegister": "Registro Usato",
       "insertProduct": "Inserisci Prodotto",
-      "searchProduct": "Ricerca Prodotto",
       "inventory": "Inventario",
       "insertRecord": "Inserisci Record",
       "ledger": "Brogliaccio"
+    }
+  },
+  "incomingInvoiceProducts": {
+    "table": {
+      "title": "Gestione Prodotti",
+      "subtitle": "Dati Prodotti Fattura",
+      "empty": "Nessun prodotto trovato.",
+      "loading": "Caricando i prodotti...",
+      "columns": {
+        "category": "Categoria",
+        "brand": "Marca",
+        "description": "Descrizione",
+        "quantity": "Quantità",
+        "purchase": "Acquisto",
+        "amount": "Importo",
+        "vat": "IVA",
+        "sale": "Vendita"
+      },
+      "footer": {
+        "total": "Totale",
+        "vatExcluded": "IVA Esclusa",
+        "vatIncluded": "IVA Inclusa:"
+      }
     }
   }
 }

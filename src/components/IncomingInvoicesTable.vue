@@ -130,9 +130,10 @@ import {
   type DataTableFilterMeta,
 } from 'primevue'
 import { onMounted, type Ref, ref, watch } from 'vue'
-import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable.ts'
-import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants.ts'
-import { isEditable, type IncomingInvoice } from '@/types/incomingInvoice.ts'
+import type { IncomingInvoice } from '@/types/incomingInvoice'
+import { isEditable } from '@/types/incomingInvoice'
+import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
+import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { DataTableFilterMetaData } from 'primevue/datatable'
 
@@ -151,7 +152,11 @@ const props = defineProps<{
   }
 }>()
 
-const emit = defineEmits(['page', 'rowSelect', 'filter'])
+const emit = defineEmits<{
+  page: [page: number, size: number]
+  rowSelect: [id?: number, edit?: boolean]
+  filter: [supplier?: string, status?: string]
+}>()
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {

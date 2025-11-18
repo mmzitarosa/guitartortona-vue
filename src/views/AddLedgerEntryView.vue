@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import router from '@/router'
-import type { LedgerEntry } from '@/types/ledgerEntry.ts'
+import type { LedgerEntry } from '@/types/ledgerEntry'
 import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
 
 const onSubmit = (ledgerEntry: LedgerEntry) => {

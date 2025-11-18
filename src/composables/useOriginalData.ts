@@ -1,6 +1,6 @@
 import { computed, type ComputedRef, ref, type Ref, toRaw } from 'vue'
 import type { FieldMapping } from '@/types/form'
-import { getNestedValue } from '@/utils/object.ts'
+import { getNestedValue } from '@/utils/object'
 
 export interface UseOriginalDataOptions<T> {
   initialValue?: T

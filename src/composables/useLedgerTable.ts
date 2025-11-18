@@ -1,6 +1,6 @@
 import { type Ref, ref } from 'vue'
-import { type LedgerEntry } from '@/types/ledgerEntry.ts'
-import { getLedger } from '@/services/api/ledgerService.ts'
+import type { LedgerEntry } from '@/types/ledgerEntry'
+import { getLedger } from '@/services/api/ledgerService'
 
 export const useLedgerTable = () => {
   const ledger = ref([{}])

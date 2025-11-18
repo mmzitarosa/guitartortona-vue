@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import type { Brand } from '@/types/brand.ts'
-import { getBrands } from '@/services/api/brandService.ts'
+import type { Brand } from '@/types/brand'
+import { getBrands } from '@/services/api/brandService'
 
 export const useBrands = () => {
   const brands = ref<Brand[]>([])

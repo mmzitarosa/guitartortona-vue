@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getProduct } from '@/services/api/productService.ts'
+import { getProduct } from '@/services/api/productService'
 
 export const useProduct = () => {
   const loading = ref(false)

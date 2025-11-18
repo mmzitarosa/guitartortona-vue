@@ -1,9 +1,7 @@
 <template>
   <Card>
-    <template #title>Gestione Prodotti</template>
-    <!-- TODO da i18n -->
-    <template #subtitle>Dati Prodotti Fattura</template>
-    <!-- TODO da i18n -->
+    <template #title>{{ constants.table.title }}</template>
+    <template #subtitle>{{ constants.table.subtitle }}</template>
     <template #content>
       <!-- Box per inserimento o scan codice a barre -->
       <div class="w-full flex items-center justify-center" v-if="editable">
@@ -25,117 +23,42 @@
       </div>
 
       <!-- Tabella con i prodotti inseriti -->
-      <div v-if="modelValue.items && modelValue.items.length > 0" class="mt-6">
-        <DataTable :value="model.items">
-          <template #empty>Nessuna prodotto trovato.</template>
-          <template #loading>Caricando i prodotti...</template>
-          <Column field="product.category.name" header="Categoria"></Column>
-          <Column field="product.brand.name" header="Marca"></Column>
-          <Column field="product.description" header="Descrizione"></Column>
-          <Column field="quantity" header="Quantità"></Column>
-          <Column header="Acquisto">
-            <template #body="{ data }">
-              <p v-if="data.purchasePrice">
-                {{
-                  data.purchasePrice.toLocaleString('it-IT', {
-                    style: 'currency',
-                    currency: 'EUR',
-                  })
-                }}
-              </p>
-            </template>
-          </Column>
-          <Column header="Importo">
-            <template #body="{ data }">
-              <p v-if="data.quantity && data.purchasePrice">
-                {{
-                  (data.quantity * data.purchasePrice).toLocaleString('it-IT', {
-                    style: 'currency',
-                    currency: 'EUR',
-                  })
-                }}
-              </p>
-            </template>
-          </Column>
-          <Column header="IVA">
-            <template #body="{ data }">
-              <p v-if="data.vat">{{ data.vat + '%' }}</p>
-            </template></Column
-          >
-          <Column header="Vendita">
-            <template #body="{ data }">
-              <p v-if="data.product && data.product.price">
-                {{
-                  data.product.price.toLocaleString('it-IT', {
-                    style: 'currency',
-                    currency: 'EUR',
-                  })
-                }}
-              </p>
-            </template>
-          </Column>
-          <Column class="w-0 !text-end">
-            <template #body="{ data }">
-              <span class="flex">
-                <Button
-                  v-if="editable"
-                  type="button"
-                  icon="pi pi-pencil"
-                  severity="primary"
-                  text
-                  rounded
-                  @click="setIncominInvoiceProduct(toRaw(data))"
-                ></Button>
-                <Button type="button" icon="pi pi-eye" severity="primary" text rounded></Button>
-              </span>
-            </template>
-          </Column>
-          <ColumnGroup type="footer">
-            <Row>
-              <Column :colspan="9" />
-            </Row>
-            <Row>
-              <Column :colspan="2" />
-              <Column footer="Totale" />
-              <Column :footer="totalQuantity" />
-              <Column footer="IVA Esclusa" />
-              <Column :footer="totalPurchasePrice" />
-              <Column :colspan="3" />
-            </Row>
-            <Row>
-              <Column :colspan="4" />
-              <Column footer="IVA Inclusa:" />
-              <Column :footer="totalAmount" />
-              <Column :colspan="3" />
-            </Row>
-          </ColumnGroup>
-        </DataTable>
-      </div>
+      <IncomingInvoiceProductsTable
+        :invoice="model"
+        :editable
+        @edit="onEditProduct"
+        @view="onViewProduct"
+      />
     </template>
   </Card>
 </template>
 
 <script setup lang="ts">
-import { Card, Column, DataTable, Button, ColumnGroup, Row } from 'primevue'
+import { Card } from 'primevue'
 import IncomingInvoiceProductForm from '@/components/forms/incomininvoice/IncomingInvoiceProductForm.vue'
+import IncomingInvoiceProductsTable from './IncomingInvoiceProductsTable.vue'
+import { computed } from 'vue'
 import {
   addProductToInvoice,
   removeProductFromInvoice,
   type IncomingInvoice,
-} from '@/types/incomingInvoice.ts'
-import { useIncomingInvoiceProduct } from '@/composables/useIncomingInvoiceProduct.ts'
-import { getProduct } from '@/services/api/productService.ts'
-import { computed, toRaw } from 'vue'
+} from '@/types/incomingInvoice'
+import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
+import { useIncomingInvoiceProduct } from '@/composables/useIncomingInvoiceProduct'
+import { useIncomingInvoiceProductsTableConstants } from '@/utils/i18nConstants'
+import { getProduct } from '@/services/api/productService'
 
 interface IncomingInvoiceProductProps {
   editable?: boolean
 }
 
-const props = withDefaults(defineProps<IncomingInvoiceProductProps>(), {
+withDefaults(defineProps<IncomingInvoiceProductProps>(), {
   editable: false,
 })
 
 const model = defineModel<IncomingInvoice>({ required: true })
+
+const constants = useIncomingInvoiceProductsTableConstants()
 
 const {
   item: incomingInvoiceProduct,
@@ -145,7 +68,7 @@ const {
   dirty,
   pristine,
   existingItem,
-  setIncominInvoiceProduct,
+  setIncomingInvoiceProduct,
   handleSubmit,
   handleReset,
   handleClose,
@@ -158,7 +81,7 @@ const onSearch = async (value?: string) => {
   if (value === undefined) return setProduct({})
   try {
     setProduct(await getProduct(value))
-  } catch (error) {
+  } catch {
     setProduct({ code: value })
   }
 }
@@ -186,35 +109,12 @@ const onDelete = async () => {
   closeProduct()
 }
 
-const totalQuantity = computed(() => {
-  return model.value.items?.reduce((acc, cur) => (cur.quantity ? acc + cur.quantity : acc), 0) + ''
-})
+const onEditProduct = (product: IncomingInvoiceProduct) => {
+  setIncomingInvoiceProduct(product)
+}
 
-const totalPurchasePrice = computed(() => {
-  return model.value.items
-    ?.reduce(
-      (acc, cur) =>
-        cur.purchasePrice && cur.quantity ? acc + cur.quantity * cur.purchasePrice : acc,
-      0,
-    )
-    .toLocaleString('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-    })
-})
-
-const totalAmount = computed(() => {
-  return model.value.items
-    ?.reduce(
-      (acc, cur) =>
-        cur.purchasePrice && cur.quantity && cur.vat
-          ? acc + cur.quantity * cur.purchasePrice * (1 + cur.vat / 100)
-          : acc,
-      0,
-    )
-    .toLocaleString('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-    })
-})
+const onViewProduct = (product: IncomingInvoiceProduct) => {
+  // TODO: Implementare visualizzazione dettaglio prodotto
+  console.log('View product:', product)
+}
 </script>
