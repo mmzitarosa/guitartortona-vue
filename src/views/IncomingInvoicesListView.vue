@@ -24,7 +24,7 @@ const filter = computed(() => {
     page: pageN,
     size: sizeN,
     first: pageN * sizeN,
-    supplier: supplier ? (supplier as string) : undefined,
+    supplierId: supplier ? Number(supplier) : undefined,
     status: status ? (status as string) : undefined,
   }
 })
@@ -46,10 +46,10 @@ const onRowSelect = (id?: number, edit?: boolean): void => {
   }
 }
 
-const onFilter = (supplier?: string, status?: string) => {
+const onFilter = (supplierId?: number, status?: string) => {
   router.replace({
     query: {
-      supplier,
+      supplier: supplierId,
       status,
     },
   })

@@ -3,7 +3,6 @@
     <template #content>
       <!-- TODO Da telefono fa un po' cagare -->
       <DataTable
-        v-model:filters="filters"
         :value="incomingInvoices"
         paginator
         @page="onPage"
@@ -17,37 +16,56 @@
         dataKey="id"
         :loading
         rowHover
-        filterDisplay="menu"
-        :globalFilterFields="['status']"
-        @update:filters="onFilter"
       >
         <template #header>
           <div class="flex justify-between">
             <Button
               label="Rimuovi filtri"
               icon="pi pi-filter-slash"
-              :disabled="!filter.status && !filter.supplier"
+              :disabled="!filter.status && !filter.supplierId"
               severity="secondary"
               variant="text"
               @click="onStatus(undefined)"
             />
 
-            <Button
-              v-if="totalDrafts > 0"
-              :label="'Bozze (' + totalDrafts + ')'"
-              icon="pi pi-pen-to-square"
-              :disabled="!!filter.status"
-              severity="warn"
-              variant="text"
-              @click="onStatus('DRAFT')"
-            />
+            <div class="flex gap-4">
+              <Button
+                v-if="totalDrafts > 0"
+                :label="'Bozze (' + totalDrafts + ')'"
+                icon="pi pi-pen-to-square"
+                :disabled="!!filter.status"
+                severity="warn"
+                variant="text"
+                @click="onStatus('DRAFT')"
+              />
+
+              <Select
+                :value="filter.supplierId"
+                @change="onSupplier"
+                :options="suppliers"
+                optionValue="id"
+                optionLabel="name"
+                placeholder="Filtro per fornitore"
+                :showClear="true"
+              />
+            </div>
           </div>
         </template>
         <template #empty>Nessuna fattura trovata.</template>
         <template #loading>Caricando le fatture...</template>
         <Column field="date" header="Data"></Column>
-        <!-- TODO: Implementare filtro con elenco fornitori -->
-        <Column field="supplier.name" header="Fornitore"></Column>
+        <Column>
+          <template #header>
+            <span class="p-datatable-column-title flex items-center">
+                Fornitore
+                <i :class="'ml-4 pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter')"></i>
+            </span>
+          </template>
+
+          <template #body="{ data }">
+            <p v-if="data.supplier && data.supplier.name">{{ data.supplier.name }}</p>
+          </template>
+        </Column>
         <Column field="number" header="Numero"></Column>
         <Column header="Importo">
           <template #body="{ data }">
@@ -55,7 +73,7 @@
               {{
                 data.amount.toLocaleString('it-IT', {
                   style: 'currency',
-                  currency: 'EUR',
+                  currency: 'EUR'
                 })
               }}
             </p>
@@ -63,33 +81,23 @@
         </Column>
         <Column
           field="status"
-          header="Stato"
           class="w-24"
           :showFilterMatchModes="false"
           :showClearButton="false"
           :showApplyButton="false"
         >
+          <template #header>
+            <span class="p-datatable-column-title flex items-center">
+                Stato
+                <i :class="'ml-4 pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter')"></i>
+            </span>
+          </template>
           <template #body="{ data }">
             <Tag
               v-if="data.status && data.status !== 'COMPLETED'"
               :value="constants.draft.label"
               :severity="constants.draft.severity"
             />
-          </template>
-          <template #filter="{ filterModel, filterCallback }">
-            <Select
-              v-model="filterModel.value"
-              @change="filterCallback"
-              :options="[{ label: 'BOZZA', value: 'DRAFT', severity: 'warn' }]"
-              optionValue="value"
-              optionLabel="label"
-              placeholder="Selezionane uno"
-              :showClear="true"
-            >
-              <template #option="{ option }">
-                <Tag :value="option.label" :severity="option.severity" />
-              </template>
-            </Select>
           </template>
         </Column>
         <Column class="w-0 !text-end">
@@ -122,34 +130,35 @@
 
 <script setup lang="ts">
 import {
+  Button,
   Card,
   Column,
   DataTable,
   type DataTablePageEvent,
-  Tag,
-  Button,
   Select,
-  type DataTableFilterMeta,
+  type SelectChangeEvent,
+  Tag
 } from 'primevue'
-import { onMounted, type Ref, ref, watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
 import { isEditable } from '@/types/incomingInvoice'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
-import { FilterMatchMode } from '@primevue/core/api'
-import type { DataTableFilterMetaData } from 'primevue/datatable'
+import { useSuppliers } from '@/composables/useSuppliers'
 
 const constants = useIncomingInvoicesTableConstants()
 
 const { incomingInvoices, totalRecords, totalDrafts, loadIncomingInvoices, loading } =
   useIncomingInvoicesTable()
 
+const { suppliers, loadSuppliers } = useSuppliers()
+
 const props = defineProps<{
   filter: {
     page: number
     size: number
     first: number
-    supplier?: string
+    supplierId?: number
     status?: string
   }
 }>()
@@ -157,13 +166,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   page: [page: number, size: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [supplier?: string, status?: string]
+  filter: [supplier?: number, status?: string]
 }>()
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {
-  const { page, size, supplier, status } = props.filter
-  reload(page, size, supplier, status)
+  loadSuppliers()
+  const { page, size, supplierId, status } = props.filter
+  reload(page, size, supplierId, status)
 })
 
 // La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
@@ -171,13 +181,12 @@ onMounted(() => {
 watch(
   () => props.filter,
   (value) => {
-    reload(value.page, value.size, value.supplier, value.status)
-  },
+    reload(value.page, value.size, value.supplierId, value.status)
+  }
 )
 
-const reload = (page?: number, size?: number, supplier?: string, status?: string) => {
-  updateFilters(supplier, status)
-  loadIncomingInvoices(page, size, supplier, status)
+const reload = (page?: number, size?: number, supplierId?: number, status?: string) => {
+  loadIncomingInvoices(page, size, undefined, supplierId, status)
 }
 
 const onRowSelect = (data: IncomingInvoice, edit: boolean): void => {
@@ -192,22 +201,11 @@ const onPage = async (event: DataTablePageEvent) => {
 }
 
 const onStatus = (status?: string) => {
-  emit('filter', undefined, status)
+  emit('filter', props.filter.supplierId, status)
 }
 
-const onFilter = (any: DataTableFilterMeta) => {
-  const supplier = (any['supplier'] as DataTableFilterMetaData).value
-  const status = (any['status'] as DataTableFilterMetaData).value
-  emit('filter', supplier, status)
+const onSupplier = (event: SelectChangeEvent) => {
+  emit('filter', event.value, props.filter.status)
 }
 
-const filters: Ref<DataTableFilterMeta> = ref({})
-
-const updateFilters = (supplier?: string, status?: string) => {
-  filters.value = {
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    supplier: { value: supplier, matchMode: FilterMatchMode.STARTS_WITH },
-    status: { value: status, matchMode: FilterMatchMode.EQUALS },
-  }
-}
 </script>

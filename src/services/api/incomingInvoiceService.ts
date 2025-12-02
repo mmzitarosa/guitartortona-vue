@@ -28,6 +28,7 @@ export async function getIncomingInvoices(
   page?: number,
   size?: number,
   sort?: any,
+  supplierId?: number,
   status?: string,
 ): Promise<{
   content: IncomingInvoice[]
@@ -35,7 +36,7 @@ export async function getIncomingInvoices(
   totalDrafts: number
 }> {
   const { data } = await apiClient.get(`/incomingInvoices`, {
-    params: { page, size, sort, status },
+    params: { page, size, sort, supplier: supplierId, status },
   })
   return fromDTOPage(data)
 }

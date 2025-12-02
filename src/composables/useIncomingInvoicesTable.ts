@@ -11,11 +11,12 @@ export const useIncomingInvoicesTable = () => {
     page?: number,
     size?: number,
     sort?: any,
+    supplierId?: number,
     status?: string,
   ) => {
     loading.value = true
     try {
-      const result = await getIncomingInvoices(page, size, sort, status)
+      const result = await getIncomingInvoices(page, size, sort, supplierId, status)
       incomingInvoices.value = result.content
       totalRecords.value = result.totalElements
       totalDrafts.value = result.totalDrafts
