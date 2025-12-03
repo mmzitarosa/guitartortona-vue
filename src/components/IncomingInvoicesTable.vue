@@ -19,16 +19,27 @@
       >
         <template #header>
           <div class="flex justify-between">
-            <Button
-              label="Rimuovi filtri"
-              icon="pi pi-filter-slash"
-              :disabled="!filter.status && !filter.supplierId"
-              severity="secondary"
-              variant="text"
-              @click="onStatus(undefined)"
+            <Select
+              v-model="filter.supplierId"
+              @change="onSupplier"
+              :options="suppliers"
+              optionValue="id"
+              optionLabel="name"
+              placeholder="Filtro per fornitore"
+              :showClear="true"
             />
 
             <div class="flex gap-4">
+
+              <Button
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                :disabled="!filter.status && !filter.supplierId"
+                severity="secondary"
+                variant="text"
+                @click="emit('filter', undefined, undefined)"
+              />
+
               <Button
                 v-if="totalDrafts > 0"
                 :label="'Bozze (' + totalDrafts + ')'"
@@ -38,17 +49,8 @@
                 variant="text"
                 @click="onStatus('DRAFT')"
               />
-
-              <Select
-                :value="filter.supplierId"
-                @change="onSupplier"
-                :options="suppliers"
-                optionValue="id"
-                optionLabel="name"
-                placeholder="Filtro per fornitore"
-                :showClear="true"
-              />
             </div>
+
           </div>
         </template>
         <template #empty>Nessuna fattura trovata.</template>
@@ -56,9 +58,16 @@
         <Column field="date" header="Data"></Column>
         <Column>
           <template #header>
-            <span class="p-datatable-column-title flex items-center">
-                Fornitore
-                <i :class="'ml-4 pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter')"></i>
+            <span class="p-datatable-column-title flex items-center group">
+              Fornitore
+              <span class="ml-4">
+                <span :class="filter.supplierId ? 'group-hover:hidden' : ''">
+                  <i :class="'pi ' + (filter.supplierId ? 'pi-filter-fill' : 'pi-filter') "></i>
+                </span>
+                <span :class="'hidden ' + (filter.supplierId ? 'group-hover:inline-block cursor-pointer' : '')">
+                  <i class="pi pi-filter-slash" @click="onSupplier(undefined)"></i>
+                </span>
+              </span>
             </span>
           </template>
 
@@ -87,9 +96,16 @@
           :showApplyButton="false"
         >
           <template #header>
-            <span class="p-datatable-column-title flex items-center">
-                Stato
-                <i :class="'ml-4 pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter')"></i>
+            <span class="p-datatable-column-title flex items-center group">
+              Stato
+              <span class="ml-4">
+                <span :class="filter.status ? 'group-hover:hidden' : ''">
+                  <i :class="'pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter') "></i>
+                </span>
+                <span :class="'hidden ' + (filter.status ? 'group-hover:inline-block cursor-pointer' : '')">
+                  <i class="pi pi-filter-slash" @click="onStatus(undefined)"></i>
+                </span>
+              </span>
             </span>
           </template>
           <template #body="{ data }">
@@ -204,8 +220,8 @@ const onStatus = (status?: string) => {
   emit('filter', props.filter.supplierId, status)
 }
 
-const onSupplier = (event: SelectChangeEvent) => {
-  emit('filter', event.value, props.filter.status)
+const onSupplier = (event?: SelectChangeEvent) => {
+  emit('filter', event ? event.value : undefined, props.filter.status)
 }
 
 </script>
