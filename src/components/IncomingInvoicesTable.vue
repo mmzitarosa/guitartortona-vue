@@ -27,6 +27,7 @@
               optionLabel="name"
               placeholder="Filtro per fornitore"
               :showClear="true"
+              :loading="suppliersLoading"
             />
 
             <div class="flex gap-4">
@@ -167,7 +168,7 @@ const constants = useIncomingInvoicesTableConstants()
 const { incomingInvoices, totalRecords, totalDrafts, loadIncomingInvoices, loading } =
   useIncomingInvoicesTable()
 
-const { suppliers, loadSuppliers } = useSuppliers()
+const { suppliers, loadSuppliers, loading: suppliersLoading } = useSuppliers()
 
 const props = defineProps<{
   filter: {
@@ -182,7 +183,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   page: [page: number, size: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [supplier?: number, status?: string]
+  filter: [supplierId?: number, status?: string]
 }>()
 
 // Carica la tabella al primo caricamento della pagina

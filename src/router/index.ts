@@ -1,3 +1,4 @@
+import ProductsListView from '@/views/ProductsListView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 // Lazy load views for better performance
@@ -43,6 +44,14 @@ const routes: RouteRecordRaw[] = [
     component: IncomingInvoicesListView,
     meta: {
       title: 'Lista Fatture',
+    },
+  },
+  {
+    path: '/products',
+    name: 'productsList',
+    component: ProductsListView,
+    meta: {
+      title: 'Inventario',
     },
   },
   {

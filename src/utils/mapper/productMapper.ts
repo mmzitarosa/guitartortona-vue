@@ -1,4 +1,3 @@
-
 // Domain → DTO
 import type { Product, ProductDTO } from '@/types/product.ts'
 
@@ -33,5 +32,13 @@ export function fromDTO(dto: ProductDTO): Product {
     price: dto.price,
     reorderPoint: dto.reorderPoint,
     notes: dto.notes,
+  }
+}
+
+export function fromDTOPage(dtoPage: { content: ProductDTO[], page: { totalElements: number }, totalDrafts: number }): { content: Product[]; totalElements: number, totalDrafts: number } {
+  return {
+    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
+    totalElements: dtoPage.page.totalElements,
+    totalDrafts: dtoPage.totalDrafts
   }
 }
