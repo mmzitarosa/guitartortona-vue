@@ -1,26 +1,15 @@
 import { ref } from 'vue'
-import { getProduct, getProducts } from '@/services/api/productService.ts'
+import { getProducts } from '@/services/api/productService.ts'
+import type { ProductLight } from '@/types/product.ts'
 
 export const useProductsTable = () => {
-  const products = ref([{}])
-  const totalRecords = ref(0)
-  const totalDrafts = ref(0)
+  const products = ref<ProductLight[]>([])
   const loading = ref(false)
 
-  const loadProducts = async (
-    page?: number,
-    size?: number,
-    sort?: any,
-    categoryId?: number,
-    brandId?: number,
-    description?: string,
-  ) => {
+  const loadProducts = async (categoryId?: number, brandId?: number, description?: string) => {
     loading.value = true
     try {
-      const result = await getProducts(page, size, sort, categoryId, brandId, description)
-      products.value = result.content
-      totalRecords.value = result.totalElements
-      totalDrafts.value = result.totalDrafts
+      products.value = await getProducts(categoryId, brandId, description)
     } finally {
       loading.value = false
     }
@@ -28,8 +17,6 @@ export const useProductsTable = () => {
 
   return {
     products,
-    totalRecords,
-    totalDrafts,
     loadProducts,
     loading,
   }

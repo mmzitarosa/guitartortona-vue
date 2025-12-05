@@ -1,5 +1,5 @@
 // Domain → DTO
-import type { Product, ProductDTO } from '@/types/product.ts'
+import type { Product, ProductDTO, ProductLight } from '@/types/product.ts'
 
 export function toDTO(product: Product): ProductDTO {
   return {
@@ -35,10 +35,30 @@ export function fromDTO(dto: ProductDTO): Product {
   }
 }
 
-export function fromDTOPage(dtoPage: { content: ProductDTO[], page: { totalElements: number }, totalDrafts: number }): { content: Product[]; totalElements: number, totalDrafts: number } {
+// DTO → ProductLight
+export function fromLightDTO(dto: ProductDTO): ProductLight {
+  return {
+    id: dto.id,
+    code: dto.code,
+    internalCode: dto.internalCode,
+    categoryId: dto.categoryId,
+    brandId: dto.brandId,
+    description: dto.description,
+    condition: dto.condition,
+    price: dto.price,
+    reorderPoint: dto.reorderPoint,
+    notes: dto.notes,
+  }
+}
+
+export function fromDTOPage(dtoPage: {
+  content: ProductDTO[]
+  page: { totalElements: number }
+  totalDrafts: number
+}): { content: Product[]; totalElements: number; totalDrafts: number } {
   return {
     content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
     totalElements: dtoPage.page.totalElements,
-    totalDrafts: dtoPage.totalDrafts
+    totalDrafts: dtoPage.totalDrafts,
   }
 }

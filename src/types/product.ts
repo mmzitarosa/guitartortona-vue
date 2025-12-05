@@ -14,6 +14,19 @@ export interface Product {
   notes?: string
 }
 
+export interface ProductLight {
+  id?: number
+  code?: string
+  internalCode?: string
+  categoryId?: number
+  brandId?: number
+  description?: string
+  condition?: 'NEW' | 'USED'
+  price?: number
+  reorderPoint?: number
+  notes?: string
+}
+
 export interface ProductDTO {
   id?: number
   code?: string

@@ -5,35 +5,29 @@
         v-model:filters="filters"
         :value="products"
         paginator
-        @page="onPage"
         :rows="filter.size"
-        :first="filter.first"
-        :totalRecords
-        lazy
-        scrollable
-        scroll-height="flex"
+        dataKey="id"
+        filterDisplay="row"
         :loading
-        rowHover
-        filterDisplay="menu"
-        :globalFilterFields="['category']"
-        @update:filters="onFilter"
+        :globalFilterFields="['categoryId', 'brandId']"
       >
         <template #empty>Nessuna fattura trovata.</template>
         <template #loading>Caricando le fatture...</template>
         <Column
-          field="category"
           header="Categoria"
-          :showFilterMatchModes="false"
-          :showClearButton="false"
-          :showApplyButton="false"
+          filterField="categoryId"
+          :showFilterMenu="false"
+          style="min-width: 14rem"
         >
           <template #body="{ data }">
-            <p v-if="data.category && data.category.name">{{ data.category.name }}</p>
+            <p v-if="categories && data.categoryId">
+              {{ categories.find((category) => category.id === data.categoryId)?.name }}
+            </p>
           </template>
           <template #filter="{ filterModel, filterCallback }">
             <Select
               v-model="filterModel.value"
-              @change="filterCallback"
+              @change="filterCallback()"
               :options="categories"
               optionValue="id"
               optionLabel="name"
@@ -42,7 +36,29 @@
             />
           </template>
         </Column>
-        <Column field="brand.name" header="Marca"></Column>
+        <Column
+          header="Marca"
+          filterField="brandId"
+          :showFilterMenu="false"
+          style="min-width: 14rem"
+        >
+          <template #body="{ data }">
+            <p v-if="brands && data.brandId">
+              {{ brands.find((brand) => brand.id === data.brandId)?.name }}
+            </p>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              @change="filterCallback()"
+              :options="brands"
+              optionValue="id"
+              optionLabel="name"
+              placeholder="Filtro per marca"
+              :showClear="true"
+            />
+          </template>
+        </Column>
         <Column field="description" header="Descrizione"></Column>
         <Column field="quantity" header="Quantità"></Column>
         <Column header="Prezzo">
@@ -71,26 +87,17 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Button,
-  Card,
-  Select,
-  Column,
-  DataTable,
-  type DataTableFilterMeta,
-  type DataTablePageEvent
-} from 'primevue'
-import { onMounted, type Ref, ref, watch } from 'vue'
+import { Button, Card, Select, Column, DataTable } from 'primevue'
+import { onMounted, ref, watch } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
-import type { DataTableFilterMetaData } from 'primevue/datatable'
-import type { Product } from '@/types/product.ts'
+import type { ProductLight } from '@/types/product.ts'
 import { useCategories } from '@/composables/useCategories.ts'
 import { useBrands } from '@/composables/useBrands.ts'
 import { useProductsTable } from '@/composables/useProductsTable.ts'
 
 //const constants = useProductsTableConstants()
 
-const { products, totalRecords, loadProducts, loading } = useProductsTable()
+const { products, loadProducts, loading } = useProductsTable()
 
 const { brands, loadBrands, loading: brandsLoading } = useBrands()
 const { categories, loadCategories, loading: categoriesLoading } = useCategories()
@@ -129,37 +136,22 @@ watch(
   },
 )
 
-const reload = (page?: number, size?: number, categoryId?: number, brandId?: number, description?: string) => {
-  updateFilters(categoryId, brandId, description)
-  loadProducts(page, size, undefined, categoryId, brandId, description)
+const reload = (
+  page?: number,
+  size?: number,
+  categoryId?: number,
+  brandId?: number,
+  description?: string,
+) => {
+  loadProducts(categoryId, brandId, description)
 }
 
-const onRowSelect = (data: Product, edit: boolean): void => {
+const onRowSelect = (data: ProductLight, edit: boolean): void => {
   emit('rowSelect', data.id, edit)
 }
-
-const onPage = async (event: DataTablePageEvent) => {
-  const rows = event.rows
-  const page = event.first / rows
-
-  emit('page', page, rows)
-}
-
-const onFilter = (any: DataTableFilterMeta) => {
-  const category = (any['category'] as DataTableFilterMetaData).value
-  const brand = (any['brand'] as DataTableFilterMetaData).value
-  const description = (any['description'] as DataTableFilterMetaData).value
-  emit('filter', category, brand, description)
-}
-
-const filters: Ref<DataTableFilterMeta> = ref({})
-
-const updateFilters = (categoryId?: number, brandId?: number, description?: string) => {
-  filters.value = {
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    category: { value: categoryId, matchMode: FilterMatchMode.EQUALS },
-    brand: { value: brandId, matchMode: FilterMatchMode.EQUALS },
-    description: { value: description, matchMode: FilterMatchMode.CONTAINS },
-  }
-}
+const filters = ref({
+  categoryId: { value: null, matchMode: FilterMatchMode.EQUALS },
+  brandId: { value: null, matchMode: FilterMatchMode.EQUALS },
+  description: { value: null, matchMode: FilterMatchMode.CONTAINS },
+})
 </script>

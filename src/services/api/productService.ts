@@ -1,10 +1,10 @@
 import apiClient from '@/services/api/apiClient.ts'
-import { fromDTO, fromDTOPage, toDTO } from '@/utils/mapper/productMapper.ts'
-import type { Product } from '@/types/product.ts'
+import { fromDTO, toDTO, fromLightDTO } from '@/utils/mapper/productMapper.ts'
+import type { Product, ProductDTO, ProductLight } from '@/types/product.ts'
 
 //Create
 export async function postProduct(product: Product): Promise<Product> {
-  const {data} = await apiClient.post("/product", toDTO(product))
+  const { data } = await apiClient.post('/product', toDTO(product))
   return fromDTO(data)
 }
 
@@ -15,27 +15,19 @@ export async function getProduct(code: string): Promise<Product | undefined> {
 }
 
 export async function getProducts(
-  page?: number,
-  size?: number,
-  sort?: any,
   categoryId?: number,
   brandId?: number,
   description?: string,
-): Promise<{
-  content: Product[]
-  totalElements: number
-  totalDrafts: number
-}> {
+): Promise<ProductLight[]> {
   const { data } = await apiClient.get(`/products`, {
-    params: { page, size, sort, category: categoryId, brand: brandId, description },
+    params: { category: categoryId, brand: brandId, description },
   })
-  return fromDTOPage(data)
+  return data.flatMap((dto: ProductDTO) => fromLightDTO(dto))
 }
-
 
 //Update
 export async function putProductById(id: number, product: Product): Promise<Product> {
-  const {data} = await apiClient.put(`/product/${id}`, toDTO(product))
+  const { data } = await apiClient.put(`/product/${id}`, toDTO(product))
   return fromDTO(data)
 }
 
