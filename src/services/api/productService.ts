@@ -14,14 +14,8 @@ export async function getProduct(code: string): Promise<Product | undefined> {
   return fromDTO(data)
 }
 
-export async function getProducts(
-  categoryId?: number,
-  brandId?: number,
-  description?: string,
-): Promise<ProductLight[]> {
-  const { data } = await apiClient.get(`/products`, {
-    params: { category: categoryId, brand: brandId, description },
-  })
+export async function getProducts(): Promise<ProductLight[]> {
+  const { data } = await apiClient.get(`/products`)
   return data.flatMap((dto: ProductDTO) => fromLightDTO(dto))
 }
 

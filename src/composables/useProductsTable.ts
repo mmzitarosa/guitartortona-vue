@@ -6,10 +6,10 @@ export const useProductsTable = () => {
   const products = ref<ProductLight[]>([])
   const loading = ref(false)
 
-  const loadProducts = async (categoryId?: number, brandId?: number, description?: string) => {
+  const loadProducts = async () => {
     loading.value = true
     try {
-      products.value = await getProducts(categoryId, brandId, description)
+      products.value = await getProducts()
     } finally {
       loading.value = false
     }

@@ -5,11 +5,13 @@
         v-model:filters="filters"
         :value="products"
         paginator
+        @page="onPage"
         :rows="filter.size"
+        :first="filter.first"
         dataKey="id"
         filterDisplay="row"
         :loading
-        :globalFilterFields="['categoryId', 'brandId']"
+        :globalFilterFields="['categoryId', 'brandId', 'description']"
       >
         <template #empty>Nessuna fattura trovata.</template>
         <template #loading>Caricando le fatture...</template>
@@ -27,7 +29,7 @@
           <template #filter="{ filterModel, filterCallback }">
             <Select
               v-model="filterModel.value"
-              @change="filterCallback()"
+              @valueChange="(categoryId?: number) => onCategory(filterCallback, categoryId)"
               :options="categories"
               optionValue="id"
               optionLabel="name"
@@ -50,7 +52,7 @@
           <template #filter="{ filterModel, filterCallback }">
             <Select
               v-model="filterModel.value"
-              @change="filterCallback()"
+              @valueChange="(brandId?: number) => onBrand(filterCallback, brandId)"
               :options="brands"
               optionValue="id"
               optionLabel="name"
@@ -59,7 +61,21 @@
             />
           </template>
         </Column>
-        <Column field="description" header="Descrizione"></Column>
+        <Column filterField="description" header="Descrizione" :showFilterMenu="false">
+          <template #body="{ data }">
+            <p v-if="data.description">
+              {{ data.description }}
+            </p>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              @valueChange="(description?: string) => onDescription(filterCallback, description)"
+              placeholder="Filtro per descrizione"
+            />
+          </template>
+
+        </Column>
         <Column field="quantity" header="Quantità"></Column>
         <Column header="Prezzo">
           <template #body="{ data }">
@@ -87,8 +103,17 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Card, Select, Column, DataTable } from 'primevue'
-import { onMounted, ref, watch } from 'vue'
+import {
+  Button,
+  Card,
+  Column,
+  DataTable,
+  type DataTablePageEvent,
+  type DataTableFilterMeta,
+  InputText,
+  Select, type DataTableFilterMetaData
+} from 'primevue'
+import { computed, onMounted, type Ref, ref, watch } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import type { ProductLight } from '@/types/product.ts'
 import { useCategories } from '@/composables/useCategories.ts'
@@ -123,35 +148,78 @@ const emit = defineEmits<{
 onMounted(() => {
   loadBrands()
   loadCategories()
-  const { page, size, categoryId, brandId, description } = props.filter
-  reload(page, size, categoryId, brandId, description)
+  loadProducts()
+  const { categoryId, brandId, description } = props.filter
+  setFilter(categoryId, brandId, description)
 })
 
-// La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
-// sidebar. Mettendo il listener sulle proprietà, è stato rimosso il load dall'onPage e onFormSubmit
 watch(
   () => props.filter,
   (value) => {
-    reload(value.page, value.size, value.categoryId, value.brandId, value.description)
-  },
+    setFilter(value.categoryId, value.brandId, value.description)
+  }
 )
-
-const reload = (
-  page?: number,
-  size?: number,
-  categoryId?: number,
-  brandId?: number,
-  description?: string,
-) => {
-  loadProducts(categoryId, brandId, description)
-}
 
 const onRowSelect = (data: ProductLight, edit: boolean): void => {
   emit('rowSelect', data.id, edit)
 }
-const filters = ref({
-  categoryId: { value: null, matchMode: FilterMatchMode.EQUALS },
-  brandId: { value: null, matchMode: FilterMatchMode.EQUALS },
-  description: { value: null, matchMode: FilterMatchMode.CONTAINS },
+
+const filters: Ref<DataTableFilterMeta> = ref({
+  categoryId: { value: undefined, matchMode: FilterMatchMode.EQUALS },
+  brandId: { value: undefined, matchMode: FilterMatchMode.EQUALS },
+  description: { value: undefined, matchMode: FilterMatchMode.CONTAINS }
 })
+
+const _categoryId = computed({
+  get: (): number | undefined => getFilterValue<number>('categoryId'),
+  set: (value?: number): void => setFilterValue<number>('categoryId', value)
+})
+
+const _brandId = computed({
+  get: (): number | undefined => getFilterValue<number>('brandId'),
+  set: (value?: number): void => setFilterValue<number>('brandId', value)
+})
+
+const _description = computed({
+  get: (): string | undefined => getFilterValue<string>('description'),
+  set: (value?: string): void => setFilterValue<string>('description', value)
+})
+
+const getFilterValue = <T>(field: string): T | undefined => {
+  return (filters.value[field] as DataTableFilterMetaData).value
+}
+
+const setFilterValue = <T>(field: string, value?: T): void => {
+  (filters.value[field] as DataTableFilterMetaData).value = value
+}
+
+const setFilter = (categoryId?: number, brandId?: number, description?: string): void => {
+  _categoryId.value = categoryId
+  _brandId.value = brandId
+  _description.value = description
+}
+
+const onCategory = (filterCallback: () => void, categoryId?: number): void => {
+  onFilter(filterCallback, categoryId, _brandId.value, _description.value)
+}
+
+const onBrand = (filterCallback: () => void, brandId?: number): void => {
+  onFilter(filterCallback, _categoryId.value, brandId, _description.value)
+}
+
+const onDescription = (filterCallback: () => void, description?: string): void => {
+  onFilter(filterCallback, _categoryId.value, _brandId.value, description)
+}
+
+const onPage = (event: DataTablePageEvent): void => {
+  const rows = event.rows
+  const page = event.first / rows
+  emit('page', page, rows)
+
+}
+
+const onFilter = (filterCallback: () => void, categoryId?: number, brandId?: number, description?: string): void => {
+  emit('filter', _categoryId.value, _brandId.value, description)
+  filterCallback()
+}
 </script>
