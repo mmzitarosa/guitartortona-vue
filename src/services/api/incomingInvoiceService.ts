@@ -1,12 +1,16 @@
 import apiClient from '@/services/api/apiClient.ts'
 import {
   fromDTO,
-  fromDTOPage,
+  fromLightDTO,
   fromProductDTO,
   toDTO,
-  toProductDTO,
+  toProductDTO
 } from '@/utils/mapper/incomingInvoiceMapper.ts'
-import type { IncomingInvoice } from '@/types/incomingInvoice.ts'
+import type {
+  IncomingInvoice,
+  IncomingInvoiceDTO,
+  IncomingInvoiceLight
+} from '@/types/incomingInvoice.ts'
 import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
 import { postProduct, putProductById } from '@/services/api/productService.ts'
 
@@ -24,21 +28,9 @@ export async function getIncomingInvoiceById(id: number): Promise<IncomingInvoic
   return fromDTO(data)
 }
 
-export async function getIncomingInvoices(
-  page?: number,
-  size?: number,
-  sort?: any,
-  supplierId?: number,
-  status?: string,
-): Promise<{
-  content: IncomingInvoice[]
-  totalElements: number
-  totalDrafts: number
-}> {
-  const { data } = await apiClient.get(`/incomingInvoices`, {
-    params: { page, size, sort, supplier: supplierId, status },
-  })
-  return fromDTOPage(data)
+export async function getIncomingInvoices(): Promise<IncomingInvoiceLight[]> {
+  const { data } = await apiClient.get(`/incomingInvoices`)
+  return data.flatMap((dto: IncomingInvoiceDTO) => fromLightDTO(dto))
 }
 
 //Update

@@ -16,15 +16,12 @@ export interface Product {
 
 export interface ProductLight {
   id?: number
-  code?: string
-  internalCode?: string
   categoryId?: number
   brandId?: number
   description?: string
   condition?: 'NEW' | 'USED'
   price?: number
-  reorderPoint?: number
-  notes?: string
+  quantity?: number
 }
 
 export interface ProductDTO {
@@ -41,4 +38,6 @@ export interface ProductDTO {
   price?: number
   reorderPoint?: number
   notes?: string
+
+  quantity?: number
 }

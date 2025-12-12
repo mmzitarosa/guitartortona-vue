@@ -3,55 +3,49 @@
     <template #content>
       <!-- TODO Da telefono fa un po' cagare -->
       <DataTable
+        v-model:filters="filters"
         :value="incomingInvoices"
-        paginator
+        :paginator="incomingInvoices.length > filter.size"
         @page="onPage"
         :rows="filter.size"
         :first="filter.first"
-        :totalRecords
-        lazy
-        tableStyle="min-width: 50rem"
-        scrollable
-        scroll-height="flex"
         dataKey="id"
         :loading
         rowHover
+        :globalFilterFields="['supplierId', 'status']"
       >
         <template #header>
           <div class="flex justify-between">
-            <Select
-              v-model="filter.supplierId"
-              @change="onSupplier"
-              :options="suppliers"
-              optionValue="id"
-              optionLabel="name"
-              placeholder="Filtro per fornitore"
-              :showClear="true"
-              :loading="suppliersLoading"
-            />
-
             <div class="flex gap-4">
-
-              <Button
-                label="Rimuovi filtri"
-                icon="pi pi-filter-slash"
-                :disabled="!filter.status && !filter.supplierId"
-                severity="secondary"
-                variant="text"
-                @click="emit('filter', undefined, undefined)"
+              <Select
+                v-model="_supplierId"
+                @valueChange="onSupplier"
+                :options="suppliers"
+                optionValue="id"
+                optionLabel="name"
+                placeholder="Filtro per fornitore"
+                :showClear="true"
+                :loading="suppliersLoading"
               />
 
               <Button
                 v-if="totalDrafts > 0"
                 :label="'Bozze (' + totalDrafts + ')'"
                 icon="pi pi-pen-to-square"
-                :disabled="!!filter.status"
+                :disabled="!!_status"
                 severity="warn"
                 variant="text"
                 @click="onStatus('DRAFT')"
               />
             </div>
-
+            <Button
+              label="Rimuovi filtri"
+              icon="pi pi-filter-slash"
+              :disabled="!_status && !_supplierId"
+              severity="secondary"
+              variant="text"
+              @click="onFilter(undefined, undefined)"
+            />
           </div>
         </template>
         <template #empty>Nessuna fattura trovata.</template>
@@ -62,10 +56,11 @@
             <span class="p-datatable-column-title flex items-center group">
               Fornitore
               <span class="ml-4">
-                <span :class="filter.supplierId ? 'group-hover:hidden' : ''">
-                  <i :class="'pi ' + (filter.supplierId ? 'pi-filter-fill' : 'pi-filter') "></i>
+                <span :class="_supplierId ? 'group-hover:hidden' : ''">
+                  <i :class="'pi ' + (_supplierId ? 'pi-filter-fill' : 'pi-filter') "></i>
                 </span>
-                <span :class="'hidden ' + (filter.supplierId ? 'group-hover:inline-block cursor-pointer' : '')">
+                <span
+                  :class="'hidden ' + (_supplierId ? 'group-hover:inline-block cursor-pointer' : '')">
                   <i class="pi pi-filter-slash" @click="onSupplier(undefined)"></i>
                 </span>
               </span>
@@ -73,7 +68,7 @@
           </template>
 
           <template #body="{ data }">
-            <p v-if="data.supplier && data.supplier.name">{{ data.supplier.name }}</p>
+            <p v-if="suppliers && data.supplierId">{{ suppliers.find((supplier) => supplier.id === data.supplierId)?.name }}</p>
           </template>
         </Column>
         <Column field="number" header="Numero"></Column>
@@ -100,10 +95,11 @@
             <span class="p-datatable-column-title flex items-center group">
               Stato
               <span class="ml-4">
-                <span :class="filter.status ? 'group-hover:hidden' : ''">
-                  <i :class="'pi ' + (filter.status ? 'pi-filter-fill' : 'pi-filter') "></i>
+                <span :class="_status ? 'group-hover:hidden' : ''">
+                  <i :class="'pi ' + (_status ? 'pi-filter-fill' : 'pi-filter') "></i>
                 </span>
-                <span :class="'hidden ' + (filter.status ? 'group-hover:inline-block cursor-pointer' : '')">
+                <span
+                  :class="'hidden ' + (_status ? 'group-hover:inline-block cursor-pointer' : '')">
                   <i class="pi pi-filter-slash" @click="onStatus(undefined)"></i>
                 </span>
               </span>
@@ -150,22 +146,22 @@ import {
   Button,
   Card,
   Column,
-  DataTable,
+  DataTable, type DataTableFilterMeta, type DataTableFilterMetaData,
   type DataTablePageEvent,
   Select,
-  type SelectChangeEvent,
   Tag
 } from 'primevue'
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, ref, type Ref, watch } from 'vue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
 import { isEditable } from '@/types/incomingInvoice'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { useSuppliers } from '@/composables/useSuppliers'
+import { FilterMatchMode } from '@primevue/core/api'
 
 const constants = useIncomingInvoicesTableConstants()
 
-const { incomingInvoices, totalRecords, totalDrafts, loadIncomingInvoices, loading } =
+const { incomingInvoices, totalDrafts, loadIncomingInvoices, loading } =
   useIncomingInvoicesTable()
 
 const { suppliers, loadSuppliers, loading: suppliersLoading } = useSuppliers()
@@ -189,8 +185,10 @@ const emit = defineEmits<{
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {
   loadSuppliers()
-  const { page, size, supplierId, status } = props.filter
-  reload(page, size, supplierId, status)
+  loadIncomingInvoices()
+
+  const { supplierId, status } = props.filter
+  setFilter(supplierId, status)
 })
 
 // La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
@@ -198,31 +196,58 @@ onMounted(() => {
 watch(
   () => props.filter,
   (value) => {
-    reload(value.page, value.size, value.supplierId, value.status)
+    setFilter(value.supplierId, value.status)
   }
 )
-
-const reload = (page?: number, size?: number, supplierId?: number, status?: string) => {
-  loadIncomingInvoices(page, size, undefined, supplierId, status)
-}
 
 const onRowSelect = (data: IncomingInvoice, edit: boolean): void => {
   emit('rowSelect', data.id, edit)
 }
 
+const filters: Ref<DataTableFilterMeta> = ref({
+  supplierId: { value: undefined, matchMode: FilterMatchMode.EQUALS },
+  status: { value: undefined, matchMode: FilterMatchMode.EQUALS }
+})
+
+const _supplierId = computed({
+  get: (): number | undefined => getFilterValue<number>('supplierId'),
+  set: (value?: number): void => setFilterValue<number>('supplierId', value)
+})
+
+const _status = computed({
+  get: (): string | undefined => getFilterValue<string>('status'),
+  set: (value?: string): void => setFilterValue<string>('status', value)
+})
+
+const getFilterValue = <T>(field: string): T | undefined => {
+  return (filters.value[field] as DataTableFilterMetaData).value
+}
+
+const setFilterValue = <T>(field: string, value?: T): void => {
+  (filters.value[field] as DataTableFilterMetaData).value = value
+}
+
+const setFilter = (supplierId?: number, status?: string): void => {
+  _supplierId.value = supplierId
+  _status.value = status
+}
+
+const onSupplier = (supplierId?: number): void => {
+  onFilter(supplierId, _status.value)
+}
+
+const onStatus = (status?: string): void => {
+  onFilter(_supplierId.value, status)
+}
+
 const onPage = async (event: DataTablePageEvent) => {
   const rows = event.rows
   const page = event.first / rows
-
   emit('page', page, rows)
 }
 
-const onStatus = (status?: string) => {
-  emit('filter', props.filter.supplierId, status)
-}
-
-const onSupplier = (event?: SelectChangeEvent) => {
-  emit('filter', event ? event.value : undefined, props.filter.status)
+const onFilter = (supplierId?: number, status?: string): void => {
+  emit('filter', supplierId, status)
 }
 
 </script>

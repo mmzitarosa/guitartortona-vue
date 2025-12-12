@@ -39,15 +39,12 @@ export function fromDTO(dto: ProductDTO): Product {
 export function fromLightDTO(dto: ProductDTO): ProductLight {
   return {
     id: dto.id,
-    code: dto.code,
-    internalCode: dto.internalCode,
     categoryId: dto.categoryId,
     brandId: dto.brandId,
     description: dto.description,
     condition: dto.condition,
     price: dto.price,
-    reorderPoint: dto.reorderPoint,
-    notes: dto.notes,
+    quantity: dto.quantity
   }
 }
 

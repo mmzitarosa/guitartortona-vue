@@ -4,7 +4,7 @@
       <DataTable
         v-model:filters="filters"
         :value="products"
-        paginator
+        :paginator="products.length > filter.size"
         @page="onPage"
         :rows="filter.size"
         :first="filter.first"
@@ -13,8 +13,8 @@
         :loading
         :globalFilterFields="['categoryId', 'brandId', 'description']"
       >
-        <template #empty>Nessuna fattura trovata.</template>
-        <template #loading>Caricando le fatture...</template>
+        <template #empty>Nessuna prodotto trovato.</template>
+        <template #loading>Caricando i prodotti...</template>
         <Column
           header="Categoria"
           filterField="categoryId"
@@ -35,6 +35,7 @@
               optionLabel="name"
               placeholder="Filtro per categoria"
               :showClear="true"
+              :loading="categoriesLoading"
             />
           </template>
         </Column>
@@ -58,6 +59,7 @@
               optionLabel="name"
               placeholder="Filtro per marca"
               :showClear="true"
+              :loading="brandsLoading"
             />
           </template>
         </Column>
@@ -215,11 +217,10 @@ const onPage = (event: DataTablePageEvent): void => {
   const rows = event.rows
   const page = event.first / rows
   emit('page', page, rows)
-
 }
 
 const onFilter = (filterCallback: () => void, categoryId?: number, brandId?: number, description?: string): void => {
-  emit('filter', _categoryId.value, _brandId.value, description)
+  emit('filter', categoryId, brandId, description)
   filterCallback()
 }
 </script>

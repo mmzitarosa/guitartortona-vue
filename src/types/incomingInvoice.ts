@@ -11,8 +11,18 @@ export interface IncomingInvoice {
   number?: string
   amount?: number
   notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED' | 'ARCHIVED'
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
   items?: IncomingInvoiceProduct[]
+}
+
+export interface IncomingInvoiceLight {
+  id?: number
+  number?: string
+  supplierId?: number
+  date?: string
+  amount?: number
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
+  daysLeft?: number
 }
 
 export interface IncomingInvoiceDTO {
@@ -24,8 +34,9 @@ export interface IncomingInvoiceDTO {
   number?: string
   amount?: number
   notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED' | 'ARCHIVED'
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
   items?: IncomingInvoiceProductDTO[]
+  daysLeft?: number
 }
 
 export function isEditable(invoice: IncomingInvoice): boolean {

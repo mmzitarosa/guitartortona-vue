@@ -1,4 +1,8 @@
-import type { IncomingInvoice, IncomingInvoiceDTO } from '@/types/incomingInvoice.ts'
+import type {
+  IncomingInvoice,
+  IncomingInvoiceDTO,
+  IncomingInvoiceLight
+} from '@/types/incomingInvoice.ts'
 import type {
   IncomingInvoiceProduct,
   IncomingInvoiceProductDTO
@@ -32,6 +36,19 @@ export function fromDTO(dto: IncomingInvoiceDTO): IncomingInvoice {
     items: dto.items?.map(fromProductDTO)
   }
 }
+
+export function fromLightDTO(dto: IncomingInvoiceDTO): IncomingInvoiceLight {
+  return {
+    id: dto.id,
+    supplierId: dto.supplierId,
+    date: dto.date,
+    number: dto.number,
+    amount: dto.amount,
+    status: dto.status,
+    daysLeft: dto.daysLeft
+  }
+}
+
 
 export function fromDTOPage(dtoPage: { content: IncomingInvoiceDTO[], page: { totalElements: number }, totalDrafts: number }): { content: IncomingInvoice[]; totalElements: number, totalDrafts: number } {
   return {

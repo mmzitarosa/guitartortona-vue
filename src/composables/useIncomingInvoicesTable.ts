@@ -1,33 +1,24 @@
-import { type Ref, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getIncomingInvoices } from '@/services/api/incomingInvoiceService'
+import type { IncomingInvoiceLight } from '@/types/incomingInvoice.ts'
 
 export const useIncomingInvoicesTable = () => {
-  const incomingInvoices = ref([{}])
-  const totalRecords = ref(0)
-  const totalDrafts = ref(0)
+  const incomingInvoices = ref<IncomingInvoiceLight[]>([])
   const loading = ref(false)
 
-  const loadIncomingInvoices = async (
-    page?: number,
-    size?: number,
-    sort?: any,
-    supplierId?: number,
-    status?: string,
-  ) => {
+  const loadIncomingInvoices = async () => {
     loading.value = true
     try {
-      const result = await getIncomingInvoices(page, size, sort, supplierId, status)
-      incomingInvoices.value = result.content
-      totalRecords.value = result.totalElements
-      totalDrafts.value = result.totalDrafts
+      incomingInvoices.value = await getIncomingInvoices()
     } finally {
       loading.value = false
     }
   }
 
+  const totalDrafts = computed(() => incomingInvoices.value.filter(i => i.status === 'DRAFT').length)
+
   return {
     incomingInvoices,
-    totalRecords,
     totalDrafts,
     loadIncomingInvoices,
     loading,
