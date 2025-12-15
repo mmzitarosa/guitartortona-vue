@@ -1,34 +1,25 @@
-import { type Ref, ref } from 'vue'
-import type { LedgerEntry } from '@/types/ledgerEntry'
+import { computed, ref } from 'vue'
+import type { LedgerEntryLight } from '@/types/ledgerEntry'
 import { getLedger } from '@/services/api/ledgerService'
 
 export const useLedgerTable = () => {
-  const ledger = ref([{}])
-  const totalRecords = ref(0)
+  const ledger = ref<LedgerEntryLight[]>([])
   const loading = ref(false)
-  const selectedLedgerEntry: Ref<LedgerEntry | undefined> = ref(undefined)
 
-  const loadLedger = async (
-    fromDate?: string,
-    toDate?: string,
-    page?: number,
-    size?: number,
-    sort?: any,
-  ) => {
+  const loadLedger = async () => {
     loading.value = true
     try {
-      const result = await getLedger(fromDate, toDate, page, size, sort)
-      ledger.value = result.content
-      totalRecords.value = result.totalElements
+      ledger.value = await getLedger()
     } finally {
       loading.value = false
     }
   }
 
+  const totalDrafts = computed(() => ledger.value.filter(i => i.status === 'DRAFT').length)
+
   return {
     ledger,
-    selectedLedgerEntry,
-    totalRecords,
+    totalDrafts,
     loadLedger,
     loading,
   }

@@ -47,15 +47,3 @@ export function fromLightDTO(dto: ProductDTO): ProductLight {
     quantity: dto.quantity
   }
 }
-
-export function fromDTOPage(dtoPage: {
-  content: ProductDTO[]
-  page: { totalElements: number }
-  totalDrafts: number
-}): { content: Product[]; totalElements: number; totalDrafts: number } {
-  return {
-    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
-    totalElements: dtoPage.page.totalElements,
-    totalDrafts: dtoPage.totalDrafts,
-  }
-}

@@ -3,8 +3,8 @@
     :filter
     @page="onPage"
     @rowSelect="onRowSelect"
-    @search="onSearch"
-    @reset="onReset"
+    @filter="onFilter"
+    @print="onPrint"
   ></LedgerTable>
 </template>
 
@@ -13,6 +13,8 @@ import LedgerTable from '@/components/LedgerTable.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import router from '@/router'
+import { formatDate } from '@/utils/dateUtils.ts'
+import { print } from '@/services/api/ledgerService.ts'
 
 const route = useRoute()
 
@@ -46,16 +48,17 @@ const onRowSelect = (id?: number): void => {
   }
 }
 
-const onSearch = (from?: string, to?: string): void => {
+const onFilter = (from?: Date, to?: Date) => {
   router.replace({
     query: {
-      from: from?.replace(/\//g, '-'),
-      to: to?.replace(/\//g, '-'),
-    },
+      from: formatDate(from, '-'),
+      to: formatDate(to, '-')
+    }
   })
 }
 
-const onReset = () => {
-  router.replace({ query: {} })
+const onPrint = (from: Date, to: Date) => {
+  print(formatDate(from, '-')!, formatDate(to, '-')!)
 }
+
 </script>

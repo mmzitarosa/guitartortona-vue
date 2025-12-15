@@ -4,12 +4,10 @@
 
     <DatePicker
       v-else
-      :modelValue="date"
-      @update:model-value="updateValue"
+      v-model="date"
       :inputId
       :invalid
       :placeholder="constants.dateFormat"
-      dateFormat="dd/mm/yy"
       show-icon
       icon-display="input"
       class="p-inputwrapper-filled"
@@ -22,7 +20,7 @@
 import { computed } from 'vue'
 import { DatePicker, InputText } from 'primevue'
 import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
-import { validateDate } from '@/utils/dateUtils'
+import { parseDate } from '@/utils/dateUtils'
 import { useLayoutConstants } from '@/utils/i18nConstants'
 
 interface InputDateFieldProps {
@@ -34,26 +32,16 @@ interface InputDateFieldProps {
 
 const props = defineProps<InputDateFieldProps>()
 
-const model = defineModel<string | undefined>()
+const model = defineModel<Date | undefined>()
 const constants = useLayoutConstants()
 
-const date = computed(() => validateDate(model.value))
-
-const updateValue = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
-  if (value && !Array.isArray(value)) {
-    model.value =
-      String(value.getDate()).padStart(2, '0') +
-      '/' +
-      String(value.getMonth() + 1).padStart(2, '0') +
-      '/' +
-      value.getFullYear()
-  } else {
-    model.value = undefined
-  }
-}
+const date = computed({
+  get: () => model.value,
+  set: (date: string | undefined) => model.value = parseDate(date)
+})
 
 //TODO qui si può pulire
 const invalid = computed(() =>
-  !props.readonly && props.validation ? !props.validation.valid : false,
+  !props.readonly && props.validation ? !props.validation.valid : false
 )
 </script>

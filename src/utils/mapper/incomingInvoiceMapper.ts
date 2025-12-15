@@ -49,15 +49,6 @@ export function fromLightDTO(dto: IncomingInvoiceDTO): IncomingInvoiceLight {
   }
 }
 
-
-export function fromDTOPage(dtoPage: { content: IncomingInvoiceDTO[], page: { totalElements: number }, totalDrafts: number }): { content: IncomingInvoice[]; totalElements: number, totalDrafts: number } {
-  return {
-    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
-    totalElements: dtoPage.page.totalElements,
-    totalDrafts: dtoPage.totalDrafts
-  }
-}
-
 // Domain → DTO
 export function toProductDTO(incomingInvoiceProduct: IncomingInvoiceProduct): IncomingInvoiceProductDTO {
   return {

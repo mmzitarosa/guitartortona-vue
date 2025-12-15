@@ -26,7 +26,7 @@
             type="button"
             :icon="constants.print.icon"
             severity="secondary"
-            @click="printTable"
+            @click="onPrint"
             class="mr-2"
           />
           <Button
@@ -34,7 +34,7 @@
             type="button"
             :icon="constants.reset.icon"
             severity="secondary"
-            @click="onFormReset"
+            @click="onFilter(undefined, undefined)"
             class="mr-2"
           />
           <Button type="button" :icon="constants.search.icon" @click="onFormSubmit" />
@@ -43,27 +43,26 @@
 
       <!-- TODO Da telefono fa un po' cagare -->
       <DataTable
-        v-model:selection="selectedLedgerEntry"
+        v-model:filters="filters"
         :value="ledger"
-        paginator
+        :paginator="ledger.length > filter.size"
         @page="onPage"
         :rows="filter.size"
         :first="filter.first"
-        :totalRecords
-        lazy
-        tableStyle="min-width: 50rem"
-        stripedRows
-        scrollable
-        scroll-height="flex"
-        selectionMode="single"
         dataKey="id"
-        @rowSelect="onRowSelect"
         :loading
         rowHover
+        :globalFilterFields="['date']"
       >
-        <Column field="date" header="Data"></Column>
+
+        <!-- v-model:filters="filters"
+        stripedRows
+        :globalFilterFields="['supplierId', 'status']"
+         -->
+
+        <Column header="Data"><template #body="{ data }">{{formatDate(data.date)}}</template></Column>
         <Column field="invoiceNumber" header="NumeroF"></Column>
-        <Column field="invoiceDate" header="DataF"></Column>
+        <Column header="DataF"><template #body="{ data }">{{formatDate(data.invoiceDate)}}</template></Column>
         <Column field="description" header="Descrizione"></Column>
         <Column field="reason" header="Causale"></Column>
         <Column field="bank.name" header="Banca"></Column>
@@ -87,7 +86,7 @@
                 movementTypesMap[data.movementType].char +
                 data.amount.toLocaleString('it-IT', {
                   style: 'currency',
-                  currency: 'EUR',
+                  currency: 'EUR'
                 })
               }}
             </p>
@@ -104,19 +103,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { Button, Card, Column, DataTable, type DataTablePageEvent } from 'primevue'
-import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry'
+import { computed, onMounted, ref, type Ref, watch } from 'vue'
+import {
+  Button,
+  Card,
+  Column,
+  DataTable,
+  type DataTableFilterMeta,
+  type DataTableFilterMetaData,
+  type DataTableOperatorFilterMetaData,
+  type DataTablePageEvent
+} from 'primevue'
+import {
+  type LedgerEntry,
+  movementTypesMap,
+  paymentMethodsMap,
+  paymentTypesMap
+} from '@/types/ledgerEntry'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import { useLedgerTable } from '@/composables/useLedgerTable'
-import { useSearchForm, type FromDateToDate } from '@/composables/useSearchForm'
 import { print } from '@/services/api/ledgerService'
-import { validateDate } from '@/utils/dateUtils'
 import { useLedgerTableConstants } from '@/utils/i18nConstants'
+import { useBanks } from '@/composables/useBanks'
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
+import { type FromDateToDate, useSearchForm } from '@/composables/useSearchForm'
+import { formatDate, parseDate } from '@/utils/dateUtils'
 
 const constants = useLedgerTableConstants()
 
-const { ledger, selectedLedgerEntry, totalRecords, loadLedger, loading } = useLedgerTable()
+const { ledger, totalDrafts, loadLedger, loading } = useLedgerTable()
+const { banks, loadBanks, loading: banksLoading } = useBanks()
 
 const props = defineProps<{
   filter: {
@@ -129,98 +145,106 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  search: [from?: string, to?: string]
   page: [page: number, size: number]
-  rowSelect: [id?: number]
-  reset: []
+  rowSelect: [id?: number, edit?: boolean]
+  filter: [from?: Date, to?: Date]
+  print: [from: Date, to: Date]
 }>()
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {
-  const { from, to, page, size } = props.filter
-  reload(from, to, page, size)
+  loadBanks()
+  loadLedger()
+
+  const { from, to } = props.filter
+  setFilter(from, to)
 })
 
-// La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
-// sidebar. Mettendo il listener sulle proprietà, è stato rimosso il load dall'onPage e onFormSubmit
 watch(
   () => props.filter,
   (value) => {
-    reload(value.from, value.to, value.page, value.size)
-  },
+    setFilter(value.from, value.to)
+  }
 )
 
-const reload = (from?: string, to?: string, page?: number, size?: number) => {
-  searchFormItem.value.fromDate = from?.replace(/-/g, '/')
-  searchFormItem.value.toDate = to?.replace(/-/g, '/')
-  loadLedger(from, to, page, size, undefined)
+const onRowSelect = (data: LedgerEntry, edit: boolean): void => {
+  emit('rowSelect', data.id, edit)
 }
 
-const onRowSelect = (): void => {
-  emit('rowSelect', selectedLedgerEntry.value?.id)
+const filters: Ref<DataTableFilterMeta> = ref({
+  date: {
+    operator: FilterOperator.AND,
+    constraints: []
+  }
+})
+
+
+const setFilter = (from?: string, to?: string): void => {
+  searchFormItem.value.fromDate = from ? parseDate(from, "-") : undefined
+  searchFormItem.value.toDate = to ? parseDate(to, "-") : undefined
+
+  const newConstraints: DataTableFilterMetaData[] = []
+  newConstraints.push({ value: searchFormItem.value.fromDate, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO });
+  newConstraints.push({ value: searchFormItem.value.toDate, matchMode: FilterMatchMode.LESS_THAN_OR_EQUAL_TO });
+  (filters.value['date'] as DataTableOperatorFilterMetaData).constraints = newConstraints
 }
 
 const onPage = async (event: DataTablePageEvent) => {
   const rows = event.rows
   const page = event.first / rows
-
   emit('page', page, rows)
+}
+
+const onFilter = (from?: Date, to?: Date): void => {
+  emit('filter', from, to)
 }
 
 // DateForm
 const onFormSubmit = () => {
   const result = handleSubmit()
   if (!result) return
-  emit('search', result.from, result.to)
-}
-
-const onFormReset = () => {
-  handleReset()
-  emit('reset')
+  onFilter(result.from, result.to)
 }
 
 const hasDateFilter = computed(() => {
   return props.filter.from && props.filter.to
 })
 
-const printTable = () => {
-  if (hasDateFilter.value) print(props.filter.from!, props.filter.to!)
+const onPrint = () => {
+  if (hasDateFilter.value) emit('print', searchFormItem.value.fromDate!, searchFormItem.value.toDate!)
 }
 
 const {
   item: searchFormItem,
   validation,
   handleSubmit,
-  handleReset,
+  handleReset
 } = useSearchForm<FromDateToDate>({
   fieldMappings: [
     {
       key: 'fromDate',
       label: constants.fromDate.label,
-      validator: (fromDate: string | undefined) => {
+      validator: (fromDate: Date | undefined) => {
         if (!fromDate) return { message: constants.fromDate.messages.required }
-        else if (
-          !validateDate(fromDate) ||
-          (searchFormItem.value.toDate && fromDate > searchFormItem.value.toDate)
-        )
+        if (searchFormItem.value.toDate && fromDate > searchFormItem.value.toDate) {
           return { message: constants.fromDate.messages.invalid }
-      },
+        }
+      }
     },
     {
       key: 'toDate',
       label: constants.toDate.label,
-      validator: (toDate: string | undefined) => {
+      validator: (toDate: Date | undefined) => {
         if (!toDate) return { message: constants.toDate.messages.required }
-        else if (!validateDate(toDate)) return { message: constants.toDate.messages.invalid }
         else if (searchFormItem.value.fromDate && searchFormItem.value.fromDate > toDate)
           return { message: constants.toDate.messages.beforeFromDate }
-      },
-    },
+      }
+    }
   ],
   onSubmit: (item: FromDateToDate) => {
-    const from = item.fromDate?.replace(/\//g, '-')
-    const to = item.toDate?.replace(/\//g, '-')
+    const from = item.fromDate
+    const to = item.toDate
     return { from, to }
-  },
+  }
 })
 </script>

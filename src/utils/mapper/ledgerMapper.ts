@@ -1,12 +1,13 @@
-import type { LedgerEntry, LedgerEntryDTO } from '@/types/ledgerEntry.ts'
+import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry.ts'
+import { formatDate, parseDate } from '@/utils/dateUtils.ts'
 
 // Domain → DTO
 export function toDTO(ledgerEntry: LedgerEntry): LedgerEntryDTO {
   return {
     id: ledgerEntry.id,
-    date: ledgerEntry.date,
+    date: formatDate(ledgerEntry.date),
     invoiceNumber: ledgerEntry.invoiceNumber,
-    invoiceDate: ledgerEntry.invoiceDate,
+    invoiceDate: formatDate(ledgerEntry.invoiceDate),
     description: ledgerEntry.description,
     reason: ledgerEntry.reason,
     paymentType: ledgerEntry.paymentType,
@@ -17,6 +18,7 @@ export function toDTO(ledgerEntry: LedgerEntry): LedgerEntryDTO {
     movementType: ledgerEntry.movementType,
     amount: ledgerEntry.amount,
     notes: ledgerEntry.notes,
+    status: ledgerEntry.status
   }
 }
 
@@ -24,9 +26,9 @@ export function toDTO(ledgerEntry: LedgerEntry): LedgerEntryDTO {
 export function fromDTO(dto: LedgerEntryDTO): LedgerEntry {
   return {
     id: dto.id,
-    date: dto.date,
+    date: parseDate(dto.date),
     invoiceNumber: dto.invoiceNumber,
-    invoiceDate: dto.invoiceDate,
+    invoiceDate: parseDate(dto.invoiceDate),
     description: dto.description,
     reason: dto.reason,
     paymentType: dto.paymentType,
@@ -36,15 +38,24 @@ export function fromDTO(dto: LedgerEntryDTO): LedgerEntry {
     movementType: dto.movementType,
     amount: dto.amount,
     notes: dto.notes,
+    status: dto.status
   }
 }
 
-export function fromDTOPage(dtoPage: {
-  content: LedgerEntryDTO[]
-  page: { totalElements: number }
-}): { content: LedgerEntry[]; totalElements: number } {
+export function fromLightDTO(dto: LedgerEntryDTO): LedgerEntryLight {
   return {
-    content: dtoPage.content.flatMap((dto) => fromDTO(dto)),
-    totalElements: dtoPage.page.totalElements,
+    id: dto.id,
+    date: parseDate(dto.date),
+    invoiceNumber: dto.invoiceNumber,
+    invoiceDate: parseDate(dto.invoiceDate),
+    description: dto.description,
+    reason: dto.reason,
+    paymentType: dto.paymentType,
+    receiptNumber: dto.receiptNumber,
+    paymentMethod: dto.paymentMethod,
+    bankId: dto.bankId,
+    movementType: dto.movementType,
+    amount: dto.amount,
+    status: dto.status
   }
 }

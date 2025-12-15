@@ -3,11 +3,11 @@ import type { SubmitFormOptions } from '@/types/form'
 import { getNestedValue } from '@/utils/object'
 
 export interface FromDateToDate {
-  fromDate?: string
-  toDate?: string
+  fromDate?: Date
+  toDate?: Date
 }
 
-export function useSearchForm<T>(options: SubmitFormOptions<T, { from?: string; to?: string }>) {
+export function useSearchForm<T>(options: SubmitFormOptions<T, { from?: Date; to?: Date }>) {
   const { fieldMappings, onSubmit } = options
 
   const item: Ref<T> = ref({}) as Ref<T>

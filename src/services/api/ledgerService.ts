@@ -1,7 +1,8 @@
 import apiClient from '@/services/api/apiClient.ts'
-import type { LedgerEntry } from '@/types/ledgerEntry.ts'
-import { fromDTO, fromDTOPage, toDTO } from '@/utils/mapper/ledgerMapper.ts'
+import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry.ts'
+import { fromDTO, fromLightDTO, toDTO } from '@/utils/mapper/ledgerMapper.ts'
 import { API_CONFIG } from '@/config/api.ts'
+import type { ProductDTO } from '@/types/product.ts'
 
 //Create
 export async function postLedgerEntry(ledgerEntry: LedgerEntry): Promise<LedgerEntry> {
@@ -15,20 +16,9 @@ export async function getLedgerEntryById(id: number): Promise<LedgerEntry> {
   return fromDTO(data)
 }
 
-export async function getLedger(fromDate?: string, toDate?: string, page?: number, size?: number, sort?: any): Promise<{
-  content: LedgerEntry[];
-  totalElements: number
-}> {
-  const { data } = await apiClient.get(`/ledger`, {
-    params: {
-      page,
-      size,
-      sort: sort,
-      from: fromDate,
-      to: toDate
-    }
-  })
-  return fromDTOPage(data)
+export async function getLedger(): Promise<LedgerEntryLight[]> {
+  const { data } = await apiClient.get(`/ledger`)
+  return data.flatMap((dto: LedgerEntryDTO) => fromLightDTO(dto))
 }
 
 //Update

@@ -2,9 +2,9 @@ import type { Bank } from '@/types/bank.ts'
 
 export interface LedgerEntry {
   id?: number
-  date?: string
+  date?: Date
   invoiceNumber?: string
-  invoiceDate?: string
+  invoiceDate?: Date
   description?: string
   reason?: string
   paymentMethod?: 'BANK' | 'CASH'
@@ -14,7 +14,25 @@ export interface LedgerEntry {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }
+
+export interface LedgerEntryLight {
+  id?: number
+  date?: Date
+  invoiceNumber?: string
+  invoiceDate?: Date
+  description?: string
+  reason?: string
+  paymentMethod?: 'BANK' | 'CASH'
+  bankId?: number
+  paymentType?: 'DEPOSIT' | 'BALANCE'
+  receiptNumber?: string
+  movementType?: 'INCOME' | 'EXPENSE'
+  amount?: number
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
+}
+
 
 export interface ValueLabel {
   value: string
@@ -78,4 +96,5 @@ export interface LedgerEntryDTO {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
+  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }
