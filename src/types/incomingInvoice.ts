@@ -7,7 +7,7 @@ import type {
 export interface IncomingInvoice {
   id?: number
   supplier?: Supplier
-  date?: string
+  date?: Date
   number?: string
   amount?: number
   notes?: string
@@ -19,7 +19,7 @@ export interface IncomingInvoiceLight {
   id?: number
   number?: string
   supplierId?: number
-  date?: string
+  date?: Date
   amount?: number
   status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
   daysLeft?: number

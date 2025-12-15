@@ -228,11 +228,11 @@ import type { Bank } from '@/types/bank'
 import type { LedgerEntry } from '@/types/ledgerEntry'
 import {
   movementTypes,
-  paymentMethods,
-  paymentTypes,
-  paymentTypesMap,
-  paymentMethodsMap,
   movementTypesMap,
+  paymentMethods,
+  paymentMethodsMap,
+  paymentTypes,
+  paymentTypesMap
 } from '@/types/ledgerEntry'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
@@ -247,10 +247,10 @@ import {
   deleteLedgerEntryById,
   getLedgerEntryById,
   postLedgerEntry,
-  putLedgerEntryById,
+  putLedgerEntryById
 } from '@/services/api/ledgerService'
-import { validateDate } from '@/utils/dateUtils'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
+import { formatDate } from '@/utils/dateUtils.ts'
 
 const emit = defineEmits<{
   submit: [ledgerEntry: LedgerEntry]
@@ -297,9 +297,9 @@ const {
     {
       key: 'date',
       label: constants.date.label,
-      validator: (date: string | undefined) => {
+      labeler: (date: Date | undefined) => formatDate(date),
+      validator: (date: Date | undefined) => {
         if (!date) return { message: constants.date.messages.required }
-        else if (!validateDate(date)) return { message: constants.date.messages.invalid }
       },
     },
     {
@@ -313,10 +313,7 @@ const {
     {
       key: 'invoiceDate',
       label: constants.invoiceDate.label,
-      validator: (invoiceDate: string | undefined) => {
-        if (invoiceDate && !validateDate(invoiceDate))
-          return { message: constants.invoiceDate.messages.invalid }
-      },
+      labeler: (invoiceDate: Date | undefined) => formatDate(invoiceDate),
     },
     {
       key: 'description',

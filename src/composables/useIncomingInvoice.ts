@@ -8,7 +8,7 @@ import {
   putIncomingInvoiceById,
   completeIncomingInvoiceById,
 } from '@/services/api/incomingInvoiceService'
-import { validateDate } from '@/utils/dateUtils'
+import { formatDate, validateDate } from '@/utils/dateUtils'
 import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
 
 export function useIncomingInvoice() {
@@ -37,9 +37,9 @@ export function useIncomingInvoice() {
       {
         key: 'date',
         label: constants.date.label,
-        validator: (date: string | undefined) => {
+        labeler: (date: Date | undefined) => formatDate(date),
+        validator: (date: Date | undefined) => {
           if (!date) return { message: constants.date.messages.required }
-          else if (!validateDate(date)) return { message: constants.date.messages.invalid }
         },
       },
       {

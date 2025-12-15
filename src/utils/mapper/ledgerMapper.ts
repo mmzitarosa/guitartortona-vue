@@ -1,5 +1,5 @@
-import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry.ts'
-import { formatDate, parseDate } from '@/utils/dateUtils.ts'
+import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry'
+import { formatDate, parseDate } from '@/utils/dateUtils'
 
 // Domain → DTO
 export function toDTO(ledgerEntry: LedgerEntry): LedgerEntryDTO {

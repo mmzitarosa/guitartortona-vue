@@ -224,6 +224,7 @@ const {
     {
       key: 'fromDate',
       label: constants.fromDate.label,
+      labeler: (fromDate: Date | undefined) => formatDate(fromDate),
       validator: (fromDate: Date | undefined) => {
         if (!fromDate) return { message: constants.fromDate.messages.required }
         if (searchFormItem.value.toDate && fromDate > searchFormItem.value.toDate) {
@@ -234,6 +235,7 @@ const {
     {
       key: 'toDate',
       label: constants.toDate.label,
+      labeler: (toDate: Date | undefined) => formatDate(toDate),
       validator: (toDate: Date | undefined) => {
         if (!toDate) return { message: constants.toDate.messages.required }
         else if (searchFormItem.value.fromDate && searchFormItem.value.fromDate > toDate)

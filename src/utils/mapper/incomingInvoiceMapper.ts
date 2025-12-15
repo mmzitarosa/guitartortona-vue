@@ -7,6 +7,7 @@ import type {
   IncomingInvoiceProduct,
   IncomingInvoiceProductDTO
 } from '@/types/incominInvoiceProduct.ts'
+import { formatDate, parseDate } from '@/utils/dateUtils.ts'
 
 // Domain → DTO
 export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
@@ -15,7 +16,7 @@ export function toDTO(invoice: IncomingInvoice): IncomingInvoiceDTO {
     supplier: invoice.supplier,
     supplierId: invoice.supplier?.id,
     supplierName: invoice.supplier?.name,
-    date: invoice.date,
+    date: formatDate(invoice.date),
     number: invoice.number,
     amount: invoice.amount,
     notes: invoice.notes,
@@ -28,7 +29,7 @@ export function fromDTO(dto: IncomingInvoiceDTO): IncomingInvoice {
   return {
     id: dto.id,
     supplier: dto.supplier,
-    date: dto.date,
+    date: parseDate(dto.date),
     number: dto.number,
     amount: dto.amount,
     notes: dto.notes,
@@ -41,7 +42,7 @@ export function fromLightDTO(dto: IncomingInvoiceDTO): IncomingInvoiceLight {
   return {
     id: dto.id,
     supplierId: dto.supplierId,
-    date: dto.date,
+    date: parseDate(dto.date),
     number: dto.number,
     amount: dto.amount,
     status: dto.status,
