@@ -13,6 +13,8 @@
         :loading
         rowHover
         :globalFilterFields="['supplierId', 'status']"
+        selectionMode="single"
+        @rowSelect="onRowSelect"
       >
         <template #header>
           <div class="flex justify-between">
@@ -50,7 +52,7 @@
         </template>
         <template #empty>Nessuna fattura trovata.</template>
         <template #loading>Caricando le fatture...</template>
-        <Column field="date" header="Data"></Column>
+        <Column header="Data"><template #body="{ data }">{{formatDate(data.date)}}</template></Column>
         <Column>
           <template #header>
             <span class="p-datatable-column-title flex items-center group">
@@ -113,29 +115,6 @@
             />
           </template>
         </Column>
-        <Column class="w-0 !text-end">
-          <template #body="{ data }">
-            <span class="flex flex-row-reverse">
-              <Button
-                type="button"
-                icon="pi pi-eye"
-                @click="onRowSelect(data, false)"
-                severity="primary"
-                text
-                rounded
-              ></Button>
-              <Button
-                v-show="isEditable(data)"
-                type="button"
-                icon="pi pi-pencil"
-                @click="onRowSelect(data, true)"
-                severity="primary"
-                text
-                rounded
-              ></Button>
-            </span>
-          </template>
-        </Column>
       </DataTable>
     </template>
   </Card>
@@ -146,18 +125,20 @@ import {
   Button,
   Card,
   Column,
-  DataTable, type DataTableFilterMeta, type DataTableFilterMetaData,
+  DataTable,
+  type DataTableFilterMeta,
+  type DataTableFilterMetaData,
   type DataTablePageEvent,
+  type DataTableRowSelectEvent,
   Select,
   Tag
 } from 'primevue'
 import { computed, onMounted, ref, type Ref, watch } from 'vue'
-import type { IncomingInvoice } from '@/types/incomingInvoice'
-import { isEditable } from '@/types/incomingInvoice'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { useSuppliers } from '@/composables/useSuppliers'
 import { FilterMatchMode } from '@primevue/core/api'
+import { formatDate } from '@/utils/dateUtils.ts'
 
 const constants = useIncomingInvoicesTableConstants()
 
@@ -200,8 +181,8 @@ watch(
   }
 )
 
-const onRowSelect = (data: IncomingInvoice, edit: boolean): void => {
-  emit('rowSelect', data.id, edit)
+const onRowSelect = (data: DataTableRowSelectEvent): void => {
+  emit('rowSelect', data.data.id, false)
 }
 
 const filters: Ref<DataTableFilterMeta> = ref({

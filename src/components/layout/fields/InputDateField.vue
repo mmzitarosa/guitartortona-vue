@@ -1,6 +1,6 @@
 <template>
   <InputValidationField :inputId :label :invalid :error="validation?.message">
-    <InputText v-if="readonly" :value="model" :id="inputId" readonly fluid class="p-filled" />
+    <InputText v-if="readonly" :value="formatDate(date)" :id="inputId" readonly fluid class="p-filled" />
 
     <DatePicker
       v-else
@@ -20,7 +20,7 @@
 import { computed } from 'vue'
 import { DatePicker, InputText } from 'primevue'
 import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
-import { parseDate } from '@/utils/dateUtils'
+import { formatDate, parseDate } from '@/utils/dateUtils'
 import { useLayoutConstants } from '@/utils/i18nConstants'
 
 interface InputDateFieldProps {

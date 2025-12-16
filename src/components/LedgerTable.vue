@@ -53,19 +53,38 @@
         :loading
         rowHover
         :globalFilterFields="['date']"
+        selectionMode="single"
+        @rowSelect="onRowSelect"
       >
 
-        <!-- v-model:filters="filters"
-        stripedRows
-        :globalFilterFields="['supplierId', 'status']"
-         -->
+        <Column>
+          <template #header>
+            <span class="p-datatable-column-title flex items-center group">
+              Data
+              <span class="ml-4">
+                <span :class="hasDateFilter ? 'group-hover:hidden' : ''">
+                  <i :class="'pi ' + (hasDateFilter ? 'pi-filter-fill' : 'pi-filter') "></i>
+                </span>
+                <span
+                  :class="'hidden ' + (hasDateFilter ? 'group-hover:inline-block cursor-pointer' : '')">
+                  <i class="pi pi-filter-slash" @click="onFilter(undefined, undefined)"></i>
+                </span>
+              </span>
+            </span>
+          </template>
 
-        <Column header="Data"><template #body="{ data }">{{formatDate(data.date)}}</template></Column>
+          <template #body="{ data }">{{formatDate(data.date)}}</template>
+        </Column>
         <Column field="invoiceNumber" header="NumeroF"></Column>
         <Column header="DataF"><template #body="{ data }">{{formatDate(data.invoiceDate)}}</template></Column>
         <Column field="description" header="Descrizione"></Column>
         <Column field="reason" header="Causale"></Column>
-        <Column field="bank.name" header="Banca"></Column>
+
+        <Column header="Banca">
+          <template #body="{ data }">
+            <p v-if="banks && data.bankId">{{ banks.find((bank) => bank.id === data.bankId)?.name }}</p>
+          </template>
+        </Column>
         <Column header="S/A" bodyStyle="text-align:center">
           <template #body="slotProps">
             {{
@@ -112,17 +131,12 @@ import {
   type DataTableFilterMeta,
   type DataTableFilterMetaData,
   type DataTableOperatorFilterMetaData,
-  type DataTablePageEvent
+  type DataTablePageEvent,
+  type DataTableRowSelectEvent
 } from 'primevue'
-import {
-  type LedgerEntry,
-  movementTypesMap,
-  paymentMethodsMap,
-  paymentTypesMap
-} from '@/types/ledgerEntry'
+import { movementTypesMap, paymentMethodsMap, paymentTypesMap } from '@/types/ledgerEntry'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import { useLedgerTable } from '@/composables/useLedgerTable'
-import { print } from '@/services/api/ledgerService'
 import { useLedgerTableConstants } from '@/utils/i18nConstants'
 import { useBanks } from '@/composables/useBanks'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
@@ -167,8 +181,8 @@ watch(
   }
 )
 
-const onRowSelect = (data: LedgerEntry, edit: boolean): void => {
-  emit('rowSelect', data.id, edit)
+const onRowSelect = (data: DataTableRowSelectEvent): void => {
+  emit('rowSelect', data.data.id, false)
 }
 
 const filters: Ref<DataTableFilterMeta> = ref({
