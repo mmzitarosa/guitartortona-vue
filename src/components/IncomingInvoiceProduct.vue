@@ -114,7 +114,8 @@ const onEditProduct = (product: IncomingInvoiceProduct) => {
 }
 
 const onViewProduct = (product: IncomingInvoiceProduct) => {
-  // TODO: Implementare visualizzazione dettaglio prodotto
-  console.log('View product:', product)
+  incomingInvoiceProduct.value = product
+
+  // TODO Verificare: Se seleziono in modalità readonly, poi quando cambio in editable l'item è già selezionato
 }
 </script>

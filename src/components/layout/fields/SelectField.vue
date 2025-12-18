@@ -14,7 +14,7 @@
       :showClear
       :editable
       @update:modelValue="handleModelUpdate"
-      class="p-inputwrapper-filled"
+      class="p-inputwrapper-filled w-full"
       fluid
     />
   </InputValidationField>

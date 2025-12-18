@@ -26,6 +26,7 @@ export const useLedgerTableConstants = () => {
       messages: {
         required: t('common.messages.dateRequiredFrom'),
         invalid: t('common.messages.dateInvalidFrom'),
+        beforeYear: t('common.messages.dateBeforeYear'),
       },
     },
     toDate: {

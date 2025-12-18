@@ -6,16 +6,16 @@ export const useLedgerTable = () => {
   const ledger = ref<LedgerEntryLight[]>([])
   const loading = ref(false)
 
-  const loadLedger = async () => {
+  const loadLedger = async (year: number) => {
     loading.value = true
     try {
-      ledger.value = await getLedger()
+      ledger.value = await getLedger(year)
     } finally {
       loading.value = false
     }
   }
 
-  const totalDrafts = computed(() => ledger.value.filter(i => i.status === 'DRAFT').length)
+  const totalDrafts = computed(() => ledger.value.filter((i) => i.status === 'DRAFT').length)
 
   return {
     ledger,

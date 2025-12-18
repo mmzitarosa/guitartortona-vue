@@ -56,15 +56,9 @@ export function useSearchForm<T>(options: SubmitFormOptions<T, { from?: Date; to
     return result
   }
 
-  const handleReset = () => {
-    item.value = {} as T
-    validate.value = false
-  }
-
   return {
     item,
     validation,
     handleSubmit,
-    handleReset,
   }
 }

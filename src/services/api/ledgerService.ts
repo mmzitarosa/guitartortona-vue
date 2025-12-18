@@ -16,15 +16,15 @@ export async function getLedgerEntryById(id: number): Promise<LedgerEntry> {
   return fromDTO(data)
 }
 
-export async function getLedger(): Promise<LedgerEntryLight[]> {
-  const { data } = await apiClient.get(`/ledger`)
+export async function getLedger(year: number): Promise<LedgerEntryLight[]> {
+  const { data } = await apiClient.get(`/ledger`, { params: { year } })
   return data.flatMap((dto: LedgerEntryDTO) => fromLightDTO(dto))
 }
 
 //Update
 export async function putLedgerEntryById(
   id: number,
-  ledgerEntry: LedgerEntry
+  ledgerEntry: LedgerEntry,
 ): Promise<LedgerEntry> {
   const { data } = await apiClient.put(`/ledgerEntry/${id}`, toDTO(ledgerEntry))
   return fromDTO(data)
@@ -36,5 +36,8 @@ export async function deleteLedgerEntryById(id: number): Promise<void> {
 }
 
 export function print(fromDate: string, toDate: string) {
-  window.open(API_CONFIG.baseURL + '/api/v1/ledger/print?from=' + fromDate + '&to=' + toDate, '_blank')
+  window.open(
+    API_CONFIG.baseURL + '/api/v1/ledger/print?from=' + fromDate + '&to=' + toDate,
+    '_blank',
+  )
 }

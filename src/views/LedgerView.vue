@@ -2,6 +2,7 @@
   <LedgerTable
     :filter
     @page="onPage"
+    @year="onYear"
     @rowSelect="onRowSelect"
     @filter="onFilter"
     @print="onPrint"
@@ -19,7 +20,7 @@ import { print } from '@/services/api/ledgerService.ts'
 const route = useRoute()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, from, to } = route.query
+  const { page = 0, size = 15, from, to, year = new Date().getFullYear() - 1 } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
@@ -27,6 +28,7 @@ const filter = computed(() => {
     page: pageN,
     size: sizeN,
     first: pageN * sizeN,
+    year: Number(year),
     from: from && (from as string).trim() ? (from as string) : undefined,
     to: to && (to as string).trim() ? (to as string) : undefined,
   }
@@ -48,17 +50,25 @@ const onRowSelect = (id?: number): void => {
   }
 }
 
+const onYear = (year: number) => {
+  router.replace({
+    query: {
+      ...route.query,
+      year: year.toString(),
+    },
+  })
+}
+
 const onFilter = (from?: Date, to?: Date) => {
   router.replace({
     query: {
       from: formatDate(from, '-'),
-      to: formatDate(to, '-')
-    }
+      to: formatDate(to, '-'),
+    },
   })
 }
 
 const onPrint = (from: Date, to: Date) => {
   print(formatDate(from, '-')!, formatDate(to, '-')!)
 }
-
 </script>

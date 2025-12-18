@@ -12,6 +12,9 @@
         filterDisplay="row"
         :loading
         :globalFilterFields="['categoryId', 'brandId', 'description']"
+        rowHover
+        selectionMode="single"
+        @rowSelect="onRowSelect($event.data, false)"
       >
         <template #empty>Nessuna prodotto trovato.</template>
         <template #loading>Caricando i prodotti...</template>
@@ -85,20 +88,6 @@
           </template>
         </Column>
 
-        <Column class="w-0 !text-end">
-          <template #body="{ data }">
-            <span class="flex flex-row-reverse">
-              <Button
-                type="button"
-                icon="pi pi-eye"
-                @click="onRowSelect(data, false)"
-                severity="primary"
-                text
-                rounded
-              ></Button>
-            </span>
-          </template>
-        </Column>
       </DataTable>
     </template>
   </Card>

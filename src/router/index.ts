@@ -55,6 +55,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/product/:id',
+    name: 'product',
+    component: ProductsListView,
+    meta: {
+      title: 'Dettaglio Prodotto',
+      },
+  },
+  {
     path: '/ledgerEntry',
     name: 'addLedgerEntry',
     component: AddLedgerEntryView,

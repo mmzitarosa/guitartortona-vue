@@ -1,6 +1,10 @@
 <template>
   <div v-if="hasProducts" class="mt-6">
-    <DataTable :value="products">
+    <DataTable :value="products" dataKey="id"
+               rowHover
+               selectionMode="single"
+               @rowSelect="onView($event.data)"
+    >
       <template #empty>{{ constants.table.empty }}</template>
       <template #loading>{{ constants.table.loading }}</template>
 
@@ -30,30 +34,6 @@
       <Column :header="constants.table.columns.sale">
         <template #body="{ data }">
           <p v-if="data.product && data.product.price">{{ formatCurrency(data.product.price) }}</p>
-        </template>
-      </Column>
-
-      <Column class="w-0 !text-end">
-        <template #body="{ data }">
-          <span class="flex">
-            <Button
-              v-if="editable"
-              type="button"
-              icon="pi pi-pencil"
-              severity="primary"
-              text
-              rounded
-              @click="onEdit(toRaw(data))"
-            ></Button>
-            <Button
-              type="button"
-              icon="pi pi-eye"
-              severity="primary"
-              text
-              rounded
-              @click="onView(toRaw(data))"
-            ></Button>
-          </span>
         </template>
       </Column>
 
@@ -94,7 +74,7 @@ interface IncomingInvoiceProductsTableProps {
 }
 
 const props = withDefaults(defineProps<IncomingInvoiceProductsTableProps>(), {
-  editable: false,
+  editable: false
 })
 
 const emit = defineEmits<{
@@ -111,7 +91,7 @@ const {
   totalPurchasePriceFormatted,
   totalAmountFormatted,
   formatCurrency,
-  formatProductAmount,
+  formatProductAmount
 } = useIncomingInvoiceProductsTable(computed(() => props.invoice))
 
 const onEdit = (product: IncomingInvoiceProduct) => {

@@ -18,28 +18,6 @@
       >
         <template #header>
           <div class="flex justify-between">
-            <div class="flex gap-4">
-              <Select
-                v-model="_supplierId"
-                @valueChange="onSupplier"
-                :options="suppliers"
-                optionValue="id"
-                optionLabel="name"
-                placeholder="Filtro per fornitore"
-                :showClear="true"
-                :loading="suppliersLoading"
-              />
-
-              <Button
-                v-if="totalDrafts > 0"
-                :label="'Bozze (' + totalDrafts + ')'"
-                icon="pi pi-pen-to-square"
-                :disabled="!!_status"
-                severity="warn"
-                variant="text"
-                @click="onStatus('DRAFT')"
-              />
-            </div>
             <Button
               label="Rimuovi filtri"
               icon="pi pi-filter-slash"
@@ -48,29 +26,60 @@
               variant="text"
               @click="onFilter(undefined, undefined)"
             />
+
+            <div class="flex gap-4">
+              <Button
+                v-if="totalDrafts > 0"
+                :label="'Bozze (' + totalDrafts + ')'"
+                icon="pi pi-pen-to-square"
+                :disabled="!!_status"
+                severity="warn"
+                variant="text"
+                @click="_status = 'DRAFT'"
+              />
+
+              <SelectField
+                v-model="_supplierId"
+                inputId="supplier"
+                :options="suppliers"
+                optionValue="id"
+                optionLabel="name"
+                showClear
+                :loading="suppliersLoading"
+                label="Filtro per Fornitore"
+                class="w-64"
+              />
+            </div>
           </div>
         </template>
         <template #empty>Nessuna fattura trovata.</template>
         <template #loading>Caricando le fatture...</template>
-        <Column header="Data"><template #body="{ data }">{{formatDate(data.date)}}</template></Column>
+        <Column header="Data"
+          ><template #body="{ data }">{{ formatDate(data.date) }}</template></Column
+        >
         <Column>
           <template #header>
             <span class="p-datatable-column-title flex items-center group">
               Fornitore
               <span class="ml-4">
                 <span :class="_supplierId ? 'group-hover:hidden' : ''">
-                  <i :class="'pi ' + (_supplierId ? 'pi-filter-fill' : 'pi-filter') "></i>
+                  <i :class="'pi ' + (_supplierId ? 'pi-filter-fill' : 'pi-filter')"></i>
                 </span>
                 <span
-                  :class="'hidden ' + (_supplierId ? 'group-hover:inline-block cursor-pointer' : '')">
-                  <i class="pi pi-filter-slash" @click="onSupplier(undefined)"></i>
+                  :class="
+                    'hidden ' + (_supplierId ? 'group-hover:inline-block cursor-pointer' : '')
+                  "
+                >
+                  <i class="pi pi-filter-slash" @click="_supplierId = undefined"></i>
                 </span>
               </span>
             </span>
           </template>
 
           <template #body="{ data }">
-            <p v-if="suppliers && data.supplierId">{{ suppliers.find((supplier) => supplier.id === data.supplierId)?.name }}</p>
+            <p v-if="suppliers && data.supplierId">
+              {{ suppliers.find((supplier: Supplier) => supplier.id === data.supplierId)?.name }}
+            </p>
           </template>
         </Column>
         <Column field="number" header="Numero"></Column>
@@ -80,7 +89,7 @@
               {{
                 data.amount.toLocaleString('it-IT', {
                   style: 'currency',
-                  currency: 'EUR'
+                  currency: 'EUR',
                 })
               }}
             </p>
@@ -98,11 +107,12 @@
               Stato
               <span class="ml-4">
                 <span :class="_status ? 'group-hover:hidden' : ''">
-                  <i :class="'pi ' + (_status ? 'pi-filter-fill' : 'pi-filter') "></i>
+                  <i :class="'pi ' + (_status ? 'pi-filter-fill' : 'pi-filter')"></i>
                 </span>
                 <span
-                  :class="'hidden ' + (_status ? 'group-hover:inline-block cursor-pointer' : '')">
-                  <i class="pi pi-filter-slash" @click="onStatus(undefined)"></i>
+                  :class="'hidden ' + (_status ? 'group-hover:inline-block cursor-pointer' : '')"
+                >
+                  <i class="pi pi-filter-slash" @click="_status = undefined"></i>
                 </span>
               </span>
             </span>
@@ -127,23 +137,22 @@ import {
   Column,
   DataTable,
   type DataTableFilterMeta,
-  type DataTableFilterMetaData,
   type DataTablePageEvent,
   type DataTableRowSelectEvent,
-  Select,
-  Tag
+  Tag,
 } from 'primevue'
-import { computed, onMounted, ref, type Ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { useSuppliers } from '@/composables/useSuppliers'
 import { FilterMatchMode } from '@primevue/core/api'
 import { formatDate } from '@/utils/dateUtils.ts'
+import SelectField from '@/components/layout/fields/SelectField.vue'
+import type { Supplier } from '@/types/supplier'
 
 const constants = useIncomingInvoicesTableConstants()
 
-const { incomingInvoices, totalDrafts, loadIncomingInvoices, loading } =
-  useIncomingInvoicesTable()
+const { incomingInvoices, totalDrafts, loadIncomingInvoices, loading } = useIncomingInvoicesTable()
 
 const { suppliers, loadSuppliers, loading: suppliersLoading } = useSuppliers()
 
@@ -167,59 +176,28 @@ const emit = defineEmits<{
 onMounted(() => {
   loadSuppliers()
   loadIncomingInvoices()
-
-  const { supplierId, status } = props.filter
-  setFilter(supplierId, status)
 })
-
-// La logica di load è stata messa nel watch per effettuare la chiamata anche a seguito del click su
-// sidebar. Mettendo il listener sulle proprietà, è stato rimosso il load dall'onPage e onFormSubmit
-watch(
-  () => props.filter,
-  (value) => {
-    setFilter(value.supplierId, value.status)
-  }
-)
 
 const onRowSelect = (data: DataTableRowSelectEvent): void => {
   emit('rowSelect', data.data.id, false)
 }
 
-const filters: Ref<DataTableFilterMeta> = ref({
-  supplierId: { value: undefined, matchMode: FilterMatchMode.EQUALS },
-  status: { value: undefined, matchMode: FilterMatchMode.EQUALS }
+const filters = computed((): DataTableFilterMeta => {
+  return {
+    supplierId: { value: props.filter.supplierId, matchMode: FilterMatchMode.EQUALS },
+    status: { value: props.filter.status, matchMode: FilterMatchMode.EQUALS },
+  }
 })
 
 const _supplierId = computed({
-  get: (): number | undefined => getFilterValue<number>('supplierId'),
-  set: (value?: number): void => setFilterValue<number>('supplierId', value)
+  get: (): number | undefined => props.filter.supplierId,
+  set: (value?: number): void => onFilter(value, _status.value),
 })
 
 const _status = computed({
-  get: (): string | undefined => getFilterValue<string>('status'),
-  set: (value?: string): void => setFilterValue<string>('status', value)
+  get: (): string | undefined => props.filter.status,
+  set: (value?: string): void => onFilter(_supplierId.value, value),
 })
-
-const getFilterValue = <T>(field: string): T | undefined => {
-  return (filters.value[field] as DataTableFilterMetaData).value
-}
-
-const setFilterValue = <T>(field: string, value?: T): void => {
-  (filters.value[field] as DataTableFilterMetaData).value = value
-}
-
-const setFilter = (supplierId?: number, status?: string): void => {
-  _supplierId.value = supplierId
-  _status.value = status
-}
-
-const onSupplier = (supplierId?: number): void => {
-  onFilter(supplierId, _status.value)
-}
-
-const onStatus = (status?: string): void => {
-  onFilter(_supplierId.value, status)
-}
 
 const onPage = async (event: DataTablePageEvent) => {
   const rows = event.rows
@@ -230,5 +208,4 @@ const onPage = async (event: DataTablePageEvent) => {
 const onFilter = (supplierId?: number, status?: string): void => {
   emit('filter', supplierId, status)
 }
-
 </script>
