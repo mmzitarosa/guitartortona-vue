@@ -5,10 +5,10 @@
       <DataTable
         v-model:filters="filters"
         :value="incomingInvoices"
-        :paginator="incomingInvoices.length > filter.size"
+        :paginator="incomingInvoices.length > props.filter.size"
         @page="onPage"
-        :rows="filter.size"
-        :first="filter.first"
+        :rows="props.filter.size"
+        :first="props.filter.first"
         dataKey="id"
         :loading
         rowHover
@@ -77,9 +77,7 @@
           </template>
 
           <template #body="{ data }">
-            <p v-if="suppliers && data.supplierId">
-              {{ suppliers.find((supplier: Supplier) => supplier.id === data.supplierId)?.name }}
-            </p>
+            <p v-if="data.supplierId">{{ getSupplierName(data.supplierId) }}</p>
           </template>
         </Column>
         <Column field="number" header="Numero"></Column>
@@ -148,7 +146,6 @@ import { useSuppliers } from '@/composables/useSuppliers'
 import { FilterMatchMode } from '@primevue/core/api'
 import { formatDate } from '@/utils/dateUtils.ts'
 import SelectField from '@/components/layout/fields/SelectField.vue'
-import type { Supplier } from '@/types/supplier'
 
 const constants = useIncomingInvoicesTableConstants()
 
@@ -178,6 +175,20 @@ onMounted(() => {
   loadIncomingInvoices()
 })
 
+const suppliersMap = computed(() => {
+  const map = new Map<number, string>()
+  suppliers.value.forEach((supplier) => {
+    if (supplier.id !== undefined) {
+      map.set(supplier.id, supplier.name)
+    }
+  })
+  return map
+})
+
+const getSupplierName = (supplierId?: number): string | undefined => {
+  return supplierId ? suppliersMap.value.get(supplierId) : undefined
+}
+
 const onRowSelect = (data: DataTableRowSelectEvent): void => {
   emit('rowSelect', data.data.id, false)
 }
@@ -199,7 +210,7 @@ const _status = computed({
   set: (value?: string): void => onFilter(_supplierId.value, value),
 })
 
-const onPage = async (event: DataTablePageEvent) => {
+const onPage = (event: DataTablePageEvent): void => {
   const rows = event.rows
   const page = event.first / rows
   emit('page', page, rows)

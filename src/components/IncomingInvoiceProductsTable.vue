@@ -1,9 +1,11 @@
 <template>
   <div v-if="hasProducts" class="mt-6">
-    <DataTable :value="products" dataKey="id"
-               rowHover
-               selectionMode="single"
-               @rowSelect="onView($event.data)"
+    <DataTable
+      :value="products"
+      dataKey="id"
+      rowHover
+      selectionMode="single"
+      @rowSelect="onView($event.data)"
     >
       <template #empty>{{ constants.table.empty }}</template>
       <template #loading>{{ constants.table.loading }}</template>
@@ -61,8 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRaw } from 'vue'
-import { Column, DataTable, Button, ColumnGroup, Row } from 'primevue'
+import { computed } from 'vue'
+import { Column, DataTable, ColumnGroup, Row } from 'primevue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
 import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
 import { useIncomingInvoiceProductsTable } from '@/composables/useIncomingInvoiceProductsTable'
@@ -74,7 +76,7 @@ interface IncomingInvoiceProductsTableProps {
 }
 
 const props = withDefaults(defineProps<IncomingInvoiceProductsTableProps>(), {
-  editable: false
+  editable: false,
 })
 
 const emit = defineEmits<{
@@ -91,12 +93,8 @@ const {
   totalPurchasePriceFormatted,
   totalAmountFormatted,
   formatCurrency,
-  formatProductAmount
+  formatProductAmount,
 } = useIncomingInvoiceProductsTable(computed(() => props.invoice))
-
-const onEdit = (product: IncomingInvoiceProduct) => {
-  emit('edit', product)
-}
 
 const onView = (product: IncomingInvoiceProduct) => {
   emit('view', product)

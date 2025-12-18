@@ -5,10 +5,10 @@
       <DataTable
         v-model:filters="filters"
         :value="ledger"
-        :paginator="ledger.length > filter.size"
+        :paginator="ledger.length > props.filter.size"
         @page="onPage"
-        :rows="filter.size"
-        :first="filter.first"
+        :rows="props.filter.size"
+        :first="props.filter.first"
         dataKey="id"
         :loading
         rowHover
@@ -92,9 +92,7 @@
 
         <Column header="Banca">
           <template #body="{ data }">
-            <p v-if="banks && data.bankId">
-              {{ banks.find((bank) => bank.id === data.bankId)?.name }}
-            </p>
+            <p v-if="data.bankId">{{ getBankName(data.bankId) }}</p>
           </template>
         </Column>
         <Column header="S/A" bodyStyle="text-align:center">
@@ -203,6 +201,20 @@ onMounted(() => {
   setFilter(from, to)
 })
 
+const banksMap = computed(() => {
+  const map = new Map<number, string>()
+  banks.value.forEach((bank) => {
+    if (bank.id !== undefined) {
+      map.set(bank.id, bank.name)
+    }
+  })
+  return map
+})
+
+const getBankName = (bankId?: number): string | undefined => {
+  return bankId ? banksMap.value.get(bankId) : undefined
+}
+
 watch(
   () => props.filter,
   (value, oldValue) => {
@@ -244,7 +256,7 @@ const setFilter = (from?: string, to?: string): void => {
   ;(filters.value['date'] as DataTableOperatorFilterMetaData).constraints = newConstraints
 }
 
-const onPage = async (event: DataTablePageEvent) => {
+const onPage = (event: DataTablePageEvent): void => {
   const rows = event.rows
   const page = event.first / rows
   emit('page', page, rows)
