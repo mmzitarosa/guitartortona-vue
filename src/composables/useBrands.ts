@@ -1,10 +1,12 @@
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Brand } from '@/types/brand'
-import { getBrands } from '@/services/api/brandService'
+import { getAllBrands } from '@/services/api/brandService'
 
 export const useBrands = () => {
   const brands = ref<Brand[]>([])
   const loading = ref(false)
+
+  onMounted(() => loadBrands())
 
   const addBrand = (current?: Brand) => {
     // Inutile se l'input non è valido
@@ -21,7 +23,7 @@ export const useBrands = () => {
   const loadBrands = async () => {
     loading.value = true
     try {
-      brands.value = await getBrands()
+      brands.value = await getAllBrands()
     } finally {
       loading.value = false
     }
@@ -31,5 +33,19 @@ export const useBrands = () => {
     return { id: undefined, name: value } as Brand
   }
 
-  return { brands, loading, loadBrands, formatter, addBrand }
+  const map = computed(() => {
+    const map = new Map<number, Brand>()
+    brands.value.forEach((brand) => {
+      if (brand.id) {
+        map.set(brand.id, brand)
+      }
+    })
+    return map
+  })
+
+  const getBrand = (brandId?: number): Brand | undefined => {
+    return brandId ? map.value.get(brandId) : undefined
+  }
+
+  return { brands, loading, formatter, getBrand, addBrand }
 }

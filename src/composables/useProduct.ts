@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getProduct } from '@/services/api/productService'
+import { getProductDetailByCode } from '@/services/api/productService'
 
 export const useProduct = () => {
   const loading = ref(false)
@@ -7,7 +7,7 @@ export const useProduct = () => {
   const loadProduct = async (code: string) => {
     loading.value = true
     try {
-      return await getProduct(code)
+      return await getProductDetailByCode(code)
     } finally {
       loading.value = false
     }

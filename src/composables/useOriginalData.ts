@@ -7,55 +7,65 @@ export interface UseOriginalDataOptions<T> {
   fieldMappings: FieldMapping<T>[]
 }
 
+export interface FieldChange {
+  field: string
+  oldValue: any
+  newValue: any
+  ignore: boolean
+}
+
 export function useOriginalData<T extends { id?: number }>(options: UseOriginalDataOptions<T>) {
   const { initialValue, fieldMappings } = options
 
+  const clone = (val: T) => structuredClone(toRaw(val))
+  const initial = initialValue ? clone(initialValue) : ({} as T)
+
   // L'item corrente - parte con initialValue se presente
-  const item: Ref<T> = ref({ ...(initialValue ?? {}) }) as Ref<T>
+  const item = ref(clone(initial)) as Ref<T>
+  const original = ref(clone(initial)) as Ref<T>
 
-  // Il valore originale con cui confrontare - parte SENZA initialValue
-  const original: Ref<T> = ref({ ...(initialValue ?? {}) }) as Ref<T>
+  const isExistingItem = computed(() => !!item.value.id)
 
-  const existingItem = computed(() => !!item.value.id)
+  const computeFieldChange = (mapping: FieldMapping<T>): FieldChange | null => {
+    const { key, label: fieldLabel, labeler, defaultValue } = mapping
 
-  // Calcolo delle differenze tra item e original
-  const changes: ComputedRef<{ field: string; oldValue: any; newValue: any; ignore: boolean }[]> =
-    computed(() => {
-      if (!item.value || !original.value) return []
+    const oldRaw = getNestedValue(original.value, key)
+    const newRaw = getNestedValue(item.value, key)
 
-      return fieldMappings.flatMap(({ key, label: field, labeler, defaultValue }) => {
-        const oldRaw = getNestedValue(original.value, key)
-        const newRaw = getNestedValue(item.value, key)
+    const oldValue = labeler ? labeler(oldRaw) : oldRaw
+    const newValue = labeler ? labeler(newRaw) : newRaw
 
-        const oldValue = labeler ? labeler(oldRaw) : oldRaw
-        const newValue = labeler ? labeler(newRaw) : newRaw
+    const isUnchangedDefault = !isExistingItem.value && oldValue === newValue && !!defaultValue
+    const hasChanged = oldValue !== newValue
 
-        const ignore = !existingItem.value && oldValue === newValue && !!defaultValue
-
-        if (ignore || oldValue !== newValue) {
-          return [{ field, oldValue, newValue, ignore }]
-        }
-        return []
-      })
-    })
-
-  // L'item è stato modificato rispetto all'original
-  const dirty: ComputedRef<boolean> = computed(() => {
-    return changes.value.some((change) => !change.ignore)
-  })
-
-  // L'item è ancora vergine (non modificato)
-  const pristine: ComputedRef<boolean> = computed(() => !dirty.value)
-
-  // Reset dell'item
-  const reset = () => {
-    item.value = structuredClone(toRaw(original.value))
+    if (isUnchangedDefault || hasChanged) {
+      return { field: fieldLabel, oldValue, newValue, ignore: isUnchangedDefault }
+    }
+    return null
   }
 
-  // Aggiorna l'original con un nuovo valore (es. dopo il caricamento o salvataggio)
+  const changes: ComputedRef<FieldChange[]> = computed(() => {
+    if (!item.value || !original.value) return []
+    return fieldMappings
+      .map(computeFieldChange)
+      .filter((change): change is FieldChange => change !== null)
+  })
+
+  const dirty = computed(() => changes.value.some((change) => !change.ignore))
+  const pristine = computed(() => !dirty.value)
+
+  const reset = () => {
+    item.value = clone(original.value)
+  }
+
+  const resetOriginal = () => {
+    original.value = clone(initial)
+    item.value = clone(initial)
+  }
+
   const setOriginal = (value: T) => {
-    original.value = structuredClone(value)
-    item.value = structuredClone(value)
+    original.value = clone(value)
+    item.value = clone(value)
   }
 
   return {
@@ -63,8 +73,9 @@ export function useOriginalData<T extends { id?: number }>(options: UseOriginalD
     changes,
     dirty,
     pristine,
-    existingItem,
+    existingItem: isExistingItem,
     reset,
     setOriginal,
+    resetOriginal,
   }
 }

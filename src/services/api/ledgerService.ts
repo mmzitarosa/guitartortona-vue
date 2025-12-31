@@ -1,8 +1,7 @@
-import apiClient from '@/services/api/apiClient.ts'
-import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry.ts'
-import { fromDTO, fromLightDTO, toDTO } from '@/utils/mapper/ledgerMapper.ts'
-import { API_CONFIG } from '@/config/api.ts'
-import type { ProductDTO } from '@/types/product.ts'
+import apiClient from '@/services/api/apiClient'
+import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry'
+import { fromDTO, fromLightDTO, toDTO } from '@/utils/mapper/ledgerMapper'
+import { API_CONFIG } from '@/config/api'
 
 //Create
 export async function postLedgerEntry(ledgerEntry: LedgerEntry): Promise<LedgerEntry> {

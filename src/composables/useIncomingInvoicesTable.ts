@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
-import { getIncomingInvoices } from '@/services/api/incomingInvoiceService'
-import type { IncomingInvoiceLight } from '@/types/incomingInvoice.ts'
+import type { IncomingInvoiceLight } from '@/types/incomingInvoice'
+import { getAllIncomingInvoices } from '@/services/api/incomingInvoiceService'
 
 export const useIncomingInvoicesTable = () => {
   const incomingInvoices = ref<IncomingInvoiceLight[]>([])
@@ -9,13 +9,15 @@ export const useIncomingInvoicesTable = () => {
   const loadIncomingInvoices = async () => {
     loading.value = true
     try {
-      incomingInvoices.value = await getIncomingInvoices()
+      incomingInvoices.value = await getAllIncomingInvoices()
     } finally {
       loading.value = false
     }
   }
 
-  const totalDrafts = computed(() => incomingInvoices.value.filter(i => i.status === 'DRAFT').length)
+  const totalDrafts = computed(
+    () => incomingInvoices.value.filter((i) => i.status === 'DRAFT').length,
+  )
 
   return {
     incomingInvoices,

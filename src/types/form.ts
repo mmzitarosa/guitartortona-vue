@@ -26,11 +26,11 @@ export interface FieldMapping<T> {
  */
 export interface FormOptions<T> extends ValidationFormOptions<T> {
   initialValue?: T
-  getById: (id: number) => Promise<T>
-  create: (item: T) => Promise<T>
-  update: (id: number, item: T) => Promise<T>
+  getById?: (id: number) => Promise<T>
+  create?: (item: T) => Promise<T>
+  update?: (id: number, item: T) => Promise<T>
   complete?: (id: number) => Promise<T>
-  remove: (id: number) => Promise<void>
+  remove?: (id: number) => Promise<void>
   group?: string
 }
 

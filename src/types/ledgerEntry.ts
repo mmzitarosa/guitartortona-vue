@@ -1,4 +1,4 @@
-import type { Bank } from '@/types/bank.ts'
+import type { Bank } from '@/types/bank'
 
 export interface LedgerEntry {
   id?: number
@@ -32,7 +32,6 @@ export interface LedgerEntryLight {
   amount?: number
   status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }
-
 
 export interface ValueLabel {
   value: string

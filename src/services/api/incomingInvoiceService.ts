@@ -1,101 +1,87 @@
-import apiClient from '@/services/api/apiClient.ts'
-import {
-  fromDTO,
-  fromLightDTO,
-  fromProductDTO,
-  toDTO,
-  toProductDTO
-} from '@/utils/mapper/incomingInvoiceMapper.ts'
-import type {
-  IncomingInvoice,
-  IncomingInvoiceDTO,
-  IncomingInvoiceLight
-} from '@/types/incomingInvoice.ts'
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
-import { postProduct, putProductById } from '@/services/api/productService.ts'
+import apiClient from '@/services/api/apiClient'
+import type { IncomingInvoice, IncomingInvoiceLight } from '@/types/incomingInvoice'
+import type { IncomingInvoiceProduct } from '@/types/incomingInvoiceProduct'
+import { formatDate } from '@/utils/dateUtils'
 
 //Create
-export async function postIncomingInvoice(
+export async function createIncomingInvoice(
   incomingInvoice: IncomingInvoice,
 ): Promise<IncomingInvoice> {
-  const { data } = await apiClient.post('/incomingInvoice', toDTO(incomingInvoice))
-  return fromDTO(data)
+  const { data } = await apiClient.post<IncomingInvoice>('/incomingInvoice', {
+    ...incomingInvoice,
+    date: formatDate(incomingInvoice.date),
+  })
+  return data
 }
 
 //Read
-export async function getIncomingInvoiceById(id: number): Promise<IncomingInvoice> {
-  const { data } = await apiClient.get(`/incomingInvoice/${id}`)
-  return fromDTO(data)
+export async function getAllIncomingInvoices(): Promise<IncomingInvoiceLight[]> {
+  const { data } = await apiClient.get<IncomingInvoiceLight[]>(`/incomingInvoices`)
+  return data
 }
 
-export async function getIncomingInvoices(): Promise<IncomingInvoiceLight[]> {
-  const { data } = await apiClient.get(`/incomingInvoices`)
-  return data.flatMap((dto: IncomingInvoiceDTO) => fromLightDTO(dto))
+export async function getArchivedIncomingInvoices(): Promise<IncomingInvoiceLight[]> {
+  const { data } = await apiClient.get<IncomingInvoiceLight[]>(`/archive/incomingInvoices`)
+  return data
+}
+
+export async function getIncomingInvoiceDetail(id: number): Promise<IncomingInvoice> {
+  const { data } = await apiClient.get<IncomingInvoice>(`/incomingInvoice/${id}`)
+  return data
 }
 
 //Update
-export async function putIncomingInvoiceById(
+export async function updateIncomingInvoice(
   id: number,
   incomingInvoice: IncomingInvoice,
 ): Promise<IncomingInvoice> {
-  const { data } = await apiClient.put(`/incomingInvoice/${id}`, toDTO(incomingInvoice))
-  return fromDTO(data)
+  const { data } = await apiClient.put<IncomingInvoice>(`/incomingInvoice/${id}`, incomingInvoice)
+  return data
 }
 
-//Detele
-export async function deleteIncomingInvoiceById(id: number): Promise<void> {
+export async function completeIncomingInvoice(id: number): Promise<IncomingInvoice> {
+  const { data } = await apiClient.patch<IncomingInvoice>(`/incomingInvoice/${id}/complete`)
+  return data
+}
+
+export async function restoreIncomingInvoice(id: number): Promise<IncomingInvoice> {
+  const { data } = await apiClient.patch<IncomingInvoice>(`/incomingInvoice/${id}/restore`)
+  return data
+}
+
+//Delete
+export async function deleteIncomingInvoice(id: number): Promise<void> {
   await apiClient.delete(`/incomingInvoice/${id}`)
 }
 
-//Complete
-export async function completeIncomingInvoiceById(id: number): Promise<IncomingInvoice> {
-  const { data } = await apiClient.patch(`/incomingInvoice/${id}/complete`)
-  return fromDTO(data)
-}
-
-//Add Product
-export async function postIncomingInvoiceProduct(
+//Others
+//Create
+export async function addProductToIncomingInvoice(
   invoiceId: number,
   incomingInvoiceProduct: IncomingInvoiceProduct,
-): Promise<IncomingInvoiceProduct> {
-  if (incomingInvoiceProduct.product && incomingInvoiceProduct.product?.id === undefined)
-    incomingInvoiceProduct.product = await postProduct(incomingInvoiceProduct.product)
-  const { data } = await apiClient.post(
+): Promise<IncomingInvoice> {
+  const { data } = await apiClient.post<IncomingInvoice>(
     `/incomingInvoice/${invoiceId}/product`,
-    toProductDTO(incomingInvoiceProduct),
+    incomingInvoiceProduct,
   )
-  return fromProductDTO(data)
+  return data
 }
 
-//Get Product
-export async function getIncomingInvoiceProductById(
-  invoiceId: number,
-  id: number,
-): Promise<IncomingInvoiceProduct> {
-  const { data } = await apiClient.get(`/incomingInvoice/${invoiceId}/product/${id}`)
-  return fromProductDTO(data)
-}
-
-//Update Product
-export async function putIncomingInvoiceProductById(
+//Update
+export async function updateProductInIncomingInvoice(
   invoiceId: number,
   id: number,
   incomingInvoiceProduct: IncomingInvoiceProduct,
-): Promise<IncomingInvoiceProduct> {
-  if (incomingInvoiceProduct.product)
-    incomingInvoiceProduct.product = await putProductById(
-      incomingInvoiceProduct.product.id!,
-      incomingInvoiceProduct.product,
-    )
-  const { data } = await apiClient.put(
+): Promise<IncomingInvoice> {
+  const { data } = await apiClient.put<IncomingInvoice>(
     `/incomingInvoice/${invoiceId}/product/${id}`,
-    toProductDTO(incomingInvoiceProduct),
+    incomingInvoiceProduct,
   )
-  return fromProductDTO(data)
+  return data
 }
 
-//Detele
-export async function deleteIncomingInvoiceProductById(
+//Delete
+export async function deleteProductFromIncomingInvoice(
   invoiceId: number,
   id: number,
 ): Promise<void> {

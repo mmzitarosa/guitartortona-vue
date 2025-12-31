@@ -1,71 +1,86 @@
 import { useForm } from '@/composables/useForm'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
 import type { Supplier } from '@/types/supplier'
-import {
-  deleteIncomingInvoiceById,
-  getIncomingInvoiceById,
-  postIncomingInvoice,
-  putIncomingInvoiceById,
-  completeIncomingInvoiceById,
-} from '@/services/api/incomingInvoiceService'
-import { formatDate, validateDate } from '@/utils/dateUtils'
+import { formatDate } from '@/utils/dateUtils'
 import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
+import {
+  completeIncomingInvoice,
+  createIncomingInvoice,
+  deleteIncomingInvoice,
+  getIncomingInvoiceDetail,
+  updateIncomingInvoice,
+} from '@/services/api/incomingInvoiceService'
+import { formatCurrency } from '@/utils/currencyUtils'
 
 export function useIncomingInvoice() {
   const constants = useIncomingInvoiceConstants()
 
-  const form = useForm<IncomingInvoice>({
-    initialValue: {
-      items: [], // Inizializza la lista prodotti
+  const initialValue = {
+    items: [], // Inizializza la lista prodotti
+  }
+
+  const fieldMappings = [
+    {
+      key: 'supplier',
+      label: constants.supplier.label,
+      labeler: (supplier?: Supplier) => supplier?.name,
+      validator: (supplier?: Supplier) => {
+        if (!supplier) return { message: constants.supplier.messages.required }
+        else if (supplier.name && supplier.name.length > 150)
+          return { message: constants.supplier.messages.tooLong }
+      },
     },
-    getById: getIncomingInvoiceById,
-    create: postIncomingInvoice,
-    update: putIncomingInvoiceById,
-    complete: completeIncomingInvoiceById,
-    remove: deleteIncomingInvoiceById,
-    fieldMappings: [
-      {
-        key: 'supplier',
-        label: constants.supplier.label,
-        labeler: (supplier: Supplier | undefined) => supplier?.name,
-        validator: (supplier: Supplier | undefined) => {
-          if (!supplier) return { message: constants.supplier.messages.required }
-          else if (supplier.name && supplier.name.length > 150)
-            return { message: constants.supplier.messages.tooLong }
-        },
+    {
+      key: 'date',
+      label: constants.date.label,
+      labeler: (date?: Date) => formatDate(date),
+      validator: (date?: Date) => {
+        if (!date) return { message: constants.date.messages.required }
       },
-      {
-        key: 'date',
-        label: constants.date.label,
-        labeler: (date: Date | undefined) => formatDate(date),
-        validator: (date: Date | undefined) => {
-          if (!date) return { message: constants.date.messages.required }
-        },
+    },
+    {
+      key: 'number',
+      label: constants.number.label,
+      validator: (number?: string) => {
+        if (!number) return { message: constants.number.messages.required }
+        else if (number.length > 50) return { message: constants.number.messages.tooLong }
       },
-      {
-        key: 'number',
-        label: constants.number.label,
-        validator: (number: string | undefined) => {
-          if (!number) return { message: constants.number.messages.required }
-          else if (number.length > 50) return { message: constants.number.messages.tooLong }
-        },
+    },
+    {
+      key: 'amount',
+      label: constants.amount.label,
+      labeler: formatCurrency,
+      validator: (amount?: number) => {
+        if (!amount) return { message: constants.amount.messages.required }
+        else if (amount < 0) return { message: constants.amount.messages.invalid }
       },
-      {
-        key: 'amount',
-        label: constants.amount.label,
-        labeler: (amount: number | undefined) =>
-          amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }),
-        validator: (amount: number | undefined) => {
-          if (!amount) return { message: constants.amount.messages.required }
-          else if (amount < 0) return { message: constants.amount.messages.invalid }
-        },
-      },
-      { key: 'notes', label: constants.notes.label },
-    ],
+    },
+    { key: 'notes', label: constants.notes.label },
+  ]
+
+  const form = useForm<IncomingInvoice>({
+    initialValue,
+    getById: getIncomingInvoiceDetail,
+    create: createIncomingInvoice,
+    update: updateIncomingInvoice,
+    complete: completeIncomingInvoice,
+    remove: deleteIncomingInvoice,
+    fieldMappings,
   })
 
   return {
-    ...form,
-    constants,
+    incomingInvoice: form.item,
+    loading: form.loading,
+    validation: form.validation,
+    changes: form.changes,
+    dirty: form.dirty,
+    pristine: form.pristine,
+    existingItem: form.existingItem,
+    loadIncomingInvoice: form.loadItem,
+    handleSubmit: form.handleSubmit,
+    handleComplete: form.handleComplete,
+    handleReset: form.handleReset,
+    handleClose: form.handleClose,
+    handleDelete: form.handleDelete,
   }
 }

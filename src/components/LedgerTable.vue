@@ -204,7 +204,7 @@ onMounted(() => {
 const banksMap = computed(() => {
   const map = new Map<number, string>()
   banks.value.forEach((bank) => {
-    if (bank.id !== undefined) {
+    if (bank.id && bank.name) {
       map.set(bank.id, bank.name)
     }
   })

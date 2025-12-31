@@ -1,8 +1,7 @@
-import apiClient from '@/services/api/apiClient.ts'
-import { fromDTO, toDTO } from '@/utils/mapper/incomingInvoiceMapper.ts'
-import type { Brand } from '@/types/brand.ts'
+import apiClient from '@/services/api/apiClient'
+import type { Brand } from '@/types/brand'
 
-export async function getBrands(): Promise<Brand[]> {
-  const {data} = await apiClient.get("/brands")
+export async function getAllBrands(): Promise<Brand[]> {
+  const { data } = await apiClient.get<Brand[]>('/brands')
   return data
 }

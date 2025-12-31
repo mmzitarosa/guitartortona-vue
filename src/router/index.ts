@@ -1,5 +1,6 @@
 import ProductsListView from '@/views/ProductsListView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import ProductView from '@/views/ProductView.vue'
 
 // Lazy load views for better performance
 const HomeView = () => import('@/views/HomeView.vue')
@@ -57,7 +58,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/product/:id',
     name: 'product',
-    component: ProductsListView,
+    component: ProductView,
     meta: {
       title: 'Dettaglio Prodotto',
       },

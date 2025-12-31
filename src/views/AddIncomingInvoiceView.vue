@@ -10,18 +10,18 @@
     :existingItem="false"
     @submit="onSubmit"
     @close="onClose"
-    @reset="onReset" />
+    @reset="onReset"
+  />
 </template>
 
 <script setup lang="ts">
 import router from '@/router'
 import IncomingInvoiceForm from '@/components/forms/incomininvoice/IncomingInvoiceForm.vue'
-import { useIncomingInvoice } from '@/composables/useIncomingInvoice.ts'
-import { onMounted } from 'vue'
+import { useIncomingInvoice } from '@/composables/useIncomingInvoice'
 
 // Usa il composable centralizzato per gestire l'invoice
 const {
-  item: incomingInvoice,
+  incomingInvoice,
   loading,
   validation,
   changes,
@@ -37,7 +37,7 @@ const onSubmit = async () => {
     await router.push({
       name: 'incomingInvoice',
       params: { id: result.id },
-      query: { editable: 'true', from: 'add' }
+      query: { editable: 'true', from: 'add' },
     })
   }
 }
@@ -49,5 +49,4 @@ const onClose = () => {
 const onReset = async () => {
   await handleReset()
 }
-
 </script>

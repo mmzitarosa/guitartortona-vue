@@ -232,7 +232,7 @@ import {
   paymentMethods,
   paymentMethodsMap,
   paymentTypes,
-  paymentTypesMap
+  paymentTypesMap,
 } from '@/types/ledgerEntry'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
@@ -247,10 +247,10 @@ import {
   deleteLedgerEntryById,
   getLedgerEntryById,
   postLedgerEntry,
-  putLedgerEntryById
+  putLedgerEntryById,
 } from '@/services/api/ledgerService'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
-import { formatDate } from '@/utils/dateUtils.ts'
+import { formatDate } from '@/utils/dateUtils'
 
 const emit = defineEmits<{
   submit: [ledgerEntry: LedgerEntry]

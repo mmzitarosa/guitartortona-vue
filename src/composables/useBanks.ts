@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { Bank } from '@/types/bank'
-import { getBanks } from '@/services/api/bankService'
+import { getAllBanks } from '@/services/api/bankService'
 
 export const useBanks = () => {
   const banks = ref<Bank[]>([])
@@ -9,7 +9,7 @@ export const useBanks = () => {
   const loadBanks = async () => {
     loading.value = true
     try {
-      banks.value = await getBanks()
+      banks.value = await getAllBanks()
     } finally {
       loading.value = false
     }

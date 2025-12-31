@@ -37,7 +37,7 @@
           </template>
 
           <template #body="{ data }">
-            <p v-if="data.categoryId">{{ getCategoryName(data.categoryId) }}</p>
+            <p v-if="data.categoryId">{{ getCategory(data.categoryId)?.name }}</p>
           </template>
         </Column>
         <Column
@@ -58,7 +58,7 @@
             />
           </template>
           <template #body="{ data }">
-            <p v-if="data.brandId">{{ getBrandName(data.brandId) }}</p>
+            <p v-if="data.brandId">{{ getBrand(data.brandId)?.name }}</p>
           </template>
         </Column>
         <Column filterField="description" header="Descrizione" :showFilterMenu="false">
@@ -69,7 +69,16 @@
             <p v-if="data.description">{{ data.description }}</p>
           </template>
         </Column>
-        <Column field="quantity" header="Quantità"></Column>
+        <Column header="Quantità">
+          <template #body="{ data }">
+            <p v-if="data">
+              {{ data.stock ?? 0
+              }}<span class="text-orange-500" v-if="data.stockPending">{{
+                ' (+' + data.stockPending + ')'
+              }}</span>
+            </p>
+          </template>
+        </Column>
         <Column header="Prezzo">
           <template #body="{ data }">
             <p v-if="data.price">{{ data.price }}</p>
@@ -89,18 +98,18 @@ import {
   type DataTableFilterMeta,
   InputText,
   Select,
+  type DataTableRowSelectEvent,
 } from 'primevue'
 import { computed, onMounted } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
-import type { ProductLight } from '@/types/product.ts'
-import { useCategories } from '@/composables/useCategories.ts'
-import { useBrands } from '@/composables/useBrands.ts'
-import { useProductsTable } from '@/composables/useProductsTable.ts'
+import { useCategories } from '@/composables/useCategories'
+import { useBrands } from '@/composables/useBrands'
+import { useProductsTable } from '@/composables/useProductsTable'
 
 const { products, loadProducts, loading } = useProductsTable()
 
-const { brands, loadBrands, loading: brandsLoading } = useBrands()
-const { categories, loadCategories, loading: categoriesLoading } = useCategories()
+const { brands, loading: brandsLoading, getBrand } = useBrands()
+const { categories, loading: categoriesLoading, getCategory } = useCategories()
 
 const props = defineProps<{
   filter: {
@@ -121,41 +130,11 @@ const emit = defineEmits<{
 
 // Carica la tabella al primo caricamento della pagina
 onMounted(() => {
-  loadBrands()
-  loadCategories()
   loadProducts()
 })
 
-const categoriesMap = computed(() => {
-  const map = new Map<number, string>()
-  categories.value.forEach((category) => {
-    if (category.id !== undefined) {
-      map.set(category.id, category.name)
-    }
-  })
-  return map
-})
-
-const brandsMap = computed(() => {
-  const map = new Map<number, string>()
-  brands.value.forEach((brand) => {
-    if (brand.id !== undefined) {
-      map.set(brand.id, brand.name)
-    }
-  })
-  return map
-})
-
-const getCategoryName = (categoryId?: number): string | undefined => {
-  return categoryId ? categoriesMap.value.get(categoryId) : undefined
-}
-
-const getBrandName = (brandId?: number): string | undefined => {
-  return brandId ? brandsMap.value.get(brandId) : undefined
-}
-
-const onRowSelect = (data: ProductLight): void => {
-  emit('rowSelect', data.id, false)
+const onRowSelect = (data: DataTableRowSelectEvent): void => {
+  emit('rowSelect', data.data.id, false)
 }
 
 const filters = computed((): DataTableFilterMeta => {

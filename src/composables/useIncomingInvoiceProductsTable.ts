@@ -1,6 +1,6 @@
 import { computed, type MaybeRef, toValue } from 'vue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
+import type { IncomingInvoiceProduct } from '@/types/incomingInvoiceProduct'
 
 export function useIncomingInvoiceProductsTable(invoice: MaybeRef<IncomingInvoice | undefined>) {
   const invoiceValue = computed(() => toValue(invoice))

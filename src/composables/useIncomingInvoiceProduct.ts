@@ -1,16 +1,22 @@
-import { computed, type MaybeRef, toValue } from 'vue'
+import { type MaybeRef, toValue } from 'vue'
+import type {
+  IncomingInvoiceProduct,
+  IncomingInvoiceProductLight,
+} from '@/types/incomingInvoiceProduct'
+import type { Product, ProductLight } from '@/types/product'
 import type { Brand } from '@/types/brand'
 import type { Category } from '@/types/category'
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
-import type { Product } from '@/types/product'
 import {
-  deleteIncomingInvoiceProductById,
-  getIncomingInvoiceProductById,
-  postIncomingInvoiceProduct,
-  putIncomingInvoiceProductById,
+  addProductToIncomingInvoice,
+  deleteProductFromIncomingInvoice,
+  updateProductInIncomingInvoice,
 } from '@/services/api/incomingInvoiceService'
 import { useForm } from '@/composables/useForm'
 import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants'
+import { formatCurrency } from '@/utils/currencyUtils'
+import { printProductLabel } from '@/services/api/productService'
+import { useBrands } from './useBrands'
+import { useCategories } from './useCategories'
 
 export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | undefined>) {
   const constants = useIncomingInvoiceProductConstants()
@@ -20,78 +26,99 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
     vat: 22,
   }
 
-  // Crea un computed per l'id così è reattivo
-  const invoiceId = computed(() => toValue(incomingInvoiceId))
+  const fieldMappings = [
+    { key: 'product.code', label: constants.code.label },
+    { key: 'product.internalCode', label: constants.internalCode.label },
+    {
+      key: 'product.category',
+      label: constants.category.label,
+      labeler: (category: Category | undefined) => category?.name,
+    },
+    {
+      key: 'product.brand',
+      label: constants.brand.label,
+      labeler: (brand: Brand | undefined) => brand?.name,
+    },
+    { key: 'product.description', label: constants.description.label },
+    {
+      key: 'vat',
+      label: constants.vat.label,
+      labeler: (vat: number | undefined) => (vat ? `${vat}%` : undefined),
+      defaultValue: true,
+    },
+    {
+      key: 'product.price',
+      label: constants.price.label,
+      labeler: formatCurrency,
+    },
+    { key: 'quantity', label: constants.quantity.label, defaultValue: true },
+    {
+      key: 'purchasePrice',
+      label: constants.purchasePrice.label,
+      labeler: formatCurrency,
+    },
+    { key: 'product.notes', label: constants.notes.label },
+  ]
 
   const form = useForm<IncomingInvoiceProduct>({
     initialValue,
-    getById: (id: number) => getIncomingInvoiceProductById(invoiceId.value!, id),
-    create: (item: IncomingInvoiceProduct) => postIncomingInvoiceProduct(invoiceId.value!, item),
+    create: (item: IncomingInvoiceProduct) =>
+      addProductToIncomingInvoice(toValue(incomingInvoiceId)!, item),
     update: (id: number, item: IncomingInvoiceProduct) =>
-      putIncomingInvoiceProductById(invoiceId.value!, id, item),
-    remove: (id: number) => deleteIncomingInvoiceProductById(invoiceId.value!, id),
-    fieldMappings: [
-      { key: 'product.code', label: constants.code.label },
-      { key: 'product.internalCode', label: constants.internalCode.label },
-      {
-        key: 'product.category',
-        label: constants.category.label,
-        labeler: (category: Category | undefined) => category?.name,
-      },
-      {
-        key: 'product.brand',
-        label: constants.brand.label,
-        labeler: (brand: Brand | undefined) => brand?.name,
-      },
-      { key: 'product.description', label: constants.description.label },
-      {
-        key: 'vat',
-        label: constants.vat.label,
-        labeler: (vat: number | undefined) => (vat ? vat + '%' : undefined),
-        defaultValue: true,
-      },
-      {
-        key: 'product.price',
-        label: constants.price.label,
-        labeler: (amount: number | undefined) =>
-          amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }),
-      },
-      { key: 'quantity', label: constants.quantity.label, defaultValue: true },
-      {
-        key: 'purchasePrice',
-        label: constants.purchasePrice.label,
-        labeler: (amount: number | undefined) =>
-          amount?.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' }),
-      },
-      { key: 'product.notes', label: constants.notes.label },
-    ],
+      updateProductInIncomingInvoice(toValue(incomingInvoiceId)!, id, item),
+    remove: (id: number) => deleteProductFromIncomingInvoice(toValue(incomingInvoiceId)!, id),
+    fieldMappings,
     group: 'productDifferences',
   })
 
-  const setIncomingInvoiceProduct = (incomingInvoiceProduct: IncomingInvoiceProduct) => {
-    console.log(incomingInvoiceProduct)
+  const { getBrand } = useBrands()
+  const { getCategory } = useCategories()
 
+  const setIncomingInvoiceProduct = (
+    incomingInvoiceProduct: IncomingInvoiceProductLight | IncomingInvoiceProduct,
+  ) => {
+    const product = incomingInvoiceProduct.product as Product | ProductLight
+    if (product && ('categoryId' in product || 'brandId' in product)) {
+      // Convert IncomingInvoiceProductLight a IncomingInvoiceProduct, aggiungendo category e brand come oggetti
+      const { categoryId, brandId } = product as ProductLight
+
+      ;(incomingInvoiceProduct.product as Product).category = categoryId
+        ? getCategory(brandId)
+        : undefined
+      ;(incomingInvoiceProduct.product as Product).brand = brandId ? getBrand(brandId) : undefined
+    }
     form.setItem(incomingInvoiceProduct)
   }
 
   const setProduct = (product?: Product) => {
-    form.setItem({
-      ...initialValue,
-      product: { ...(product ?? {}) },
-    })
+    setIncomingInvoiceProduct({ ...initialValue, product: { ...(product ?? {}) } })
   }
 
-  const closeProduct = () => {
-    form.setItem({
-      ...initialValue,
-    })
+  const handlePrint = (quantity: number) => {
+    if (!form.item.value.product?.internalCode) return
+    printProductLabel(form.item.value.product.internalCode, quantity)
+  }
+
+  const resetOriginal = () => {
+    return form.resetOriginal()
   }
 
   return {
-    ...form,
+    incomingInvoiceProduct: form.item,
+    loading: form.loading,
+    validation: form.validation,
+    changes: form.changes,
+    dirty: form.dirty,
+    pristine: form.pristine,
+    existingItem: form.existingItem,
+    resetOriginal,
     setProduct,
-    closeProduct,
     setIncomingInvoiceProduct,
+    handleSubmit: form.handleSubmit,
+    handleReset: form.handleReset,
+    handleClose: form.handleClose,
+    handleDelete: form.handleDelete,
+    handlePrint,
     constants,
   }
 }

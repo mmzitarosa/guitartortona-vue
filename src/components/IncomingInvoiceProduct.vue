@@ -19,16 +19,12 @@
           @delete="onDelete"
           @reset="onReset"
           @search="onSearch"
+          @print="onPrint"
         />
       </div>
 
       <!-- Tabella con i prodotti inseriti -->
-      <IncomingInvoiceProductsTable
-        :invoice="model"
-        :editable
-        @edit="onEditProduct"
-        @view="onViewProduct"
-      />
+      <IncomingInvoiceProductsTable :invoice="model" :editable @view="onViewProduct" />
     </template>
   </Card>
 </template>
@@ -37,22 +33,22 @@
 import { Card } from 'primevue'
 import IncomingInvoiceProductForm from '@/components/forms/incomininvoice/IncomingInvoiceProductForm.vue'
 import IncomingInvoiceProductsTable from './IncomingInvoiceProductsTable.vue'
-import { computed } from 'vue'
 import {
   addProductToInvoice,
-  removeProductFromInvoice,
   type IncomingInvoice,
+  removeProductFromInvoice,
 } from '@/types/incomingInvoice'
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
+import type { IncomingInvoiceProductLight } from '@/types/incomingInvoiceProduct'
 import { useIncomingInvoiceProduct } from '@/composables/useIncomingInvoiceProduct'
 import { useIncomingInvoiceProductsTableConstants } from '@/utils/i18nConstants'
-import { getProduct } from '@/services/api/productService'
+import { getProductDetailByCode } from '@/services/api/productService'
+import { computed } from 'vue'
 
 interface IncomingInvoiceProductProps {
   editable?: boolean
 }
 
-withDefaults(defineProps<IncomingInvoiceProductProps>(), {
+const props = withDefaults(defineProps<IncomingInvoiceProductProps>(), {
   editable: false,
 })
 
@@ -61,7 +57,7 @@ const model = defineModel<IncomingInvoice>({ required: true })
 const constants = useIncomingInvoiceProductsTableConstants()
 
 const {
-  item: incomingInvoiceProduct,
+  incomingInvoiceProduct,
   loading,
   validation,
   changes,
@@ -73,14 +69,19 @@ const {
   handleReset,
   handleClose,
   handleDelete,
+  handlePrint,
   setProduct,
-  closeProduct,
+  resetOriginal,
 } = useIncomingInvoiceProduct(computed(() => model.value.id))
+
+const emit = defineEmits<{
+  rowSelect: [id?: number, edit?: boolean]
+}>()
 
 const onSearch = async (value?: string) => {
   if (value === undefined) return setProduct({})
   try {
-    setProduct(await getProduct(value))
+    setProduct(await getProductDetailByCode(value))
   } catch {
     setProduct({ code: value })
   }
@@ -90,13 +91,13 @@ const onSubmit = async () => {
   const result = await handleSubmit()
   if (result) {
     addProductToInvoice(model.value, result)
-    closeProduct()
+    //resetOriginal()
   }
 }
 
 const onClose = async () => {
   await handleClose()
-  closeProduct()
+  resetOriginal()
 }
 
 const onReset = async () => {
@@ -106,16 +107,17 @@ const onReset = async () => {
 const onDelete = async () => {
   await handleDelete()
   removeProductFromInvoice(model.value, incomingInvoiceProduct.value.id!)
-  closeProduct()
+  resetOriginal()
 }
 
-const onEditProduct = (product: IncomingInvoiceProduct) => {
-  setIncomingInvoiceProduct(product)
+const onViewProduct = async (product: IncomingInvoiceProductLight) => {
+  if (props.editable) {
+    if (incomingInvoiceProduct.value.product) await onClose()
+    setIncomingInvoiceProduct(product)
+  } else emit('rowSelect', product.product?.id, false)
 }
 
-const onViewProduct = (product: IncomingInvoiceProduct) => {
-  incomingInvoiceProduct.value = product
-
-  // TODO Verificare: Se seleziono in modalità readonly, poi quando cambio in editable l'item è già selezionato
+const onPrint = (quantity: number) => {
+  handlePrint(quantity)
 }
 </script>

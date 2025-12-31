@@ -156,6 +156,14 @@
     "draft": {
       "label": "BOZZA",
       "severity": "warn"
+    },
+    "completed": {
+      "label": "OK",
+      "severity": "success"
+    },
+    "other": {
+      "label": "ALTRO",
+      "severity": "error"
     }
   },
   "cards": {

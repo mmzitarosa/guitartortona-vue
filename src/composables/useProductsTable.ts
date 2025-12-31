@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { getProducts } from '@/services/api/productService.ts'
-import type { ProductLight } from '@/types/product.ts'
+import { getAllProducts } from '@/services/api/productService'
+import type { ProductLight } from '@/types/product'
 
 export const useProductsTable = () => {
   const products = ref<ProductLight[]>([])
@@ -9,7 +9,7 @@ export const useProductsTable = () => {
   const loadProducts = async () => {
     loading.value = true
     try {
-      products.value = await getProducts()
+      products.value = await getAllProducts()
     } finally {
       loading.value = false
     }

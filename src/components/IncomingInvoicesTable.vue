@@ -117,10 +117,16 @@
           </template>
           <template #body="{ data }">
             <Tag
-              v-if="data.status && data.status !== 'COMPLETED'"
+              v-if="data && data.status === 'DRAFT'"
               :value="constants.draft.label"
               :severity="constants.draft.severity"
             />
+            <Tag
+              v-else-if="data && data.status === 'COMPLETED'"
+              :value="constants.completed.label"
+              :severity="constants.completed.severity"
+            />
+            <Tag v-else :value="constants.other.label" :severity="constants.other.severity" />
           </template>
         </Column>
       </DataTable>
@@ -144,7 +150,7 @@ import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { useSuppliers } from '@/composables/useSuppliers'
 import { FilterMatchMode } from '@primevue/core/api'
-import { formatDate } from '@/utils/dateUtils.ts'
+import { formatDate } from '@/utils/dateUtils'
 import SelectField from '@/components/layout/fields/SelectField.vue'
 
 const constants = useIncomingInvoicesTableConstants()
@@ -178,7 +184,7 @@ onMounted(() => {
 const suppliersMap = computed(() => {
   const map = new Map<number, string>()
   suppliers.value.forEach((supplier) => {
-    if (supplier.id !== undefined) {
+    if (supplier.id && supplier.name) {
       map.set(supplier.id, supplier.name)
     }
   })

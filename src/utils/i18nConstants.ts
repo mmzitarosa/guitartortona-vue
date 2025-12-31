@@ -335,6 +335,91 @@ export const useIncomingInvoiceProductConstants = () => {
   }
 }
 
+export const useProductConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    card: {
+      title: t('cards.product.title'),
+      subtitle: t('cards.product.subtitle'),
+    },
+    code: {
+      label: t('common.labels.code'),
+      messages: {
+        tooLong: t('common.messages.codeTooLong'),
+      },
+    },
+    internalCode: {
+      label: t('common.labels.internalCode'),
+    },
+    category: {
+      label: t('common.labels.category'),
+      messages: {
+        required: t('common.messages.categoryRequired'),
+      },
+    },
+    brand: {
+      label: t('common.labels.brand'),
+      messages: {
+        invalid: t('common.messages.brandTooLong'),
+      },
+    },
+    description: {
+      label: t('common.labels.description'),
+      messages: {
+        required: t('common.messages.descriptionRequired'),
+        tooLong: t('common.messages.descriptionTooLong'),
+      },
+    },
+    price: {
+      label: t('common.labels.price'),
+      messages: {
+        invalid: t('common.messages.priceInvalid'),
+      },
+    },
+    notes: {
+      label: t('common.labels.notes'),
+      messages: {
+        tooLong: t('common.messages.notesTooLong'),
+      },
+    },
+    vat: {
+      label: t('common.labels.vat'),
+    },
+    purchasePrice: {
+      label: t('common.labels.purchasePrice'),
+    },
+    quantity: {
+      label: t('common.labels.quantity'),
+    },
+    close: {
+      label: t('buttons.close.label'),
+      icon: t('buttons.close.icon'),
+    },
+    cancel: {
+      label: t('buttons.cancel.label'),
+      icon: t('buttons.cancel.icon'),
+    },
+    reset: {
+      label: t('buttons.reset.label'),
+      icon: t('buttons.reset.icon'),
+    },
+    save: {
+      label: t('buttons.save.label'),
+      icon: t('buttons.save.icon'),
+    },
+    update: {
+      label: t('buttons.update.label'),
+      icon: t('buttons.update.icon'),
+    },
+    delete: {
+      label: t('buttons.delete.label'),
+      icon: t('buttons.delete.icon'),
+    },
+  }
+}
+
+
 /**
  * IncomingInvoices table constants using i18n
  */
@@ -345,6 +430,14 @@ export const useIncomingInvoicesTableConstants = () => {
     draft: {
       label: t('status.draft.label'),
       severity: t('status.draft.severity'),
+    },
+    completed: {
+      label: t('status.completed.label'),
+      severity: t('status.completed.severity'),
+    },
+    other: {
+      label: t('status.other.label'),
+      severity: t('status.other.severity'),
     },
   }
 }

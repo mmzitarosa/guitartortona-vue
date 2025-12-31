@@ -1,9 +1,9 @@
 import axios from 'axios'
-import { API_CONFIG } from '@/config/api.ts'
+import { API_CONFIG } from '@/config/api'
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.baseURL + '/api/v1',
-  timeout: API_CONFIG.timeout
+  timeout: API_CONFIG.timeout,
 })
 
 // Interceptor per aggiungere token di autenticazione
@@ -24,7 +24,7 @@ apiClient.interceptors.response.use(
 
     // Re-throw the error to be handled by the calling code
     return Promise.reject(error)
-  }
+  },
 )
 
 export default apiClient

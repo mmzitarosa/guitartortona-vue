@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { Supplier } from '@/types/supplier'
-import { getSuppliers } from '@/services/api/supplierService'
+import { getAllSuppliers } from '@/services/api/supplierService'
 
 export const useSuppliers = () => {
   const suppliers = ref<Supplier[]>([])
@@ -21,7 +21,7 @@ export const useSuppliers = () => {
   const loadSuppliers = async () => {
     loading.value = true
     try {
-      suppliers.value = await getSuppliers()
+      suppliers.value = await getAllSuppliers()
     } finally {
       loading.value = false
     }

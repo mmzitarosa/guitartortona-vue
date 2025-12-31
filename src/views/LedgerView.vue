@@ -14,8 +14,8 @@ import LedgerTable from '@/components/LedgerTable.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import router from '@/router'
-import { formatDate } from '@/utils/dateUtils.ts'
-import { print } from '@/services/api/ledgerService.ts'
+import { formatDate } from '@/utils/dateUtils'
+import { print } from '@/services/api/ledgerService'
 
 const route = useRoute()
 

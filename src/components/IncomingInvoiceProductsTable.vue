@@ -9,9 +9,16 @@
     >
       <template #empty>{{ constants.table.empty }}</template>
       <template #loading>{{ constants.table.loading }}</template>
-
-      <Column field="product.category.name" :header="constants.table.columns.category"></Column>
-      <Column field="product.brand.name" :header="constants.table.columns.brand"></Column>
+      <Column header="Categoria" style="min-width: 14rem">
+        <template #body="{ data }">
+          <p v-if="data.product.categoryId">{{ getCategory(data.product.categoryId)?.name }}</p>
+        </template>
+      </Column>
+      <Column header="Marca" style="min-width: 14rem">
+        <template #body="{ data }">
+          <p v-if="data.product.brandId">{{ getBrand(data.product.brandId)?.name }}</p>
+        </template>
+      </Column>
       <Column field="product.description" :header="constants.table.columns.description"></Column>
       <Column field="quantity" :header="constants.table.columns.quantity"></Column>
 
@@ -66,9 +73,11 @@
 import { computed } from 'vue'
 import { Column, DataTable, ColumnGroup, Row } from 'primevue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct'
+import type { IncomingInvoiceProductLight } from '@/types/incomingInvoiceProduct'
 import { useIncomingInvoiceProductsTable } from '@/composables/useIncomingInvoiceProductsTable'
 import { useIncomingInvoiceProductsTableConstants } from '@/utils/i18nConstants'
+import { useBrands } from '@/composables/useBrands'
+import { useCategories } from '@/composables/useCategories'
 
 interface IncomingInvoiceProductsTableProps {
   invoice: IncomingInvoice
@@ -80,11 +89,14 @@ const props = withDefaults(defineProps<IncomingInvoiceProductsTableProps>(), {
 })
 
 const emit = defineEmits<{
-  edit: [product: IncomingInvoiceProduct]
-  view: [product: IncomingInvoiceProduct]
+  edit: [product: IncomingInvoiceProductLight]
+  view: [product: IncomingInvoiceProductLight]
 }>()
-
 const constants = useIncomingInvoiceProductsTableConstants()
+
+const { getBrand } = useBrands()
+
+const { getCategory } = useCategories()
 
 const {
   products,
@@ -96,7 +108,7 @@ const {
   formatProductAmount,
 } = useIncomingInvoiceProductsTable(computed(() => props.invoice))
 
-const onView = (product: IncomingInvoiceProduct) => {
+const onView = (product: IncomingInvoiceProductLight) => {
   emit('view', product)
 }
 </script>

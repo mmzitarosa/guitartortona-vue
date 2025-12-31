@@ -1,41 +1,27 @@
-import type { Supplier } from '@/types/supplier.ts'
-import type {
-  IncomingInvoiceProduct,
-  IncomingInvoiceProductDTO,
-} from '@/types/incominInvoiceProduct.ts'
+import type { Supplier } from '@/types/supplier'
+import type { IncomingInvoiceProduct } from '@/types/incomingInvoiceProduct'
+
+export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'COMPLETED'
 
 export interface IncomingInvoice {
   id?: number
+  number?: string
   supplier?: Supplier
   date?: Date
-  number?: string
   amount?: number
   notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
+  status?: InvoiceStatus
   items?: IncomingInvoiceProduct[]
+  daysLeft?: number
 }
 
 export interface IncomingInvoiceLight {
   id?: number
-  number?: string
-  supplierId?: number
-  date?: Date
-  amount?: number
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
-  daysLeft?: number
-}
-
-export interface IncomingInvoiceDTO {
-  id?: number
-  supplier?: Supplier
-  supplierId?: number
-  supplierName?: string
-  date?: string
-  number?: string
-  amount?: number
-  notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
-  items?: IncomingInvoiceProductDTO[]
+  number: string
+  supplierId: number
+  date: Date
+  amount: number
+  status: InvoiceStatus
   daysLeft?: number
 }
 
@@ -47,37 +33,22 @@ export function addProductToInvoice(
   invoice: IncomingInvoice,
   product: IncomingInvoiceProduct,
 ): void {
-  if (!invoice.items) {
-    invoice.items = []
-  }
+  if (!invoice.items) invoice.items = []
 
-  // Se il prodotto ha un id, cerca se esiste già nella lista
-  if (product.id !== undefined) {
-    const existingIndex = invoice.items.findIndex((item) => item.id === product.id)
-    if (existingIndex !== -1) {
-      // Aggiorna il prodotto esistente
-      invoice.items[existingIndex] = product
-      return
-    }
-  }
+  const existingIndex = product.id ? invoice.items.findIndex((item) => item.id === product.id) : -1
 
-  // Se non esiste o non ha id, aggiungilo
-  invoice.items.push(product)
+  if (existingIndex !== -1) {
+    invoice.items[existingIndex] = product
+  } else {
+    invoice.items.push(product)
+  }
 }
 
-export function removeProductFromInvoice(
-  invoice: IncomingInvoice,
-  IncomingInvoiceProductId: number,
-): boolean {
-  if (!invoice.items || invoice.items.length === 0) {
-    return false
-  }
+export function removeProductFromInvoice(invoice: IncomingInvoice, productId: number): boolean {
+  if (!invoice.items?.length) return false
 
-  const existingIndex = invoice.items.findIndex((item) => item.id === IncomingInvoiceProductId)
-  if (existingIndex !== -1) {
-    invoice.items.splice(existingIndex, 1)
-    return true
-  }
+  const initialLength = invoice.items.length
+  invoice.items = invoice.items.filter((item) => item.id !== productId)
 
-  return false
+  return invoice.items.length < initialLength
 }

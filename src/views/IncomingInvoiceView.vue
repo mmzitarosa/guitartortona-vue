@@ -17,7 +17,7 @@
     @complete="onComplete"
   />
 
-  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable />
+  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable @rowSelect="onRowSelect"/>
 </template>
 
 <script setup lang="ts">
@@ -33,14 +33,14 @@ const id = Number(route.params.id)
 
 // Usa il composable centralizzato per gestire l'invoice
 const {
-  item: incomingInvoice,
+  incomingInvoice,
   loading,
   validation,
   changes,
   dirty,
   pristine,
   existingItem,
-  loadItem,
+  loadIncomingInvoice,
   handleSubmit,
   handleComplete,
   handleReset,
@@ -50,7 +50,7 @@ const {
 
 // Carica la fattura
 onMounted(async () => {
-  await loadItem(id)
+  await loadIncomingInvoice(id)
 })
 
 const editable = computed({
@@ -79,6 +79,7 @@ const onComplete = async () => {
 }
 
 const onClose = async () => {
+  console.log("onClone2")
   await handleClose()
   if (editable.value) {
     editable.value = false
@@ -98,5 +99,12 @@ const onEdit = () => {
 const onDelete = async () => {
   await handleDelete()
   router.back()
+}
+
+const onRowSelect = (id?: number, edit?: boolean): void => {
+  if (id !== undefined) {
+    const editable: string = edit ? 'true' : 'false'
+    router.push({ name: 'product', params: { id }, query: { editable } })
+  }
 }
 </script>

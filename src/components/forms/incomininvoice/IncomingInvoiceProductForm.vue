@@ -48,7 +48,6 @@
           optionLabel="name"
           :options="categories"
           :label="constants.category.label"
-          :readonly
           showClear
           :loading="categoriesLoading"
         />
@@ -62,7 +61,6 @@
           editable
           showClear
           :label="constants.brand.label"
-          :readonly
           :loading="brandsLoading"
           :formatter="brandFormatter"
         />
@@ -73,7 +71,6 @@
         inputId="description"
         :rows="2"
         :label="constants.description.label"
-        :readonly
       />
 
       <Divider align="right" type="dashed" class="!m-0 !mb-1">Acquisto</Divider>
@@ -83,7 +80,6 @@
           v-model="model.quantity"
           inputId="quantity"
           :label="constants.quantity.label"
-          :readonly
         />
         <VatRateField input-id="vat" label="IVA" v-model="model.vat" />
 
@@ -92,7 +88,6 @@
             v-model="model.purchasePrice"
             inputId="purchasePrice"
             :label="constants.purchasePrice.label"
-            :readonly
           />
         </div>
       </div>
@@ -108,16 +103,10 @@
           v-model="model.product.price"
           inputId="price"
           :label="constants.price.label"
-          :readonly
         />
       </div>
 
-      <TextAreaField
-        v-model="model.product.notes"
-        inputId="notes"
-        :label="constants.notes.label"
-        :readonly
-      />
+      <TextAreaField v-model="model.product.notes" inputId="notes" :label="constants.notes.label" />
 
       <div class="flex justify-between items-center w-full mt-2">
         <!-- Bottoni di sinistra -->
@@ -158,7 +147,7 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="!readonly && existingItem"
+            v-if="existingItem"
             type="button"
             rounded
             text
@@ -166,10 +155,19 @@
             severity="secondary"
             @click="emit('delete')"
           />
+          <Button
+            v-if="existingItem"
+            type="button"
+            rounded
+            text
+            icon="pi pi-print"
+            severity="secondary"
+            @click="emit('print', 1)"
+          />
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-if="!readonly && !existingItem"
+            v-if="!existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -178,7 +176,7 @@
 
           <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
           <Button
-            v-else-if="!readonly && dirty"
+            v-else-if="dirty"
             type="button"
             :label="constants.update.label"
             :icon="constants.update.icon"
@@ -192,52 +190,51 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Fieldset, ProgressBar, Divider } from 'primevue'
+import { Button, Divider, Fieldset, ProgressBar } from 'primevue'
 import ProductSearch from '@/components/forms/incomininvoice/ProductSearch.vue'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import SelectField from '@/components/layout/fields/SelectField.vue'
-import { useBrands } from '@/composables/useBrands.ts'
-import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants.ts'
+import { useBrands } from '@/composables/useBrands'
+import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import VatRateField from '@/components/layout/fields/VatRateField.vue'
 import InputNumberField from '@/components/layout/fields/InputNumberField.vue'
-import { useCategories } from '@/composables/useCategories.ts'
+import { useCategories } from '@/composables/useCategories'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 
-import type { IncomingInvoiceProduct } from '@/types/incominInvoiceProduct.ts'
+import type { IncomingInvoiceProduct } from '@/types/incomingInvoiceProduct'
+import type { FieldChange } from '@/composables/useOriginalData'
 
 const constants = useIncomingInvoiceProductConstants()
 
+interface ValidationResult {
+  fields: Record<string, { message?: string; validate: boolean; _valid: boolean; valid: boolean }>
+  validate: boolean
+  _valid: boolean
+  valid: boolean
+}
+
 interface IncomingInvoiceProductFormProps {
-  editable?: boolean
   loading?: boolean
-  validation: any
-  changes: any[]
+  validation: ValidationResult
+  changes: FieldChange[]
   dirty: boolean
   pristine: boolean
   existingItem: boolean
 }
 
-const props = withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
-  editable: false,
+withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
   loading: false,
 })
 
-const emit = defineEmits(['submit', 'close', 'delete', 'reset', 'search'])
+const emit = defineEmits(['submit', 'close', 'delete', 'reset', 'search', 'print'])
 const model = defineModel<IncomingInvoiceProduct>({ required: true })
 
-const { brands, loading: brandsLoading, loadBrands, formatter: brandFormatter } = useBrands()
+const { brands, loading: brandsLoading, formatter: brandFormatter } = useBrands()
 
-const { categories, loading: categoriesLoading, loadCategories } = useCategories()
-
-const readonly = computed(() => !props.editable)
-
-onMounted(async () => {
-  await loadBrands()
-  await loadCategories()
-})
+const { categories, loading: categoriesLoading } = useCategories()
 
 const taxedPurchasePrice = computed(() => {
   if (model.value.purchasePrice && model.value.vat) {
