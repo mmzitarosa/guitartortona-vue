@@ -68,8 +68,7 @@ const editable = computed({
 const backable = computed(() => route.query.from !== 'add' || editable.value)
 
 const onSubmit = async () => {
-  const result = await handleSubmit()
-  if (result) {
+  if (await handleSubmit()) {
     editable.value = false
   }
 }
@@ -79,11 +78,9 @@ const onComplete = async () => {
 }
 
 const onClose = async () => {
-  await handleClose()
-  if (editable.value) {
-    editable.value = false
-  } else {
-    router.back()
+  if (await handleClose()) {
+    if (editable.value) editable.value = false
+    else router.back()
   }
 }
 
@@ -96,8 +93,8 @@ const onEdit = () => {
 }
 
 const onDelete = async () => {
-  await handleDelete()
-  router.back()
+  if(await handleDelete())
+    router.back()
 }
 
 const onRowSelect = (id?: number, edit?: boolean): void => {

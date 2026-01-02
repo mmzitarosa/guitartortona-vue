@@ -28,7 +28,8 @@ const {
   dirty,
   pristine,
   handleSubmit,
-  handleReset,
+  handleClose,
+  handleReset
 } = useIncomingInvoice()
 
 const onSubmit = async () => {
@@ -37,13 +38,14 @@ const onSubmit = async () => {
     await router.push({
       name: 'incomingInvoice',
       params: { id: result.id },
-      query: { editable: 'true', from: 'add' },
+      query: { editable: 'true', from: 'add' }
     })
   }
 }
 
-const onClose = () => {
-  router.back()
+const onClose = async () => {
+  if (await handleClose())
+    router.back()
 }
 
 const onReset = async () => {

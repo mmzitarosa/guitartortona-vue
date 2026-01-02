@@ -146,10 +146,20 @@
     "close": {
       "title": "Chiudere",
       "message": "Confermando la finestra verrà chiusa.",
+      "icon": "pi pi-exclamation-circle",
       "acceptLabel": "Chiudi",
       "rejectLabel": "Annulla",
       "toastTitle": "Chiuso",
       "toastMessage": "La finestra è stata chiusa."
+    },
+    "complete": {
+      "title": "Confermare",
+      "message": "Confermando i dati verranno salvati.",
+      "icon": "pi pi-info-circle",
+      "acceptLabel": "Conferma",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Confermato",
+      "toastMessage": "I dati sono stati salvati correttamente."
     }
   },
   "status": {
@@ -174,6 +184,14 @@
     "newInvoice": {
       "title": "Nuova Fattura",
       "subtitle": "Dati Fattura"
+    },
+    "product": {
+      "title": "Prodotto",
+      "subtitle": "Dati Prodotto",
+      "condition": {
+        "new": "Nuovo",
+        "used": "Usato"
+      }
     }
   },
   "fieldset": {

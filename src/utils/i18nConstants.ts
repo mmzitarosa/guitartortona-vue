@@ -342,6 +342,10 @@ export const useProductConstants = () => {
     card: {
       title: t('cards.product.title'),
       subtitle: t('cards.product.subtitle'),
+      condition: {
+        NEW: t('cards.product.condition.new'),
+        USED: t('cards.product.condition.used')
+      }
     },
     code: {
       label: t('common.labels.code'),
@@ -521,6 +525,15 @@ export const useConfirmDialogConstants = () => {
       rejectLabel: t('dialogs.delete.rejectLabel'),
       toastTitle: t('dialogs.delete.toastTitle'),
       toastMessage: t('dialogs.delete.toastMessage'),
+    },
+    completeDialog: {
+      title: t('dialogs.complete.title'),
+      message: t('dialogs.complete.message'),
+      icon: t('dialogs.complete.icon'),
+      acceptLabel: t('dialogs.complete.acceptLabel'),
+      rejectLabel: t('dialogs.complete.rejectLabel'),
+      toastTitle: t('dialogs.complete.toastTitle'),
+      toastMessage: t('dialogs.complete.toastMessage'),
     },
   }
 }

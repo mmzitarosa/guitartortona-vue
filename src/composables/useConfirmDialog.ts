@@ -18,8 +18,8 @@ export const useConfirmDialog = () => {
   const toast = useToast()
   const confirm = useConfirm()
 
-  const require = <T>(params: ConfirmDialogParams<T>): Promise<T> => {
-    return new Promise<T>((resolve, error) => {
+  const require = <T>(params: ConfirmDialogParams<T | undefined>): Promise<T | undefined> => {
+    return new Promise<T | undefined>((resolve, error) => {
       confirm.require({
         header: params.header,
         message: params.message,
@@ -51,6 +51,7 @@ export const useConfirmDialog = () => {
             error(err)
           }
         },
+        reject: () => {resolve(undefined)},
       })
     })
   }

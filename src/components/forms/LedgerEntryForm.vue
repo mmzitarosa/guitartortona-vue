@@ -404,8 +404,7 @@ onMounted(async () => {
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()
-  if (!result) return
-  emit('submit', result)
+  if (result) emit('submit', result)
 }
 
 const onFormReset = async () => {
@@ -417,12 +416,12 @@ const onFormEdit = () => {
 }
 
 const onFormDelete = async () => {
-  await handleDelete()
-  emit('delete')
+  if (await handleDelete())
+    emit('delete')
 }
 
 const onFormClose = async () => {
-  await handleClose()
-  emit('close')
+  if(await handleClose())
+    emit('close')
 }
 </script>

@@ -1,7 +1,7 @@
 import { type MaybeRef, toValue } from 'vue'
 import type {
   IncomingInvoiceProduct,
-  IncomingInvoiceProductLight,
+  IncomingInvoiceProductLight
 } from '@/types/incomingInvoiceProduct'
 import type { Product, ProductLight } from '@/types/product'
 import type { Brand } from '@/types/brand'
@@ -9,7 +9,7 @@ import type { Category } from '@/types/category'
 import {
   addProductToIncomingInvoice,
   deleteProductFromIncomingInvoice,
-  updateProductInIncomingInvoice,
+  updateProductInIncomingInvoice
 } from '@/services/api/incomingInvoiceService'
 import { useForm } from '@/composables/useForm'
 import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants'

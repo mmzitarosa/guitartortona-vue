@@ -1,7 +1,7 @@
 <template>
   <Card>
-    <template #title>{{ constants.card.title }}</template>
-    <template #subtitle>{{ constants.card.subtitle }}</template>
+    <template #title>{{ constants.card.title + condition}}</template>
+    <template #subtitle>{{ constants.card.subtitle + condition }}</template>
     <template #content>
       <ProgressBar
         :mode="formLoading ? 'indeterminate' : 'determinate'"
@@ -196,6 +196,8 @@ const emit = defineEmits<{
 }>()
 
 const constants = useProductConstants()
+const condition = computed(() => product.value.condition ? ' - ' + constants.card.condition[product.value.condition] : '')
+
 
 interface ProductFormProps {
   id: string | number | null | undefined
@@ -237,8 +239,7 @@ onMounted(async () => {
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()
-  if (!result) return
-  emit('submit', result)
+  if (result) emit('submit', result)
 }
 
 const onFormReset = async () => {
@@ -250,12 +251,12 @@ const onFormEdit = () => {
 }
 
 const onFormDelete = async () => {
-  await handleDelete()
-  emit('delete')
+  if (await handleDelete())
+    emit('delete')
 }
 
 const onFormClose = async () => {
-  await handleClose()
-  emit('close')
+  if(await handleClose())
+    emit('close')
 }
 </script>

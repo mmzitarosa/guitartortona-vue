@@ -50,7 +50,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     else setOriginal(result)
     // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
     validate.value = false
-    return result
+    return result ?? true
   }
 
   const loadItem = (id: number) => withLoading(async (): Promise<T | undefined> => {
@@ -108,7 +108,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       header: config.title,
       message: config.message,
       group: group ?? 'differences',
-      icon: 'pi pi-info-circle',
+      icon: config.icon,
       acceptLabel: config.acceptLabel,
       toastSummary: config.toastTitle,
       toastDetail: config.toastMessage,
@@ -119,12 +119,12 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   const handleComplete = () => {
     if (!complete) return
     return requireConfirm({
-      header: 'title',
-      message: 'message',
-      icon: 'pi pi-info-circle',
-      acceptLabel: 'acceptLabel',
-      toastSummary: 'toastTitle',
-      toastDetail: 'toastMessage',
+      header: constants.completeDialog.title,
+      message: constants.completeDialog.message,
+      icon: constants.completeDialog.icon,
+      acceptLabel: constants.completeDialog.acceptLabel,
+      toastSummary: constants.completeDialog.toastTitle,
+      toastDetail: constants.completeDialog.toastMessage,
       accept: () => executeAndReset(() => complete(item.value.id as number))
     })
   }
@@ -132,28 +132,30 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   const handleReset = () => requireConfirm({
     header: constants.resetDialog.title,
     message: constants.resetDialog.message,
-    icon: 'pi pi-exclamation-circle',
+    icon: constants.resetDialog.icon,
     acceptLabel: constants.resetDialog.acceptLabel,
     toastSummary: constants.resetDialog.toastTitle,
     toastDetail: constants.resetDialog.toastMessage,
     accept: async () => {
       resetItem()
       validate.value = false
+      return true
     }
   })
 
   const handleClose = () => {
-    if (pristine.value) return
+    if (pristine.value) return true
     return requireConfirm({
       header: constants.cancelDialog.title,
       message: constants.cancelDialog.message,
-      icon: 'pi pi-exclamation-circle',
+      icon: constants.cancelDialog.icon,
       acceptLabel: constants.cancelDialog.acceptLabel,
       toastSummary: constants.cancelDialog.toastTitle,
       toastDetail: constants.cancelDialog.toastMessage,
       accept: async () => {
         resetItem()
         validate.value = false
+        return true
       }
     })
   }
@@ -163,7 +165,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     return requireConfirm({
         header: constants.deleteDialog.title,
         message: constants.deleteDialog.message,
-        icon: 'pi pi-exclamation-circle',
+      icon: constants.deleteDialog.icon,
         acceptLabel: constants.deleteDialog.acceptLabel,
         toastSummary: constants.deleteDialog.toastTitle,
         toastDetail: constants.deleteDialog.toastMessage,
