@@ -17,12 +17,23 @@ export const useCategories = () => {
     }
   }
 
+  const allCategories = computed(() => {
+    return getCategories([], categories.value) ?? []
+  })
+
+  const getCategories = (list: Category[], categories?: Category[]) => {
+    if (!categories) return
+    categories?.forEach((category) => {
+      list.push(category)
+      getCategories(list, category.subCategories)
+    })
+    return list
+  }
+
   const map = computed(() => {
     const map = new Map<number, Category>()
-    categories.value.forEach((category) => {
-      if (category.id) {
-        map.set(category.id, category)
-      }
+    allCategories.value.forEach((category) => {
+      if (category.id) map.set(category.id, category)
     })
     return map
   })
@@ -31,5 +42,5 @@ export const useCategories = () => {
     return categoryId ? map.value.get(categoryId) : undefined
   }
 
-  return { categories, loading, getCategory }
+  return { categories: allCategories, loading, getCategory }
 }

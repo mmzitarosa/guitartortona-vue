@@ -7,7 +7,6 @@
       <div class="w-full flex items-center justify-center" v-if="editable">
         <IncomingInvoiceProductForm
           v-model="incomingInvoiceProduct"
-          :editable
           :loading
           :validation
           :changes

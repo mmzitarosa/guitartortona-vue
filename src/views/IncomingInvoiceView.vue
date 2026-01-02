@@ -79,7 +79,6 @@ const onComplete = async () => {
 }
 
 const onClose = async () => {
-  console.log("onClone2")
   await handleClose()
   if (editable.value) {
     editable.value = false
