@@ -29,4 +29,5 @@ export interface ProductLight {
   price?: number
   stock?: number
   pendingStock?: number
+  available?: boolean
 }

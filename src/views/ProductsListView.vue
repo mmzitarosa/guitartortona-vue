@@ -11,7 +11,7 @@ import ProductsTable from '@/components/ProductsTable.vue'
 const route = useRoute()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, category, brand, description } = route.query
+  const { page = 0, size = 15, category, brand, description, available = 'true' } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
@@ -22,6 +22,7 @@ const filter = computed(() => {
     categoryId: category ? Number(category) : undefined,
     brandId: brand ? Number(brand) : undefined,
     description: description ? (description as string) : undefined,
+    available: available === 'true' ? true : false,
   }
 })
 
@@ -42,12 +43,18 @@ const onRowSelect = (id?: number, edit?: boolean): void => {
   }
 }
 
-const onFilter = (categoryId?: number, brandId?: number, description?: string) => {
+const onFilter = (
+  categoryId?: number,
+  brandId?: number,
+  description?: string,
+  available?: boolean,
+) => {
   router.replace({
     query: {
       category: categoryId,
       brand: brandId,
-      description
+      description,
+      available: String(available),
     },
   })
 }

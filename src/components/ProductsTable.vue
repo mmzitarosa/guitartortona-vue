@@ -12,18 +12,13 @@
         :loading
         rowHover
         filterDisplay="row"
-        :globalFilterFields="['categoryId', 'brandId', 'description']"
+        :globalFilterFields="['categoryId', 'brandId', 'description', 'available']"
         selectionMode="single"
         @rowSelect="onRowSelect"
       >
         <template #empty>Nessun prodotto trovato.</template>
         <template #loading>Caricando i prodotti...</template>
-        <Column
-          header="Categoria"
-          filterField="categoryId"
-          :showFilterMenu="false"
-          style="min-width: 14rem"
-        >
+        <Column header="Categoria" filterField="categoryId" :showFilterMenu="false">
           <template #filter>
             <Select
               v-model="_categoryId"
@@ -32,7 +27,9 @@
               optionLabel="name"
               showClear
               :loading="categoriesLoading"
-              placeholder="Filtro per categoria"
+              placeholder="Filtro categoria"
+              class="w-48"
+              :class="_categoryId ? 'border-black! text-black!' : ''"
             />
           </template>
 
@@ -40,12 +37,7 @@
             <p v-if="data.categoryId">{{ getCategory(data.categoryId)?.name }}</p>
           </template>
         </Column>
-        <Column
-          header="Marca"
-          filterField="brandId"
-          :showFilterMenu="false"
-          style="min-width: 14rem"
-        >
+        <Column header="Marca" filterField="brandId" :showFilterMenu="false">
           <template #filter>
             <Select
               v-model="_brandId"
@@ -54,7 +46,9 @@
               optionLabel="name"
               showClear
               :loading="brandsLoading"
-              placeholder="Filtro per marca"
+              placeholder="Filtro marca"
+              class="w-48"
+              :class="_brandId ? 'border-black! text-black!' : ''"
             />
           </template>
           <template #body="{ data }">
@@ -63,13 +57,29 @@
         </Column>
         <Column filterField="description" header="Descrizione" :showFilterMenu="false">
           <template #filter>
-            <InputText v-model="_description" placeholder="Filtro per descrizione" />
+            <InputText
+              v-model="_description"
+              placeholder="Filtro per descrizione"
+              class="w-64"
+              :class="_description ? 'border-black! text-black!' : ''"
+            />
           </template>
           <template #body="{ data }">
             <p v-if="data.description">{{ data.description }}</p>
           </template>
         </Column>
-        <Column header="Quantità">
+        <Column filterField="available" :showFilterMenu="false" style="text-align: center">
+          <template #header>
+            <span class="p-datatable-column-title w-full"> Quantità </span>
+          </template>
+          <template #filter>
+            <Button
+              @click="_available = !_available"
+              :severity="_available ? 'contrast' : 'secondary'"
+              class="w-18"
+              >Stock</Button
+            >
+          </template>
           <template #body="{ data }">
             <p v-if="data">
               {{ data.stock ?? 0
@@ -79,9 +89,13 @@
             </p>
           </template>
         </Column>
-        <Column header="Prezzo">
+        <Column style="text-align: right">
+          <template #header>
+            <span class="p-datatable-column-title w-full"> Prezzo (€) </span>
+          </template>
+
           <template #body="{ data }">
-            <p v-if="data.price">{{ data.price }}</p>
+            <p v-if="data.price">{{ formatCurrency(data.price) }}</p>
           </template>
         </Column>
       </DataTable>
@@ -91,20 +105,22 @@
 
 <script setup lang="ts">
 import {
+  Button,
   Card,
   Column,
   DataTable,
-  type DataTablePageEvent,
   type DataTableFilterMeta,
-  InputText,
-  Select,
+  type DataTablePageEvent,
   type DataTableRowSelectEvent,
+  InputText,
+  Select
 } from 'primevue'
 import { computed, onMounted } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useCategories } from '@/composables/useCategories'
 import { useBrands } from '@/composables/useBrands'
 import { useProductsTable } from '@/composables/useProductsTable'
+import { formatCurrency } from '@/utils/currencyUtils'
 
 const { products, loadProducts, loading } = useProductsTable()
 
@@ -116,6 +132,7 @@ const props = defineProps<{
     page: number
     size: number
     first: number
+    available: boolean
     categoryId?: number
     brandId?: number
     description?: string
@@ -125,7 +142,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   page: [page: number, size: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [categoryId?: number, brandId?: number, description?: string]
+  filter: [categoryId?: number, brandId?: number, description?: string, available?: boolean]
 }>()
 
 // Carica la tabella al primo caricamento della pagina
@@ -139,25 +156,38 @@ const onRowSelect = (data: DataTableRowSelectEvent): void => {
 
 const filters = computed((): DataTableFilterMeta => {
   return {
-    categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.EQUALS },
+    categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.IN },
     brandId: { value: props.filter.brandId, matchMode: FilterMatchMode.EQUALS },
     description: { value: props.filter.description, matchMode: FilterMatchMode.CONTAINS },
+    available: {
+      value: props.filter.available ? true : undefined,
+      matchMode: FilterMatchMode.EQUALS,
+    },
   }
 })
 
 const _categoryId = computed({
   get: (): number | undefined => props.filter.categoryId,
-  set: (value?: number): void => onFilter(value, _brandId.value, _description.value),
+  set: (value?: number): void =>
+    onFilter(value, _brandId.value, _description.value, _available.value),
 })
 
 const _brandId = computed({
   get: (): number | undefined => props.filter.brandId,
-  set: (value?: number): void => onFilter(_categoryId.value, value, _description.value),
+  set: (value?: number): void =>
+    onFilter(_categoryId.value, value, _description.value, _available.value),
 })
 
 const _description = computed({
   get: (): string | undefined => props.filter.description,
-  set: (value?: string): void => onFilter(_categoryId.value, _brandId.value, value),
+  set: (value?: string): void =>
+    onFilter(_categoryId.value, _brandId.value, value, _available.value),
+})
+
+const _available = computed({
+  get: (): boolean => props.filter.available,
+  set: (value?: boolean): void =>
+    onFilter(_categoryId.value, _brandId.value, _description.value, value),
 })
 
 const onPage = (event: DataTablePageEvent): void => {
@@ -166,7 +196,12 @@ const onPage = (event: DataTablePageEvent): void => {
   emit('page', page, rows)
 }
 
-const onFilter = (categoryId?: number, brandId?: number, description?: string): void => {
-  emit('filter', categoryId, brandId, description)
+const onFilter = (
+  categoryId?: number,
+  brandId?: number,
+  description?: string,
+  available?: boolean,
+): void => {
+  emit('filter', categoryId, brandId, description, available)
 }
 </script>
