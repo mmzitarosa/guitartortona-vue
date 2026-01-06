@@ -344,8 +344,8 @@ export const useProductConstants = () => {
       subtitle: t('cards.product.subtitle'),
       condition: {
         NEW: t('cards.product.condition.new'),
-        USED: t('cards.product.condition.used')
-      }
+        USED: t('cards.product.condition.used'),
+      },
     },
     code: {
       label: t('common.labels.code'),
@@ -423,7 +423,6 @@ export const useProductConstants = () => {
   }
 }
 
-
 /**
  * IncomingInvoices table constants using i18n
  */
@@ -473,6 +472,90 @@ export const useIncomingInvoiceProductsTableConstants = () => {
         vatExcluded: t('incomingInvoiceProducts.table.footer.vatExcluded'),
         vatIncluded: t('incomingInvoiceProducts.table.footer.vatIncluded'),
       },
+    },
+  }
+}
+
+export const useProductSaleConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    fieldset: {
+      legend: t('fieldset.sale.legend'),
+    },
+    date: {
+      label: t('common.labels.date'),
+      messages: {
+        required: t('common.messages.dateRequired'),
+        invalid: t('common.messages.dateInvalid'),
+      },
+    },
+    quantity: {
+      label: t('common.labels.quantity'),
+      messages: {
+        required: t('common.messages.quantityRequired'),
+        invalid: t('common.messages.quantityInvalid'),
+      },
+    },
+    vat: {
+      label: t('common.labels.vat'),
+      messages: {
+        invalid: t('common.messages.vatInvalid'),
+      },
+    },
+    price: {
+      label: t('common.labels.price'),
+      messages: {
+        required: t('common.messages.priceRequired'),
+        invalid: t('common.messages.priceInvalid'),
+      },
+    },
+    notes: {
+      label: t('common.labels.notes'),
+      messages: {
+        tooLong: t('common.messages.notesTooLong'),
+      },
+    },
+    close: {
+      label: t('buttons.close.label'),
+      icon: t('buttons.close.icon'),
+    },
+    cancel: {
+      label: t('buttons.cancel.label'),
+      icon: t('buttons.cancel.icon'),
+    },
+    reset: {
+      label: t('buttons.reset.label'),
+      icon: t('buttons.reset.icon'),
+    },
+    save: {
+      label: t('buttons.sell.label'),
+      icon: t('buttons.sell.icon'),
+    },
+    update: {
+      label: t('buttons.update.label'),
+      icon: t('buttons.update.icon'),
+    },
+  }
+}
+
+export const useProductPrintConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    fieldset: {
+      legend: t('fieldset.print.legend'),
+    },
+    quantity: {
+      label: t('common.labels.quantity'),
+      messages: {
+        required: t('common.messages.quantityRequired'),
+        invalid: t('common.messages.quantityInvalid'),
+      },
+    },
+    print: {
+      label: t('buttons.print.label'),
+      icon: t('buttons.print.icon'),
     },
   }
 }

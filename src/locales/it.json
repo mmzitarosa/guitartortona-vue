@@ -95,6 +95,10 @@
     "print": {
       "label": "Stampa",
       "icon": "pi pi-print"
+    },
+    "sell": {
+      "label": "Vendita",
+      "icon": "pi pi-shopping-cart"
     }
   },
   "dialogs": {
@@ -197,6 +201,9 @@
   "fieldset": {
     "product": {
       "legend": "Inserisci Prodotto"
+    },
+    "sale": {
+      "legend": "Vendita"
     }
   },
   "filters": {

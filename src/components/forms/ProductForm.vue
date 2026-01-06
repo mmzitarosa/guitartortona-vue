@@ -1,6 +1,6 @@
 <template>
   <Card>
-    <template #title>{{ constants.card.title + condition}}</template>
+    <template #title>{{ constants.card.title + condition }}</template>
     <template #subtitle>{{ constants.card.subtitle + condition }}</template>
     <template #content>
       <ProgressBar
@@ -136,16 +136,6 @@
         </div>
         <!-- Bottoni di destra -->
         <div class="flex gap-2">
-          <!-- Tasto Delete - Visualizzazione  -->
-          <Button
-            v-if="readonly"
-            type="button"
-            rounded
-            text
-            icon="pi pi-trash"
-            severity="secondary"
-            @click="onFormDelete"
-          />
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
             v-if="readonly"
@@ -166,6 +156,11 @@
           />
         </div>
       </div>
+
+      <div v-if="readonly" class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full mt-2">
+        <PrintForm :model-value="product" @print="onPrint"></PrintForm>
+        <SaleForm :model-value="{} as Sale" />
+      </div>
     </template>
   </Card>
   <ChangesDialog :changes="changes"></ChangesDialog>
@@ -179,14 +174,15 @@ import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import SelectField from '@/components/layout/fields/SelectField.vue'
-import { useForm } from '@/composables/useForm'
-import { useProductConstants } from '@/utils/i18nConstants'
 import { useCategories } from '@/composables/useCategories'
 import { useBrands } from '@/composables/useBrands'
 import type { Product } from '@/types/product'
 
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
-import { getProductDetail, updateProduct } from '@/services/api/productService'
+import SaleForm from './SaleForm.vue'
+import type { Sale } from '@/types/sale'
+import PrintForm from './PrintForm.vue'
+import { useProduct } from '@/composables/useProduct'
 
 const emit = defineEmits<{
   submit: [product: Product]
@@ -195,9 +191,9 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const constants = useProductConstants()
-const condition = computed(() => product.value.condition ? ' - ' + constants.card.condition[product.value.condition] : '')
-
+const condition = computed(() =>
+  product.value.condition ? ' - ' + constants.card.condition[product.value.condition] : '',
+)
 
 interface ProductFormProps {
   id: string | number | null | undefined
@@ -212,22 +208,19 @@ const { categories, loading: categoriesLoading } = useCategories()
 const { brands, loading: brandsLoading, formatter: brandFormatter } = useBrands()
 
 const {
-  item: product,
+  product,
   loading: formLoading,
   changes,
   dirty,
   pristine,
-  loadItem: loadProduct,
+  loadProduct,
   validation,
   handleSubmit,
   handleReset,
   handleClose,
-  handleDelete,
-} = useForm<Product>({
-  getById: getProductDetail,
-  update: updateProduct,
-  fieldMappings: [],
-})
+  handlePrint,
+  constants,
+} = useProduct()
 
 const readonly = computed(() => !props.editable)
 
@@ -250,13 +243,11 @@ const onFormEdit = () => {
   emit('edit')
 }
 
-const onFormDelete = async () => {
-  if (await handleDelete())
-    emit('delete')
+const onFormClose = async () => {
+  if (await handleClose()) emit('close')
 }
 
-const onFormClose = async () => {
-  if(await handleClose())
-    emit('close')
+const onPrint = (quantity: number) => {
+  handlePrint(quantity)
 }
 </script>

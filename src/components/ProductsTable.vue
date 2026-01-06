@@ -113,7 +113,7 @@ import {
   type DataTablePageEvent,
   type DataTableRowSelectEvent,
   InputText,
-  Select
+  Select,
 } from 'primevue'
 import { computed, onMounted } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -156,7 +156,7 @@ const onRowSelect = (data: DataTableRowSelectEvent): void => {
 
 const filters = computed((): DataTableFilterMeta => {
   return {
-    categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.IN },
+    categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.EQUALS },
     brandId: { value: props.filter.brandId, matchMode: FilterMatchMode.EQUALS },
     description: { value: props.filter.description, matchMode: FilterMatchMode.CONTAINS },
     available: {

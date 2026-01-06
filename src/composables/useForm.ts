@@ -19,10 +19,10 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     reset: resetItem,
     resetOriginal,
     setOriginal,
-    existingItem
+    existingItem,
   } = useOriginalData<T>({
     initialValue,
-    fieldMappings
+    fieldMappings,
   })
 
   const loading = ref(false)
@@ -53,12 +53,13 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     return result ?? true
   }
 
-  const loadItem = (id: number) => withLoading(async (): Promise<T | undefined> => {
-    if (!getById) return
-    const result = await getById(id)
-    setOriginal(result)
-    return result
-  })
+  const loadItem = (id: number) =>
+    withLoading(async (): Promise<T | undefined> => {
+      if (!getById) return
+      const result = await getById(id)
+      setOriginal(result)
+      return result
+    })
 
   const validation = computed(() => {
     let allValid = true
@@ -68,23 +69,25 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         const isFieldValid = !rawResult
         if (!isFieldValid) allValid = false
 
-        return [key, {
-          message: rawResult?.message,
-          validate: validate.value,
-          _valid: isFieldValid,
-          valid: !validate.value || isFieldValid
-        }]
-      })
+        return [
+          key,
+          {
+            message: rawResult?.message,
+            validate: validate.value,
+            _valid: isFieldValid,
+            valid: !validate.value || isFieldValid,
+          },
+        ]
+      }),
     )
 
     return {
       fields,
       validate: validate.value,
       _valid: allValid,
-      valid: !validate.value || allValid
+      valid: !validate.value || allValid,
     }
   })
-
 
   const handleSubmit = () => {
     const isUpdate = existingItem.value
@@ -100,9 +103,8 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
 
     // Preparo il dialog di update (se esiste id) o insert (nuovo item)
     const config = isUpdate ? constants.updateDialog : constants.saveDialog
-    const accept = () => isUpdate
-      ? update!(item.value.id as number, item.value)
-      : create!(item.value)
+    const accept = () =>
+      isUpdate ? update!(item.value.id as number, item.value) : create!(item.value)
 
     return requireConfirm({
       header: config.title,
@@ -112,7 +114,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       acceptLabel: config.acceptLabel,
       toastSummary: config.toastTitle,
       toastDetail: config.toastMessage,
-      accept: () => executeAndReset(accept)
+      accept: () => executeAndReset(accept),
     })
   }
 
@@ -125,23 +127,24 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
       acceptLabel: constants.completeDialog.acceptLabel,
       toastSummary: constants.completeDialog.toastTitle,
       toastDetail: constants.completeDialog.toastMessage,
-      accept: () => executeAndReset(() => complete(item.value.id as number))
+      accept: () => executeAndReset(() => complete(item.value.id as number)),
     })
   }
 
-  const handleReset = () => requireConfirm({
-    header: constants.resetDialog.title,
-    message: constants.resetDialog.message,
-    icon: constants.resetDialog.icon,
-    acceptLabel: constants.resetDialog.acceptLabel,
-    toastSummary: constants.resetDialog.toastTitle,
-    toastDetail: constants.resetDialog.toastMessage,
-    accept: async () => {
-      resetItem()
-      validate.value = false
-      return true
-    }
-  })
+  const handleReset = () =>
+    requireConfirm({
+      header: constants.resetDialog.title,
+      message: constants.resetDialog.message,
+      icon: constants.resetDialog.icon,
+      acceptLabel: constants.resetDialog.acceptLabel,
+      toastSummary: constants.resetDialog.toastTitle,
+      toastDetail: constants.resetDialog.toastMessage,
+      accept: async () => {
+        resetItem()
+        validate.value = false
+        return true
+      },
+    })
 
   const handleClose = () => {
     if (pristine.value) return true
@@ -156,22 +159,21 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
         resetItem()
         validate.value = false
         return true
-      }
+      },
     })
   }
 
   const handleDelete = () => {
     if (!remove) return
     return requireConfirm({
-        header: constants.deleteDialog.title,
-        message: constants.deleteDialog.message,
+      header: constants.deleteDialog.title,
+      message: constants.deleteDialog.message,
       icon: constants.deleteDialog.icon,
-        acceptLabel: constants.deleteDialog.acceptLabel,
-        toastSummary: constants.deleteDialog.toastTitle,
-        toastDetail: constants.deleteDialog.toastMessage,
-        accept: () => executeAndReset(() => remove(item.value.id as number))
-      }
-    )
+      acceptLabel: constants.deleteDialog.acceptLabel,
+      toastSummary: constants.deleteDialog.toastTitle,
+      toastDetail: constants.deleteDialog.toastMessage,
+      accept: () => executeAndReset(() => remove(item.value.id as number)),
+    })
   }
 
   return {
@@ -189,6 +191,7 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
     handleComplete,
     handleReset,
     handleClose,
-    handleDelete
+    handleDelete,
+    withLoading,
   }
 }

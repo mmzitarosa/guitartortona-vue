@@ -5,11 +5,13 @@
       :inputId="inputId"
       :minFractionDigits="0"
       :maxFractionDigits="0"
-      :min="0"
+      :min
       :readonly
       :invalid
       class="p-inputwrapper-filled"
       fluid
+      buttonLayout="horizontal"
+      :showButtons
       @input="(event) => (model = event.value as number | undefined)"
       v-tooltip="tooltip"
       @update:modelValue="(val) => (model = val === null ? undefined : val)"
@@ -26,11 +28,16 @@ interface InputAmountFieldProps {
   inputId: string
   label: string
   readonly?: boolean
+  showButtons?: boolean
   validation?: { message?: string; valid: boolean }
   tooltip?: string
+  min?: number
+  buttonLayout?: 'stacked' | 'horizontal' | 'vertical'
 }
 
-const props = defineProps<InputAmountFieldProps>()
+const props = withDefaults(defineProps<InputAmountFieldProps>(), {
+  min: 0,
+})
 
 const model = defineModel<number | undefined>()
 

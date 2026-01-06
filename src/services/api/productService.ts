@@ -33,8 +33,9 @@ export async function addProductSale(id: number, sale: Sale): Promise<Product> {
 }
 
 export function printProductLabel(internalCode: string, quantity: number) {
-  window.open(
-    API_CONFIG.baseURL + '/api/v1/product/print?code=' + internalCode + '&quantity=' + quantity,
-    '_blank',
-  )
+  window.open(productLabelUrl(internalCode, quantity), '_blank')
+}
+
+export function productLabelUrl(internalCode: string, quantity: number) {
+  return API_CONFIG.baseURL + '/api/v1/product/print?code=' + internalCode + '&quantity=' + quantity
 }
