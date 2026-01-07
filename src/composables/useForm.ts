@@ -5,8 +5,18 @@ import { useOriginalData } from '@/composables/useOriginalData'
 import { getNestedValue } from '@/utils/object'
 import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 
-export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
-  const { initialValue, getById, create, update, complete, remove, fieldMappings, group } = options
+export function useForm<T extends { id?: number }, R = T>(options: FormOptions<T, R>) {
+  const {
+    initialValue,
+    getById,
+    create,
+    update,
+    complete,
+    remove,
+    fieldMappings,
+    group,
+    mapResponse,
+  } = options
   const confirmDialog = useConfirmDialog()
   const constants = useConfirmDialogConstants()
 
@@ -40,14 +50,17 @@ export function useForm<T extends { id?: number }>(options: FormOptions<T>) {
   const requireConfirm = <T>(params: ConfirmDialogParams<T>) =>
     withLoading(() => confirmDialog.require<T>(params))
 
-  const executeAndReset = async (action: () => Promise<any>) => {
+  const executeAndReset = async (action: () => Promise<R | void>) => {
     // Chiamo servizio di insert
     const result = await action()
 
     // L'esito è il mio nuovo item, resetto anche l'original per poi fare i confronti
     // Se void (come per delete) resetto l'original ai valori iniziali
     if (result === undefined) resetItem()
-    else setOriginal(result)
+    else if (mapResponse) {
+      // Se c'è una funzione mapResponse, la uso per trasformare R in T
+      setOriginal(mapResponse(result))
+    }
     // Disattivo la validazione, verrà riattivata all'eventuale prossimo submit
     validate.value = false
     return result ?? true

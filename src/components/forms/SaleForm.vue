@@ -13,12 +13,20 @@
         <VatRateField input-id="vat" :label="constants.vat.label" v-model="model.vat" :readonly />
       </div>
 
+      <InputTextField
+        v-model="model.receiptNumber"
+        inputId="receiptNumber"
+        :label="constants.receiptNumber.label"
+        :readonly
+      />
+
       <InputAmountField
         v-model="model.salePrice"
         inputId="price"
         :label="constants.price.label"
         :readonly
       />
+
       <TextAreaField
         v-model="model.notes"
         inputId="notes"
@@ -40,7 +48,7 @@
           />
           <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
           <Button
-            v-else
+            v-else-if="existingItem"
             type="button"
             severity="secondary"
             :label="constants.cancel.label"
@@ -73,15 +81,6 @@
             severity="secondary"
             @click="emit('delete')"
           />
-          <Button
-            v-if="existingItem"
-            type="button"
-            rounded
-            text
-            icon="pi pi-print"
-            severity="secondary"
-            @click="emit('print', 1)"
-          />
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
@@ -104,7 +103,7 @@
       </div>
     </div>
   </Fieldset>
-  <ChangesDialog :changes group="productDifferences"></ChangesDialog>
+  <ChangesDialog :changes group="saleDifferences"></ChangesDialog>
 </template>
 
 <script setup lang="ts">
@@ -120,6 +119,7 @@ import type { FieldChange } from '@/composables/useOriginalData'
 import type { Sale } from '@/types/sale'
 import InputDateField from '../layout/fields/InputDateField.vue'
 import { useProductSaleConstants } from '@/utils/i18nConstants'
+import InputTextField from '../layout/fields/InputTextField.vue'
 
 const constants = useProductSaleConstants()
 

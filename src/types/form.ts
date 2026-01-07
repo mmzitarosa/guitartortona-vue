@@ -24,15 +24,15 @@ export interface FieldMapping<T> {
 /**
  * Form options interface
  */
-export interface FormOptions<T> extends ValidationFormOptions<T> {
+export type FormOptions<T, R = T> = ValidationFormOptions<T> & {
   initialValue?: T
   getById?: (id: number) => Promise<T>
-  create?: (item: T) => Promise<T>
-  update?: (id: number, item: T) => Promise<T>
-  complete?: (id: number) => Promise<T>
+  create?: (item: T) => Promise<R>
+  update?: (id: number, item: T) => Promise<R>
+  complete?: (id: number) => Promise<R>
   remove?: (id: number) => Promise<void>
   group?: string
-}
+} & (R extends T ? { mapResponse?: (response: R) => T } : { mapResponse: undefined })
 
 /**
  * Submit Form options interface

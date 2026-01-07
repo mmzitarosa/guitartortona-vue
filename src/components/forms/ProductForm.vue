@@ -158,8 +158,19 @@
       </div>
 
       <div v-if="readonly" class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full mt-2">
-        <PrintForm :model-value="product" @print="onPrint"></PrintForm>
-        <SaleForm :model-value="{} as Sale" />
+        <PrintFieldset :model-value="product" @print="onPrint"></PrintFieldset>
+        <SaleForm
+          v-model="saleForm.item.value"
+          @submit="onSaleSubmit"
+          @reset="saleForm.handleReset"
+          editable
+          :loading="saleForm.loading.value"
+          :validation="saleForm.validation.value"
+          :changes="saleForm.changes.value"
+          :dirty="saleForm.dirty.value"
+          :pristine="saleForm.pristine.value"
+          :existingItem="saleForm.existingItem.value"
+        />
       </div>
     </template>
   </Card>
@@ -167,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
@@ -181,8 +192,13 @@ import type { Product } from '@/types/product'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import SaleForm from './SaleForm.vue'
 import type { Sale } from '@/types/sale'
-import PrintForm from './PrintForm.vue'
 import { useProduct } from '@/composables/useProduct'
+import PrintFieldset from './PrintFieldset.vue'
+import { useForm } from '@/composables/useForm'
+import { formatDate } from '@/utils/dateUtils'
+import { useProductSaleConstants } from '@/utils/i18nConstants'
+import { formatCurrency } from '@/utils/currencyUtils'
+import { addProductSale } from '@/services/api/productService'
 
 const emit = defineEmits<{
   submit: [product: Product]
@@ -220,6 +236,7 @@ const {
   handleClose,
   handlePrint,
   constants,
+  setProduct
 } = useProduct()
 
 const readonly = computed(() => !props.editable)
@@ -227,6 +244,13 @@ const readonly = computed(() => !props.editable)
 onMounted(async () => {
   formLoading.value = true
   await loadProduct(props.id as number)
+
+  // Imposto il prezzo di vendita iniziale della vendita al prezzo del prodotto caricato
+  saleForm.setItem({
+    ...saleForm.item.value,
+    salePrice: product.value.price,
+  })
+
   formLoading.value = false
 })
 
@@ -249,5 +273,71 @@ const onFormClose = async () => {
 
 const onPrint = (quantity: number) => {
   handlePrint(quantity)
+}
+
+/* SALE */
+
+const saleConstants = useProductSaleConstants()
+
+const fieldMappings = [
+  {
+    key: 'date',
+    label: saleConstants.date.label,
+    labeler: (date?: Date) => formatDate(date),
+    validator: (date?: Date) => {
+      if (!date) return { message: saleConstants.date.messages.required }
+    },
+    defaultValue: true,
+  },
+  {
+    key: 'quantity',
+    label: saleConstants.quantity.label,
+    validator: (quantity?: number) => {
+      if (!quantity) return { message: saleConstants.quantity.messages.required }
+      else if (!product.value.stock || quantity > product.value.stock)
+        return { message: saleConstants.quantity.messages.invalid }
+    },
+    defaultValue: true,
+  },
+  {
+    key: 'vat',
+    label: saleConstants.vat.label,
+    labeler: (vat: number | undefined) => (vat ? `${vat}%` : undefined),
+    defaultValue: true,
+  },
+  {
+    key: 'receiptNumber',
+    label: saleConstants.receiptNumber.label,
+    validator: (receiptNumber?: string) => {
+      if (receiptNumber && receiptNumber.length > 5)
+        return { message: saleConstants.receiptNumber.messages.tooLong }
+    },
+  },
+  {
+    key: 'salePrice',
+    label: saleConstants.price.label,
+    labeler: formatCurrency,
+    defaultValue: true,
+  },
+  { key: 'notes', label: saleConstants.notes.label },
+]
+
+const saleForm = useForm<Sale, Product>({
+  initialValue: {
+    date: new Date(),
+    quantity: 1,
+    vat: 22,
+  },
+  group: 'saleDifferences',
+  create: (item: Sale) => addProductSale(product.value.id!, item),
+  fieldMappings,
+})
+
+const onSaleSubmit = async () => {
+  const result = await saleForm.handleSubmit()
+  if (result) {
+    setProduct(result as Product)
+    saleForm.resetOriginal()
+  }
 }
 </script>

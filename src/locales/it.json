@@ -10,7 +10,8 @@
       "bank": "Banca",
       "invoiceNumber": "Numero Fattura",
       "invoiceDate": "Data Fattura",
-      "receiptNumber": "Ultime 3 Cifre a/b",
+      "receiptNumber": "Numero Scontrino",
+      "last3Digits": "Ultime 3 Cifre a/b",
       "paymentType": "Saldo / Acconto",
       "paymentMethod": "Cassa / Banca",
       "movementType": "Entrata / Uscita",
@@ -50,6 +51,7 @@
       "categoryRequired": "Seleziona la categoria",
       "brandTooLong": "Marca troppo lunga",
       "priceInvalid": "Il prezzo deve essere positivo",
+      "priceRequired": "Inserisci il prezzo",
       "quantityRequired": "Inserisci la quantità",
       "quantityInvalid": "La quantità deve essere almeno 1",
       "vatRequired": "Seleziona l'IVA",
@@ -204,6 +206,9 @@
     },
     "sale": {
       "legend": "Vendita"
+    },
+    "print": {
+      "legend": "Stampa"
     }
   },
   "filters": {

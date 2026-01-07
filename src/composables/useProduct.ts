@@ -62,6 +62,7 @@ export const useProduct = () => {
     changes: form.changes,
     dirty: form.dirty,
     pristine: form.pristine,
+    setProduct: form.setItem,
     loadProductByCode: loadProduct,
     loadProduct: form.loadItem,
     validation: form.validation,

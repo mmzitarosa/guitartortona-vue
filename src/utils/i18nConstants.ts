@@ -96,7 +96,7 @@ export const useLedgerEntryConstants = () => {
       label: t('common.labels.paymentType'),
     },
     receiptNumber: {
-      label: t('common.labels.receiptNumber'),
+      label: t('common.labels.last3Digits'),
       messages: {
         tooLong: t('common.messages.receiptNumberTooLong'),
       },
@@ -501,6 +501,12 @@ export const useProductSaleConstants = () => {
       label: t('common.labels.vat'),
       messages: {
         invalid: t('common.messages.vatInvalid'),
+      },
+    },
+    receiptNumber: {
+      label: t('common.labels.receiptNumber'),
+      messages: {
+        tooLong: t('common.messages.receiptNumberTooLong'),
       },
     },
     price: {

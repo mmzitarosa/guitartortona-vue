@@ -3,6 +3,7 @@ export interface Sale {
   date?: Date
   quantity?: number
   vat?: number
+  receiptNumber?: string
   salePrice?: number
   notes?: string
 }

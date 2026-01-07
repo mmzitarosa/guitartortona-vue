@@ -2,6 +2,7 @@ import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
 import { API_CONFIG } from '@/config/api'
+import { formatDate } from '@/utils/dateUtils'
 
 //Read
 export async function getAllProducts(): Promise<ProductLight[]> {
@@ -28,7 +29,10 @@ export async function updateProduct(id: number, product: Product): Promise<Produ
 //Others
 //Sell
 export async function addProductSale(id: number, sale: Sale): Promise<Product> {
-  const { data } = await apiClient.put<Product>(`/product/${id}/sell`, sale)
+  const { data } = await apiClient.post<Product>(`/product/${id}/sell`, {
+    ...sale,
+    date: formatDate(sale.date),
+  })
   return data
 }
 
