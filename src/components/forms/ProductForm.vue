@@ -74,7 +74,7 @@
               (product.stock ?? 0) +
               (product.pendingStock ? ' (+' + product.pendingStock + ')' : '')
             "
-            input-id="quantity"
+            inputId="quantity"
             :label="constants.quantity.label"
             readonly
           ></InputTextField>

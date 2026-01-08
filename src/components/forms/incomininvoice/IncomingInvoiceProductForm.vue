@@ -80,7 +80,11 @@
           v-model="model.quantity"
           inputId="quantity"
           :label="constants.quantity.label"
+          showButtons
+          buttonLayout="horizontal"
+          :min="1"
         />
+
         <VatRateField input-id="vat" label="IVA" v-model="model.vat" />
 
         <div class="md:col-span-2">
