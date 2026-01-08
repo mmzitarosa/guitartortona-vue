@@ -9,6 +9,10 @@
           inputId="quantity"
           :label="constants.quantity.label"
           :readonly
+          showButtons
+          buttonLayout="horizontal"
+          :min="1"
+          :max="max"
         />
         <VatRateField input-id="vat" :label="constants.vat.label" v-model="model.vat" :readonly />
       </div>
@@ -84,7 +88,7 @@
 
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-if="!existingItem"
+            v-if="!existingItem && available"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -92,6 +96,7 @@
           />
 
           <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
+          <!-- TODO Controllare available con max+=original.quantity-->
           <Button
             v-else-if="dirty"
             type="button"
@@ -138,6 +143,7 @@ interface SaleFormProps {
   dirty?: boolean
   pristine?: boolean
   existingItem?: boolean
+  max?: number
 }
 
 const props = withDefaults(defineProps<SaleFormProps>(), {
@@ -156,4 +162,6 @@ const emit = defineEmits<{
 const model = defineModel<Sale>({ required: true })
 
 const readonly = computed(() => !props.editable)
+
+const available = computed(() => props.max && props.max >= 1)
 </script>

@@ -170,6 +170,7 @@
           :dirty="saleForm.dirty.value"
           :pristine="saleForm.pristine.value"
           :existingItem="saleForm.existingItem.value"
+          :max="product.stock || 0"
         />
       </div>
     </template>

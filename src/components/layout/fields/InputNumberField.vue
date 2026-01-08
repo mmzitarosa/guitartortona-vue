@@ -5,7 +5,7 @@
       :inputId="inputId"
       :minFractionDigits="0"
       :maxFractionDigits="0"
-      :min
+      :min :max
       :readonly
       :invalid
       class="p-inputwrapper-filled"
@@ -32,11 +32,12 @@ interface InputAmountFieldProps {
   validation?: { message?: string; valid: boolean }
   tooltip?: string
   min?: number
+  max?: number
   buttonLayout?: 'stacked' | 'horizontal' | 'vertical'
 }
 
 const props = withDefaults(defineProps<InputAmountFieldProps>(), {
-  min: 0,
+  min: 0
 })
 
 const model = defineModel<number | undefined>()
