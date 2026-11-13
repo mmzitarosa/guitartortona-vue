@@ -7,7 +7,7 @@ on:
       - hotfix
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
   DEPLOY_REPO: mmzitarosa/guitartortona-vue-deploy
 
 jobs:
