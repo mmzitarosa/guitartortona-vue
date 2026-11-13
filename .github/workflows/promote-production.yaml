@@ -8,7 +8,15 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-production
+  cancel-in-progress: false
+
 env:
+  NODE_VERSION: '24'
   DEPLOY_REPO: mmzitarosa/guitartortona-vue-deploy
 
 jobs:
@@ -30,28 +38,27 @@ jobs:
 
       - name: Validate RC tag exists
         id: validate
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
-          # Check if tag exists
+          # Formato rigido: impedisce anche injection tramite l'input
+          if [[ ! "$RC_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
+            echo "❌ Tag must be a release candidate (format: vX.Y.Z-rcN)"
+            exit 1
+          fi
+
           if ! git rev-parse "$RC_TAG" >/dev/null 2>&1; then
             echo "❌ Tag $RC_TAG does not exist"
             exit 1
           fi
-          
-          # Validate tag format (must be -rcN)
-          if [[ ! "$RC_TAG" =~ -rc[0-9]+$ ]]; then
-            echo "❌ Tag must be a release candidate (format: vX.Y.Z-rcN)"
-            exit 1
-          fi
-          
+
           echo "✅ Tag $RC_TAG is valid"
 
       - name: Calculate production version
         id: calc
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
           # Remove -rcN suffix to get production version
           PROD_VERSION="${RC_TAG%-rc*}"
           
@@ -68,9 +75,9 @@ jobs:
 
       - name: Identify source branch
         id: source
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
           # Get the commit SHA of the RC tag
           TAG_COMMIT=$(git rev-list -n 1 "$RC_TAG")
           
@@ -96,6 +103,8 @@ jobs:
     name: Rebuild for Production
     needs: [validate]
     runs-on: ubuntu-latest
+    # Richiede approvazione manuale: configura i "Required reviewers" in Settings → Environments → production
+    environment: production
     permissions:
       packages: write
     steps:
@@ -103,9 +112,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.rc_tag }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -118,10 +124,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push production image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ needs.validate.outputs.prod_tag }}
@@ -149,11 +155,11 @@ jobs:
           path: deploy-repo
 
       - name: Update production kustomization
+        env:
+          PROD_TAG: ${{ needs.validate.outputs.prod_tag }}
         run: |
           cd deploy-repo/overlays/production
-          
-          PROD_TAG="${{ needs.validate.outputs.prod_tag }}"
-          
+
           # Update the newTag in kustomization.yaml
           sed -i "s/newTag: .*/newTag: $PROD_TAG/" kustomization.yaml
           
@@ -161,24 +167,31 @@ jobs:
           cat kustomization.yaml | grep -A 2 "images:"
 
       - name: Commit and push changes
+        env:
+          PROD_TAG: ${{ needs.validate.outputs.prod_tag }}
+          RC_TAG: ${{ inputs.rc_tag }}
+          SOURCE_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           cd deploy-repo
-          
-          PROD_TAG="${{ needs.validate.outputs.prod_tag }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add overlays/production/kustomization.yaml
-          git commit -m "chore: promote production to $PROD_TAG
-          
-          Promoted from RC: ${{ inputs.rc_tag }}
-          Source: ${{ github.repository }}
-          Workflow: ${{ github.run_id }}"
-          
-          git push
-          
-          echo "✅ Deployment configuration updated"
+
+          if git diff --quiet overlays/production/kustomization.yaml; then
+            echo "⚠️  No changes to commit"
+          else
+            git add overlays/production/kustomization.yaml
+            git commit -m "chore: promote production to $PROD_TAG
+
+            Promoted from RC: $RC_TAG
+            Source: $SOURCE_REPO
+            Workflow: $RUN_ID"
+
+            git pull --rebase
+            git push
+            echo "✅ Deployment configuration updated"
+          fi
 
   # ============================================================================
   # JOB 4: Create Production Tag and Release
@@ -196,25 +209,39 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.rc_tag }}
 
-      - name: Download artifacts from RC release
-        run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
-          # Create artifacts directory
-          mkdir -p artifacts
-          
-          # Download release assets using GitHub CLI
-          gh release download "$RC_TAG" --dir artifacts/ --pattern "*.tar.gz"
-          
-          echo "Downloaded artifacts:"
-          ls -lh artifacts/
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # L'archivio dell'RC e' costruito con l'API di staging: per la produzione va ricostruito
+      - name: Build production archive
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_URL: https://api.guitar.lab
+          VITE_ENVIRONMENT: production
+          VITE_VERSION: ${{ needs.validate.outputs.prod_tag }}
+          PROD_TAG: ${{ needs.validate.outputs.prod_tag }}
+        run: |
+          npm run build
+          mkdir -p artifacts
+          tar -czf "artifacts/guitartortona-vue-$PROD_TAG.tar.gz" -C dist .
+
+      - name: Resolve RC commit
+        id: rc_commit
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
+        run: echo "sha=$(git rev-list -n 1 "$RC_TAG")" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.validate.outputs.prod_tag }}
+          # Senza target il tag nascerebbe sull'HEAD di main (prima del merge), non sul commit dell'RC
+          target_commitish: ${{ steps.rc_commit.outputs.sha }}
           name: ${{ needs.validate.outputs.prod_tag }} - Production Release
           body: |
             ## 🚀 Production Release
@@ -237,7 +264,7 @@ jobs:
             - **ArgoCD:** https://argocd.guitar.lab/applications/guitartortona-vue-production
             
             ### 📋 Artifacts
-            - Build archive (from staging release)
+            - Build archive (static files, built for production)
             
             ### 📝 Release Notes
             This production release was tested and validated in staging environment before promotion.
@@ -269,10 +296,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
   
       - name: Merge source branch into main
+        env:
+          SOURCE_BRANCH: ${{ needs.validate.outputs.source_branch }}
+          PROD_TAG: ${{ needs.validate.outputs.prod_tag }}
         run: |
-          SOURCE_BRANCH="${{ needs.validate.outputs.source_branch }}"
-          PROD_TAG="${{ needs.validate.outputs.prod_tag }}"
-          
           echo "Merging $SOURCE_BRANCH into main..."
           
           git fetch origin

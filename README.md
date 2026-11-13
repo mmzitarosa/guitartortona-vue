@@ -47,7 +47,7 @@ src/
 
 ### Prerequisites
 
-- Node.js 20.19.0+ or 22.12.0+
+- Node.js 24 LTS (vedi `.nvmrc`)
 - npm or yarn
 
 ### Installation
