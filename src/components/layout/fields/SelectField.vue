@@ -20,12 +20,12 @@
   </InputValidationField>
 </template>
 
-<script setup lang="ts" generic="T extends Record<string, unknown>">
+<script setup lang="ts" generic="T extends object">
 import { computed } from 'vue'
 import { InputText, Select } from 'primevue'
 import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
-interface SelectFieldProps<T extends Record<string, unknown>> {
+interface SelectFieldProps<T extends object> {
   inputId: string
   label: string
   readonly?: boolean

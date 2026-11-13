@@ -108,7 +108,7 @@
       </div>
     </div>
   </Fieldset>
-  <ChangesDialog :changes group="saleDifferences"></ChangesDialog>
+  <ChangesDialog :changes="changes ?? []" group="saleDifferences"></ChangesDialog>
 </template>
 
 <script setup lang="ts">

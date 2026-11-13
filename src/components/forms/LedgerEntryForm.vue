@@ -404,7 +404,7 @@ onMounted(async () => {
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()
-  if (result) emit('submit', result)
+  if (result && result !== true) emit('submit', result)
 }
 
 const onFormReset = async () => {

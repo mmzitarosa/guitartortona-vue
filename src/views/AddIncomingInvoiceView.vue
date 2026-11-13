@@ -34,7 +34,7 @@ const {
 
 const onSubmit = async () => {
   const result = await handleSubmit()
-  if (result) {
+  if (result && result !== true) {
     await router.push({
       name: 'incomingInvoice',
       params: { id: result.id },

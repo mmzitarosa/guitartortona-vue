@@ -88,7 +88,7 @@ const onSearch = async (value?: string) => {
 
 const onSubmit = async () => {
   const result = await handleSubmit()
-  if (result) {
+  if (result && result !== true) {
     addProductToInvoice(model.value, result)
     //resetOriginal()
   }
