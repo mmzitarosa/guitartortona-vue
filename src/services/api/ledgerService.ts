@@ -1,7 +1,7 @@
 import apiClient from '@/services/api/apiClient'
 import type { LedgerEntry, LedgerEntryDTO, LedgerEntryLight } from '@/types/ledgerEntry'
 import { fromDTO, fromLightDTO, toDTO } from '@/utils/mapper/ledgerMapper'
-import { API_CONFIG } from '@/config/api'
+import { openPrintPage } from '@/services/api/printService'
 
 //Create
 export async function postLedgerEntry(ledgerEntry: LedgerEntry): Promise<LedgerEntry> {
@@ -34,9 +34,6 @@ export async function deleteLedgerEntryById(id: number): Promise<void> {
   await apiClient.delete(`/ledgerEntry/${id}`)
 }
 
-export function print(fromDate: string, toDate: string) {
-  window.open(
-    API_CONFIG.baseURL + '/api/v1/ledger/print?from=' + fromDate + '&to=' + toDate,
-    '_blank',
-  )
+export function print(fromDate: string, toDate: string): Promise<void> {
+  return openPrintPage('/ledger/print', { from: fromDate, to: toDate })
 }

@@ -1,7 +1,7 @@
 import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
-import { API_CONFIG } from '@/config/api'
+import { fetchPrintPageUrl, openPrintPage } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
 
 //Read
@@ -36,10 +36,11 @@ export async function addProductSale(id: number, sale: Sale): Promise<Product> {
   return data
 }
 
-export function printProductLabel(internalCode: string, quantity: number) {
-  window.open(productLabelUrl(internalCode, quantity), '_blank')
+export function printProductLabel(internalCode: string, quantity: number): Promise<void> {
+  return openPrintPage('/product/print', { code: internalCode, quantity })
 }
 
-export function productLabelUrl(internalCode: string, quantity: number) {
-  return API_CONFIG.baseURL + '/api/v1/product/print?code=' + internalCode + '&quantity=' + quantity
+// Blob URL dell'anteprima etichetta: va rilasciato con URL.revokeObjectURL
+export function productLabelUrl(internalCode: string, quantity: number): Promise<string> {
+  return fetchPrintPageUrl('/product/print', { code: internalCode, quantity })
 }

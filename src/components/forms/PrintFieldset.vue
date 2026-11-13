@@ -30,11 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useProductPrintConstants } from '@/utils/i18nConstants'
 import type { Product } from '@/types/product'
 import { productLabelUrl } from '@/services/api/productService'
 import { Button, Fieldset } from 'primevue'
+import { useErrorHandler } from '@/utils/errorHandler'
 import ScaledLabel from '../layout/ScaledLabel.vue'
 import InputNumberField from '../layout/fields/InputNumberField.vue'
 
@@ -64,10 +65,33 @@ const emit = defineEmits<{
 
 const model = defineModel<Product>({ required: true })
 
-const url = computed(() => {
-  if (!model.value.internalCode) return undefined
-  return productLabelUrl(model.value.internalCode, 1)
-})
+const { handleApiError } = useErrorHandler()
+
+// L'anteprima e' scaricata con il token e mostrata tramite Blob URL
+const url = ref<string>()
+
+const releaseUrl = () => {
+  if (url.value) URL.revokeObjectURL(url.value)
+  url.value = undefined
+}
+
+watch(
+  () => model.value.internalCode,
+  async (internalCode) => {
+    releaseUrl()
+    if (!internalCode) return
+    try {
+      const labelUrl = await productLabelUrl(internalCode, 1)
+      if (internalCode === model.value.internalCode) url.value = labelUrl
+      else URL.revokeObjectURL(labelUrl)
+    } catch (error) {
+      handleApiError(error)
+    }
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(releaseUrl)
 </script>
 
 <style lang="css">

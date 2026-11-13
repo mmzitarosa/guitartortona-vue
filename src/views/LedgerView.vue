@@ -16,8 +16,10 @@ import { computed } from 'vue'
 import router from '@/router'
 import { formatDate } from '@/utils/dateUtils'
 import { print } from '@/services/api/ledgerService'
+import { useErrorHandler } from '@/utils/errorHandler'
 
 const route = useRoute()
+const { handleApiError } = useErrorHandler()
 
 const filter = computed(() => {
   const { page = 0, size = 15, from, to, year = new Date().getFullYear() - 1 } = route.query
@@ -69,6 +71,6 @@ const onFilter = (from?: Date, to?: Date) => {
 }
 
 const onPrint = (from: Date, to: Date) => {
-  print(formatDate(from, '-')!, formatDate(to, '-')!)
+  print(formatDate(from, '-')!, formatDate(to, '-')!).catch(handleApiError)
 }
 </script>

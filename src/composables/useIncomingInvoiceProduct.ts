@@ -14,12 +14,14 @@ import {
 import { useForm } from '@/composables/useForm'
 import { useIncomingInvoiceProductConstants } from '@/utils/i18nConstants'
 import { formatCurrency } from '@/utils/currencyUtils'
+import { useErrorHandler } from '@/utils/errorHandler'
 import { printProductLabel } from '@/services/api/productService'
 import { useBrands } from './useBrands'
 import { useCategories } from './useCategories'
 
 export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | undefined>) {
   const constants = useIncomingInvoiceProductConstants()
+  const { handleApiError } = useErrorHandler()
 
   const initialValue = {
     quantity: 1,
@@ -96,7 +98,7 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
 
   const handlePrint = (quantity: number) => {
     if (!form.item.value.product?.internalCode) return
-    printProductLabel(form.item.value.product.internalCode, quantity)
+    printProductLabel(form.item.value.product.internalCode, quantity).catch(handleApiError)
   }
 
   const resetOriginal = () => {
