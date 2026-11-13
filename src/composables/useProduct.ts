@@ -10,9 +10,11 @@ import type { Category } from '@/types/category'
 import type { Brand } from '@/types/brand'
 import { useProductConstants } from '@/utils/i18nConstants'
 import { formatCurrency } from '@/utils/currencyUtils'
+import { useErrorHandler } from '@/utils/errorHandler'
 
 export const useProduct = () => {
   const constants = useProductConstants()
+  const { handleApiError } = useErrorHandler()
 
   const fieldMappings = [
     { key: 'code', label: constants.code.label },
@@ -53,7 +55,7 @@ export const useProduct = () => {
 
   const handlePrint = (quantity: number) => {
     if (!form.item.value.internalCode) return
-    printProductLabel(form.item.value.internalCode, quantity)
+    printProductLabel(form.item.value.internalCode, quantity).catch(handleApiError)
   }
 
   return {

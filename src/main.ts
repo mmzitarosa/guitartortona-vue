@@ -12,6 +12,10 @@ import KeyFilter from 'primevue/keyfilter'
 
 import { customThemePreset, italianLocale } from '@/config/theme.config'
 import { i18n } from '@/config/i18n.config'
+import { initAuth } from '@/services/auth/authService'
+
+// Login Keycloak prima di montare l'app (salvo sviluppo locale)
+await initAuth()
 
 const app = createApp(App)
 

@@ -27,9 +27,11 @@
         <div class="flex items-center gap-1">
           <!-- TODO: Link alle impostazioni -->
           <Button icon="pi pi-cog" rounded @click="router.push({ name: 'settings' })" disabled />
-          <!-- TODO: Impostare nome utente autenticato-->
-          <p>{{ layoutConstants.userPrefix }}<strong class="text-white">****</strong></p>
+          <p>
+            {{ layoutConstants.userPrefix }}<strong class="text-white">{{ username }}</strong>
+          </p>
         </div>
+        <Button v-if="AUTH_CONFIG.enabled" icon="pi pi-sign-out" rounded @click="logout" />
       </div>
     </div>
   </div>
@@ -41,9 +43,12 @@ import GuitarLogo from '@/components/GuitarLogo.vue'
 import { Button } from 'primevue'
 import router from '@/router'
 import { useLayoutConstants } from '@/utils/i18nConstants'
+import { AUTH_CONFIG } from '@/config/auth'
+import { getUsername, logout } from '@/services/auth/authService'
 import SidebarMenu from './SidebarMenu.vue'
 
 const layoutConstants = useLayoutConstants()
+const username = getUsername() ?? '-'
 
 defineProps<{ items: Menu[] }>()
 </script>

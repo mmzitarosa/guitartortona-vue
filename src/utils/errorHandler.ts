@@ -54,7 +54,7 @@ export const useErrorHandler = () => {
         handleError(
           new AppError('Sessione scaduta. Effettua nuovamente il login.', 'AUTH_ERROR', 401),
         )
-        // TODO: Redirect to login
+        // Il redirect al login e' gestito dall'interceptor di apiClient
       } else if (status === 403) {
         handleError(
           new AppError('Non hai i permessi per eseguire questa operazione.', 'FORBIDDEN', 403),
