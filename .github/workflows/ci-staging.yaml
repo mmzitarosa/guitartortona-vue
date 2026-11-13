@@ -6,6 +6,14 @@ on:
       - develop
       - hotfix
 
+permissions:
+  contents: read
+
+# Una sola pipeline per branch alla volta: evita tag RC duplicati e push concorrenti sul repo deploy
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   NODE_VERSION: '24'
   DEPLOY_REPO: mmzitarosa/guitartortona-vue-deploy
@@ -44,10 +52,10 @@ jobs:
 
       - name: Analyze commit message
         id: check
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          BRANCH: ${{ github.ref_name }}
         run: |
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          BRANCH="${{ github.ref_name }}"
-          
           echo "Branch: $BRANCH"
           echo "Commit: $COMMIT_MSG"
           
@@ -101,10 +109,10 @@ jobs:
 
       - name: Calculate new version
         id: calc
+        env:
+          COMMIT_TYPE: ${{ needs.validate.outputs.commit_type }}
+          BRANCH: ${{ github.ref_name }}
         run: |
-          COMMIT_TYPE="${{ needs.validate.outputs.commit_type }}"
-          BRANCH="${{ github.ref_name }}"
-          
           # Get latest production version (tags without -rc)
           LATEST_PROD=$(git tag -l "v*" | grep -v "\-rc" | sort -V | tail -n1)
           
@@ -186,9 +194,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build for staging
         env:
@@ -224,9 +233,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -247,10 +253,10 @@ jobs:
             type=raw,value=staging
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -277,11 +283,11 @@ jobs:
           path: deploy-repo
 
       - name: Update staging kustomization
+        env:
+          NEW_TAG: ${{ needs.version.outputs.new_tag }}
         run: |
           cd deploy-repo/overlays/staging
-          
-          NEW_TAG="${{ needs.version.outputs.new_tag }}"
-          
+
           # Update the newTag in kustomization.yaml
           sed -i "s/newTag: .*/newTag: $NEW_TAG/" kustomization.yaml
           
@@ -289,11 +295,15 @@ jobs:
           cat kustomization.yaml | grep -A 2 "images:"
 
       - name: Commit and push changes
+        env:
+          NEW_TAG: ${{ needs.version.outputs.new_tag }}
+          BRANCH: ${{ github.ref_name }}
+          SOURCE_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           cd deploy-repo
-          
-          NEW_TAG="${{ needs.version.outputs.new_tag }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
@@ -304,11 +314,12 @@ jobs:
             git add overlays/staging/kustomization.yaml
             git commit -m "chore: update staging to $NEW_TAG
 
-            Promoted from: ${{ github.ref_name }}
-            Source: ${{ github.repository }}
-            Commit: ${{ github.sha }}
-            Workflow: ${{ github.run_id }}"
+            Promoted from: $BRANCH
+            Source: $SOURCE_REPO
+            Commit: $SOURCE_SHA
+            Workflow: $RUN_ID"
 
+            git pull --rebase
             git push
             echo "✅ Deployment configuration updated to $NEW_TAG"
           fi
@@ -336,7 +347,7 @@ jobs:
           path: artifacts/
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.new_tag }}
           target_commitish: ${{ github.sha }}

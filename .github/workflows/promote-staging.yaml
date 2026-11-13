@@ -8,6 +8,13 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-staging
+  cancel-in-progress: false
+
 env:
   DEPLOY_REPO: mmzitarosa/guitartortona-vue-deploy
 
@@ -26,21 +33,20 @@ jobs:
 
       - name: Validate RC tag exists
         id: validate
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
-          # Check if tag exists
+          # Formato rigido: impedisce anche injection tramite l'input
+          if [[ ! "$RC_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
+            echo "❌ Tag must be a release candidate (format: vX.Y.Z-rcN)"
+            exit 1
+          fi
+
           if ! git rev-parse "$RC_TAG" >/dev/null 2>&1; then
             echo "❌ Tag $RC_TAG does not exist"
             exit 1
           fi
-          
-          # Validate tag format (must be -rcN)
-          if [[ ! "$RC_TAG" =~ -rc[0-9]+$ ]]; then
-            echo "❌ Tag must be a release candidate (format: vX.Y.Z-rcN)"
-            exit 1
-          fi
-          
+
           echo "✅ Tag $RC_TAG is valid"
 
   # ============================================================================
@@ -50,6 +56,7 @@ jobs:
     name: Re-tag Docker Images
     needs: [validate]
     runs-on: ubuntu-latest
+    environment: staging
     permissions:
       packages: write
     steps:
@@ -61,14 +68,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull RC image
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
           docker pull ghcr.io/${{ github.repository }}:$RC_TAG
 
       - name: Re-tag for staging
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
-          RC_TAG="${{ inputs.rc_tag }}"
-          
           # Tag as staging
           docker tag \
             ghcr.io/${{ github.repository }}:$RC_TAG \
@@ -99,11 +107,11 @@ jobs:
           path: deploy-repo
 
       - name: Update staging kustomization
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
         run: |
           cd deploy-repo/overlays/staging
-          
-          RC_TAG="${{ inputs.rc_tag }}"
-          
+
           # Update the newTag in kustomization.yaml
           sed -i "s/newTag: .*/newTag: $RC_TAG/" kustomization.yaml
           
@@ -111,11 +119,13 @@ jobs:
           cat kustomization.yaml | grep -A 2 "images:"
 
       - name: Commit and push changes
+        env:
+          RC_TAG: ${{ inputs.rc_tag }}
+          SOURCE_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           cd deploy-repo
-          
-          RC_TAG="${{ inputs.rc_tag }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
@@ -127,9 +137,10 @@ jobs:
             git commit -m "chore: promote staging to $RC_TAG
           
             Promoted from RC: $RC_TAG
-            Source: ${{ github.repository }}
-            Workflow: ${{ github.run_id }}"
-          
+            Source: $SOURCE_REPO
+            Workflow: $RUN_ID"
+
+            git pull --rebase
             git push
             echo "✅ Deployment configuration updated to $RC_TAG"
           fi
