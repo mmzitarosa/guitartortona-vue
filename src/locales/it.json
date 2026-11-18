@@ -217,7 +217,7 @@
       "sale": "Vendita",
       "purchase": "Acquisto",
       "invoice": "Fattura {number}",
-            "vat": "IVA {vat}%",
+      "vat": "IVA {vat}%",
       "vatIncluded": "IVA inclusa",
       "totalPurchased": "Acquistati",
       "totalSold": "Venduti",
@@ -305,9 +305,28 @@
     "INVOICE_NUMBER_ALREADY_EXISTS": "Esiste già una fattura con questo numero per il fornitore selezionato.",
     "PRODUCT_ALREADY_IN_INVOICE": "Il prodotto è già presente in questa fattura.",
     "PURCHASE_ITEM_NOT_IN_INVOICE": "Il prodotto non appartiene a questa fattura.",
-    "INVOICE_NOT_EDITABLE": "La fattura non è modificabile: solo le bozze non archiviate possono essere modificate.",
+    "INVOICE_NOT_EDITABLE": "La fattura non è modificabile: le fatture confermate possono essere modificate solo da un admin, quelle archiviate mai.",
     "INVOICE_ARCHIVED": "Una fattura archiviata non può essere completata.",
     "VALIDATION_ERROR": "Dati non validi. Controlla i campi del modulo.",
     "UNKNOWN": "Si è verificato un errore imprevisto."
+  },
+  "cart": {
+    "title": "Carrello",
+    "empty": "Il carrello è vuoto",
+    "add": "Aggiungi al carrello",
+    "added": "Aggiunto al carrello",
+    "remove": "Rimuovi",
+    "clear": "Svuota",
+    "next": "Procedi",
+    "back": "Indietro",
+    "confirm": "Conferma vendita",
+    "summary": "Riepilogo",
+    "total": "Totale",
+    "items": "{count} pz",
+    "date": "Data",
+    "receiptNumber": "Numero Scontrino",
+    "done": "Vendita registrata",
+    "doneDetail": "Il carrello è stato venduto.",
+    "noStock": "Quantità non disponibile (già nel carrello: {inCart})"
   }
 }

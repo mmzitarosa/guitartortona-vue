@@ -76,7 +76,7 @@
             <InputTextField
               :modelValue="
                 (product.stock ?? 0) +
-                (product.pendingStock ? ' (+' + product.pendingStock + ')' : '')
+                ((product.pendingStock ?? 0) > 0 ? ' (+' + product.pendingStock + ')' : '')
               "
               inputId="quantity"
               :label="constants.quantity.label"
@@ -207,6 +207,7 @@
       @submit="onSaleSubmit"
       @reset="saleForm.handleReset"
       @close="onSaleClose"
+      @cart="onAddToCart"
       editable
       :loading="saleForm.loading.value"
       :validation="saleForm.validation.value"
@@ -233,9 +234,11 @@
 
 <script setup lang="ts">
 import { useRoles } from '@/composables/useRoles'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Card from 'primevue/card'
-import { Button, Dialog, ProgressBar } from 'primevue'
+import { Button, Dialog, ProgressBar, useToast } from 'primevue'
+import { useI18n } from 'vue-i18n'
+import { useCart } from '@/composables/useCart'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
@@ -257,6 +260,7 @@ import { formatCurrency } from '@/utils/currencyUtils'
 import { addProductSale } from '@/services/api/productService'
 
 const { canDelete, canEdit } = useRoles()
+const { t } = useI18n()
 
 const emit = defineEmits<{
   submit: [product: Product]
@@ -401,11 +405,57 @@ const saleForm = useForm<Sale, Product>({
 
 const historyKey = ref(0)
 
+const { add: addToCart, quantityInCart, soldTick } = useCart()
+const toast = useToast()
+
+// Riparte da un form pulito mantenendo il prezzo di listino del prodotto
+const resetSaleForm = () => {
+  saleForm.resetOriginal()
+  saleForm.setItem({ ...saleForm.item.value, salePrice: product.value.price })
+}
+
+const onAddToCart = () => {
+  const { quantity, salePrice, vat, notes } = saleForm.item.value
+  const inCart = quantityInCart(product.value.id)
+  if (!quantity || !salePrice || vat == null) {
+    toast.add({ severity: 'warn', summary: saleConstants.quantity.messages.required, life: 3000 })
+    return
+  }
+  if (quantity + inCart > (product.value.stock ?? 0)) {
+    toast.add({
+      severity: 'warn',
+      summary: t('cart.noStock', { inCart }),
+      life: 4000,
+    })
+    return
+  }
+  addToCart({
+    productId: product.value.id!,
+    internalCode: product.value.internalCode,
+    brand: product.value.brand?.name,
+    description: product.value.description,
+    quantity,
+    salePrice,
+    vat,
+    notes,
+    stock: product.value.stock ?? 0,
+  })
+  toast.add({ severity: 'success', summary: t('cart.added'), life: 2000 })
+  resetSaleForm()
+  saleDialog.value = false
+}
+
+// Dopo la vendita del carrello ricarico giacenza e storico
+watch(soldTick, async () => {
+  await loadProduct(props.id as number)
+  historyKey.value++
+})
+
 const onSaleSubmit = async () => {
   const result = await saleForm.handleSubmit()
   if (result) {
     setProduct(result as Product)
-    saleForm.resetOriginal()
+    resetSaleForm()
     historyKey.value++
     saleDialog.value = false
   }

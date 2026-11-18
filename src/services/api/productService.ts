@@ -59,6 +59,14 @@ export async function addProductSale(id: number, sale: Sale): Promise<Product> {
   return data
 }
 
+export async function addCartSale(
+  date: Date | undefined,
+  receiptNumber: string | undefined,
+  items: { productId: number; quantity: number; vat: number; salePrice: number; notes?: string }[],
+): Promise<void> {
+  await apiClient.post('/sales', { date: formatDate(date), receiptNumber, items })
+}
+
 export function printProductLabel(internalCode: string, quantity: number): Promise<void> {
   return openPrintPage('/product/print', { code: internalCode, quantity })
 }

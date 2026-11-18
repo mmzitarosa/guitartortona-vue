@@ -10,6 +10,7 @@
     <main class="p-6 overflow-auto h-screen">
       <RouterView />
     </main>
+    <CartDialog />
     <ConfirmDialog></ConfirmDialog>
     <Toast position="bottom-right" />
   </div>
@@ -19,6 +20,7 @@
 import { ref } from 'vue'
 import Drawer from './components/layout/Drawer.vue'
 import AppHeader from './components/layout/AppHeader.vue'
+import CartDialog from './components/cart/CartDialog.vue'
 import { ConfirmDialog, Toast } from 'primevue'
 
 const mobileMenu = ref(false)

@@ -20,7 +20,6 @@
             <Button
               type="button"
               :icon="constants.print.icon"
-              severity="secondary"
               :label="constants.print.label"
               @click="emit('print', quantity)"
             />

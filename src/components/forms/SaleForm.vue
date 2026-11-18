@@ -57,13 +57,6 @@
           <div class="flex justify-between items-center w-full mt-2">
             <div class="flex gap-2">
               <Button
-                type="button"
-                severity="secondary"
-                :label="pristine ? constants.close.label : constants.cancel.label"
-                :icon="pristine ? constants.close.icon : constants.cancel.icon"
-                @click="emit('close')"
-              />
-              <Button
                 v-if="dirty"
                 type="button"
                 :icon="constants.reset?.icon"
@@ -71,10 +64,11 @@
                 variant="text"
                 rounded
                 :aria-label="constants.reset?.label"
+                v-tooltip.top="constants.reset?.label"
                 @click="emit('reset')"
               />
             </div>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-2">
               <Button
                 v-if="existingItem"
                 type="button"
@@ -82,7 +76,20 @@
                 text
                 icon="pi pi-trash"
                 severity="secondary"
+                :aria-label="t('buttons.delete.label')"
+                v-tooltip.top="t('buttons.delete.label')"
                 @click="emit('delete')"
+              />
+              <Button
+                v-if="!existingItem && available"
+                type="button"
+                rounded
+                text
+                severity="secondary"
+                icon="pi pi-cart-plus"
+                :aria-label="t('cart.add')"
+                v-tooltip.top="t('cart.add')"
+                @click="emit('cart')"
               />
               <Button
                 v-if="!existingItem && available"
@@ -110,6 +117,7 @@
 <script setup lang="ts">
 import { Button } from 'primevue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import VatRateField from '@/components/layout/fields/VatRateField.vue'
@@ -122,6 +130,7 @@ import InputDateField from '../layout/fields/InputDateField.vue'
 import { useProductSaleConstants } from '@/utils/i18nConstants'
 import InputTextField from '../layout/fields/InputTextField.vue'
 
+const { t } = useI18n()
 const constants = useProductSaleConstants()
 
 interface ValidationResult {
@@ -153,6 +162,7 @@ const emit = defineEmits<{
   edit: []
   delete: []
   reset: []
+  cart: []
 }>()
 
 const model = defineModel<Sale>({ required: true })
