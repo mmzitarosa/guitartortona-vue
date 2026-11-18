@@ -169,7 +169,7 @@ import SelectField from './layout/fields/SelectField.vue'
 
 const constants = useLedgerTableConstants()
 
-const { ledger, totalDrafts, loadLedger, loading } = useLedgerTable()
+const { ledger, loadLedger, loading } = useLedgerTable()
 const { banks, loadBanks, loading: banksLoading } = useBanks()
 
 const props = defineProps<{

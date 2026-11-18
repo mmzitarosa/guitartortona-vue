@@ -5,8 +5,25 @@ import { fetchPrintPageUrl, openPrintPage } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
 
 //Read
-export async function getAllProducts(): Promise<ProductLight[]> {
-  const { data } = await apiClient.get<ProductLight[]>(`/products`)
+export interface ProductsQuery {
+  search?: string
+  description?: string
+  categoryId?: number
+  brandId?: number
+  available?: boolean
+  page: number
+  size: number
+}
+
+export interface Page<T> {
+  content: T[]
+  totalElements: number
+  page: number
+  size: number
+}
+
+export async function getProducts(query: ProductsQuery): Promise<Page<ProductLight>> {
+  const { data } = await apiClient.get<Page<ProductLight>>(`/products`, { params: query })
   return data
 }
 

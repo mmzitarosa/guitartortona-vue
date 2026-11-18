@@ -4,7 +4,9 @@
       <DataTable
         v-model:filters="filters"
         :value="products"
-        :paginator="products.length > props.filter.size"
+        lazy
+        paginator
+        :totalRecords
         @page="onPage"
         :rows="props.filter.size"
         :first="props.filter.first"
@@ -12,7 +14,6 @@
         :loading
         rowHover
         filterDisplay="row"
-        :globalFilterFields="['categoryId', 'brandId', 'description', 'available']"
         selectionMode="single"
         @rowSelect="onRowSelect"
       >
@@ -58,10 +59,10 @@
         <Column filterField="description" header="Descrizione" :showFilterMenu="false">
           <template #filter>
             <InputText
-              v-model="_description"
+              v-model="descriptionText"
               placeholder="Filtro per descrizione"
               class="w-64"
-              :class="_description ? 'border-black! text-black!' : ''"
+              :class="descriptionText ? 'border-black! text-black!' : ''"
             />
           </template>
           <template #body="{ data }">
@@ -115,14 +116,14 @@ import {
   InputText,
   Select,
 } from 'primevue'
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useCategories } from '@/composables/useCategories'
 import { useBrands } from '@/composables/useBrands'
 import { useProductsTable } from '@/composables/useProductsTable'
 import { formatCurrency } from '@/utils/currencyUtils'
 
-const { products, loadProducts, loading } = useProductsTable()
+const { products, totalRecords, loadProducts, loading } = useProductsTable()
 
 const { brands, loading: brandsLoading, getBrand } = useBrands()
 const { categories, loading: categoriesLoading, getCategory } = useCategories()
@@ -136,6 +137,7 @@ const props = defineProps<{
     categoryId?: number
     brandId?: number
     description?: string
+    search?: string
   }
 }>()
 
@@ -145,10 +147,21 @@ const emit = defineEmits<{
   filter: [categoryId?: number, brandId?: number, description?: string, available?: boolean]
 }>()
 
-// Carica la tabella al primo caricamento della pagina
-onMounted(() => {
-  loadProducts()
-})
+// Ricarica la tabella quando cambiano pagina o filtri (query della route)
+watch(
+  () => props.filter,
+  (filter) =>
+    loadProducts({
+      search: filter.search,
+      description: filter.description,
+      categoryId: filter.categoryId,
+      brandId: filter.brandId,
+      available: filter.available,
+      page: filter.page,
+      size: filter.size,
+    }),
+  { immediate: true },
+)
 
 const onRowSelect = (data: DataTableRowSelectEvent): void => {
   emit('rowSelect', data.data.id, false)
@@ -158,7 +171,6 @@ const filters = computed((): DataTableFilterMeta => {
   return {
     categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.EQUALS },
     brandId: { value: props.filter.brandId, matchMode: FilterMatchMode.EQUALS },
-    description: { value: props.filter.description, matchMode: FilterMatchMode.CONTAINS },
     available: {
       value: props.filter.available ? true : undefined,
       matchMode: FilterMatchMode.EQUALS,
@@ -169,25 +181,43 @@ const filters = computed((): DataTableFilterMeta => {
 const _categoryId = computed({
   get: (): number | undefined => props.filter.categoryId,
   set: (value?: number): void =>
-    onFilter(value, _brandId.value, _description.value, _available.value),
+    onFilter(value, _brandId.value, descriptionText.value.trim() || undefined, _available.value),
 })
 
 const _brandId = computed({
   get: (): number | undefined => props.filter.brandId,
   set: (value?: number): void =>
-    onFilter(_categoryId.value, value, _description.value, _available.value),
+    onFilter(_categoryId.value, value, descriptionText.value.trim() || undefined, _available.value),
 })
 
-const _description = computed({
-  get: (): string | undefined => props.filter.description,
-  set: (value?: string): void =>
-    onFilter(_categoryId.value, _brandId.value, value, _available.value),
+// Il testo digitato è locale; il filtro parte 300 ms dopo l'ultimo carattere
+const FILTER_DELAY_MS = 300
+const descriptionText = ref(props.filter.description ?? '')
+let descriptionTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(descriptionText, (value) => {
+  clearTimeout(descriptionTimer)
+  descriptionTimer = setTimeout(() => {
+    const description = value.trim() || undefined
+    if (description !== props.filter.description)
+      onFilter(_categoryId.value, _brandId.value, description, _available.value)
+  }, FILTER_DELAY_MS)
 })
+
+// Il filtro può cambiare dall'esterno (es. link o navigazione): riallineo il campo
+watch(
+  () => props.filter.description,
+  (value) => {
+    if ((value ?? '') !== descriptionText.value.trim()) descriptionText.value = value ?? ''
+  },
+)
+
+onBeforeUnmount(() => clearTimeout(descriptionTimer))
 
 const _available = computed({
   get: (): boolean => props.filter.available,
   set: (value?: boolean): void =>
-    onFilter(_categoryId.value, _brandId.value, _description.value, value),
+    onFilter(_categoryId.value, _brandId.value, descriptionText.value.trim() || undefined, value),
 })
 
 const onPage = (event: DataTablePageEvent): void => {

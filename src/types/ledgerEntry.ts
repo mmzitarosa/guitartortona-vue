@@ -14,7 +14,6 @@ export interface LedgerEntry {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }
 
 export interface LedgerEntryLight {
@@ -30,7 +29,6 @@ export interface LedgerEntryLight {
   receiptNumber?: string
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }
 
 export interface ValueLabel {
@@ -95,5 +93,4 @@ export interface LedgerEntryDTO {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
-  status?: 'DRAFT' | 'PENDING' | 'COMPLETED'
 }

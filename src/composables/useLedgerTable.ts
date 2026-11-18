@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { LedgerEntryLight } from '@/types/ledgerEntry'
 import { getLedger } from '@/services/api/ledgerService'
 
@@ -15,11 +15,8 @@ export const useLedgerTable = () => {
     }
   }
 
-  const totalDrafts = computed(() => ledger.value.filter((i) => i.status === 'DRAFT').length)
-
   return {
     ledger,
-    totalDrafts,
     loadLedger,
     loading,
   }
