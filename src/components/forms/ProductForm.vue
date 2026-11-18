@@ -1,21 +1,5 @@
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] gap-4 items-start">
-    <!-- Priorità (anche a schermo stretto): vendita, prodotto, storico, stampa -->
-    <div v-if="readonly && canEdit" class="lg:col-span-2">
-      <SaleForm
-        v-model="saleForm.item.value"
-        @submit="onSaleSubmit"
-        @reset="saleForm.handleReset"
-        editable
-        :loading="saleForm.loading.value"
-        :validation="saleForm.validation.value"
-        :changes="saleForm.changes.value"
-        :dirty="saleForm.dirty.value"
-        :pristine="saleForm.pristine.value"
-        :existingItem="saleForm.existingItem.value"
-        :max="product.stock || 0"
-      />
-    </div>
     <Card class="lg:col-start-1">
       <template #title>{{ constants.card.title + condition }}</template>
       <template #subtitle>{{ constants.card.subtitle + condition }}</template>
@@ -142,6 +126,18 @@
               :icon="constants.cancel.icon"
               @click="onFormClose"
             />
+            <!-- Tasto Stampa - Visualizzazione -->
+            <Button
+              v-if="readonly && pristine"
+              type="button"
+              rounded
+              text
+              severity="secondary"
+              :icon="printConstants.print.icon"
+              :aria-label="printConstants.print.label"
+              v-tooltip.top="printConstants.print.label"
+              @click="printDialog = true"
+            />
             <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
             <Button
               type="button"
@@ -183,8 +179,55 @@
       :productId="product.id"
       :refreshKey="historyKey"
     />
-    <PrintFieldset v-if="readonly" class="lg:col-start-1" :model-value="product" @print="onPrint" />
   </div>
+
+  <Button
+    v-if="readonly && canEdit && (product.stock ?? 0) > 0"
+    type="button"
+    rounded
+    size="large"
+    icon="pi pi-shopping-cart"
+    :aria-label="saleConstants.fieldset.legend"
+    v-tooltip.left="saleConstants.fieldset.legend"
+    class="!fixed bottom-6 right-6 z-40 !w-14 !h-14 shadow-lg"
+    @click="saleDialog = true"
+  />
+
+  <Dialog
+    :visible="saleDialog"
+    @update:visible="(visible: boolean) => (visible ? (saleDialog = true) : onSaleClose())"
+    modal
+    :focusOnShow="false"
+    :pt="{ pcCloseButton: { root: { class: '!outline-none' } } }"
+    :header="saleConstants.fieldset.legend"
+    class="w-[40rem] max-w-[95vw]"
+  >
+    <SaleForm
+      v-model="saleForm.item.value"
+      @submit="onSaleSubmit"
+      @reset="saleForm.handleReset"
+      @close="onSaleClose"
+      editable
+      :loading="saleForm.loading.value"
+      :validation="saleForm.validation.value"
+      :changes="saleForm.changes.value"
+      :dirty="saleForm.dirty.value"
+      :pristine="saleForm.pristine.value"
+      :existingItem="saleForm.existingItem.value"
+      :max="product.stock || 0"
+    />
+  </Dialog>
+
+  <Dialog
+    v-model:visible="printDialog"
+    modal
+    :focusOnShow="false"
+    :pt="{ pcCloseButton: { root: { class: '!outline-none' } } }"
+    :header="printConstants.fieldset.legend"
+    class="w-[36rem] max-w-[95vw]"
+  >
+    <PrintFieldset :model-value="product" @print="onPrint" />
+  </Dialog>
   <ChangesDialog :changes="changes"></ChangesDialog>
 </template>
 
@@ -192,7 +235,7 @@
 import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted, ref } from 'vue'
 import Card from 'primevue/card'
-import { Button, ProgressBar } from 'primevue'
+import { Button, Dialog, ProgressBar } from 'primevue'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputTextField from '@/components/layout/fields/InputTextField.vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
@@ -209,7 +252,7 @@ import PrintFieldset from './PrintFieldset.vue'
 import ProductTimeline from './ProductTimeline.vue'
 import { useForm } from '@/composables/useForm'
 import { formatDate } from '@/utils/dateUtils'
-import { useProductSaleConstants } from '@/utils/i18nConstants'
+import { useProductPrintConstants, useProductSaleConstants } from '@/utils/i18nConstants'
 import { formatCurrency } from '@/utils/currencyUtils'
 import { addProductSale } from '@/services/api/productService'
 
@@ -287,12 +330,20 @@ const onFormClose = async () => {
 }
 
 const onPrint = (quantity: number) => {
+  printDialog.value = false
   handlePrint(quantity)
 }
 
 /* SALE */
 
 const saleConstants = useProductSaleConstants()
+const printConstants = useProductPrintConstants()
+const saleDialog = ref(false)
+// Con modifiche non salvate la chiusura chiede conferma
+const onSaleClose = async () => {
+  if (await saleForm.handleClose()) saleDialog.value = false
+}
+const printDialog = ref(false)
 
 const fieldMappings = [
   {
@@ -356,6 +407,7 @@ const onSaleSubmit = async () => {
     setProduct(result as Product)
     saleForm.resetOriginal()
     historyKey.value++
+    saleDialog.value = false
   }
 }
 </script>

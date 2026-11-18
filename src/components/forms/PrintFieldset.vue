@@ -1,7 +1,6 @@
 <template>
-  <Card>
-    <template #title>{{ constants.fieldset.legend }}</template>
-    <template #content>
+  <div class="pt-3">
+    <div>
       <div class="flex flex-col h-full">
         <div class="flex flex-1 items-center justify-center m-4">
           <ScaledLabel v-if="url" :labelUrl="url" :width="587" :height="230" :maxWidth="400" />
@@ -28,8 +27,8 @@
           </div>
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -37,7 +36,7 @@ import { onBeforeUnmount, ref, watch } from 'vue'
 import { useProductPrintConstants } from '@/utils/i18nConstants'
 import type { Product } from '@/types/product'
 import { productLabelUrl } from '@/services/api/productService'
-import { Button, Card } from 'primevue'
+import { Button } from 'primevue'
 import { useErrorHandler } from '@/utils/errorHandler'
 import ScaledLabel from '../layout/ScaledLabel.vue'
 import InputNumberField from '../layout/fields/InputNumberField.vue'

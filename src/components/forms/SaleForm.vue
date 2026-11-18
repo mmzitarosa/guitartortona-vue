@@ -1,8 +1,7 @@
 <template>
-  <Card :class="{ 'opacity-60': !available }">
-    <template #title>{{ constants.fieldset.legend }}</template>
-    <template #content>
-      <div class="mt-2">
+  <div class="pt-3">
+    <div>
+      <div>
         <!-- Campi: data e scontrino, poi quantità, prezzo e IVA, poi note -->
         <div class="flex-1 min-w-[18rem] grid gap-4">
           <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4">
@@ -45,59 +44,24 @@
             />
           </div>
 
-          <div class="flex flex-wrap items-center gap-4">
-            <div class="flex-1 min-w-[14rem] [&_textarea]:min-h-[2.625rem]">
-              <TextAreaField
-                v-model="model.notes"
-                inputId="notes"
-                :rows="1"
-                :label="constants.notes.label"
-                :readonly
-              />
-            </div>
-            <div class="flex items-center gap-2 shrink-0 ml-auto">
-              <Button
-                v-if="existingItem && pristine"
-                type="button"
-                severity="secondary"
-                :label="constants.close.label"
-                :icon="constants.close.icon"
-                @click="emit('close')"
-              />
-              <Button
-                v-else-if="existingItem"
-                type="button"
-                severity="secondary"
-                :label="constants.cancel.label"
-                :icon="constants.cancel.icon"
-                @click="emit('close')"
-              />
-              <Button
-                v-if="existingItem"
-                type="button"
-                rounded
-                text
-                icon="pi pi-trash"
-                severity="secondary"
-                @click="emit('delete')"
-              />
+          <div class="[&_textarea]:min-h-[2.625rem]">
+            <TextAreaField
+              v-model="model.notes"
+              inputId="notes"
+              :rows="1"
+              :label="constants.notes.label"
+              :readonly
+            />
+          </div>
 
-              <!-- Tasto Aggiungi - Inserimento -->
+          <div class="flex justify-between items-center w-full mt-2">
+            <div class="flex gap-2">
               <Button
-                v-if="!existingItem && available"
                 type="button"
-                :label="constants.save.label"
-                :icon="constants.save.icon"
-                @click="emit('submit')"
-              />
-              <!-- Tasto Aggiorna - Modifica con cambiamenti -->
-              <!-- TODO Controllare available con max+=original.quantity-->
-              <Button
-                v-else-if="dirty"
-                type="button"
-                :label="constants.update.label"
-                :icon="constants.update.icon"
-                @click="emit('submit')"
+                severity="secondary"
+                :label="pristine ? constants.close.label : constants.cancel.label"
+                :icon="pristine ? constants.close.icon : constants.cancel.icon"
+                @click="emit('close')"
               />
               <Button
                 v-if="dirty"
@@ -110,16 +74,41 @@
                 @click="emit('reset')"
               />
             </div>
+            <div class="flex gap-2">
+              <Button
+                v-if="existingItem"
+                type="button"
+                rounded
+                text
+                icon="pi pi-trash"
+                severity="secondary"
+                @click="emit('delete')"
+              />
+              <Button
+                v-if="!existingItem && available"
+                type="button"
+                :label="constants.save.label"
+                :icon="constants.save.icon"
+                @click="emit('submit')"
+              />
+              <Button
+                v-else-if="dirty"
+                type="button"
+                :label="constants.update.label"
+                :icon="constants.update.icon"
+                @click="emit('submit')"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </template>
-  </Card>
+    </div>
+  </div>
   <ChangesDialog :changes="changes ?? []" group="saleDifferences"></ChangesDialog>
 </template>
 
 <script setup lang="ts">
-import { Button, Card } from 'primevue'
+import { Button } from 'primevue'
 import { computed } from 'vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
