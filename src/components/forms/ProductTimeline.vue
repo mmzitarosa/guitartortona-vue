@@ -37,9 +37,7 @@
       <li
         v-for="(event, index) in events"
         :key="index"
-        v-tooltip.left="event.notes ? { value: event.notes, class: 'max-w-80' } : undefined"
         class="relative ms-6 mb-3 last:mb-0 px-3 py-2 rounded-lg transition-colors hover:bg-surface-100 dark:hover:bg-surface-800"
-        :class="{ 'cursor-help': event.notes }"
       >
         <span
           class="absolute -start-[2.35rem] top-3 flex items-center justify-center w-7 h-7 rounded-full ring-4 ring-surface-100 dark:ring-surface-900 text-white"
@@ -51,39 +49,66 @@
           />
         </span>
 
-        <div class="flex items-baseline justify-between gap-2">
-          <span class="font-medium">
-            {{
-              event.type === 'SALE' ? t('fieldset.history.sale') : t('fieldset.history.purchase')
-            }}
-            <span
-              class="ms-1 text-sm font-medium"
-              :class="
-                event.type === 'SALE'
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-blue-600 dark:text-blue-400'
-              "
-            >
-              {{ event.type === 'SALE' ? '−' : '+' }}{{ event.quantity }}
-            </span>
-          </span>
-          <span
-            v-if="isCost(event) && !revealed"
-            class="font-medium tracking-widest text-surface-400"
-            >••••</span
-          >
-          <span v-else class="font-medium tabular-nums">{{ total(event) }}</span>
-        </div>
+        <div class="flex justify-between gap-2">
+          <div class="min-w-0">
+            <div>
+              <span class="font-medium">
+                {{
+                  event.type === 'SALE'
+                    ? t('fieldset.history.sale')
+                    : t('fieldset.history.purchase')
+                }}
+                <span
+                  class="ms-1 text-sm font-medium"
+                  :class="
+                    event.type === 'SALE'
+                      ? 'text-primary'
+                      : 'text-surface-600 dark:text-surface-300'
+                  "
+                >
+                  {{ event.type === 'SALE' ? '−' : '+' }}{{ event.quantity }}
+                </span>
+              </span>
+            </div>
 
-        <div class="text-xs text-muted-color flex items-center gap-2 flex-wrap">
-          <span>{{ event.date }}</span>
-          <span
-            v-if="event.status && event.status !== 'COMPLETED'"
-            class="px-1.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400"
+            <div
+              v-tooltip.bottom="event.notes ? { value: event.notes, class: 'max-w-80' } : undefined"
+              class="text-xs text-muted-color flex items-center gap-2 flex-wrap w-fit"
+              :class="{ 'cursor-help': event.notes }"
+            >
+              <span>{{ event.date }}</span>
+              <span
+                v-if="event.status && event.status !== 'COMPLETED'"
+                class="px-1.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400"
+              >
+                {{ t('fieldset.history.draft') }}
+              </span>
+              <i
+                v-if="event.notes"
+                class="pi pi-comment"
+                :aria-label="t('fieldset.history.notes')"
+              />
+            </div>
+          </div>
+          <div
+            v-if="event.price != null"
+            class="flex flex-col items-end shrink-0"
+            :class="{ invisible: !revealed }"
           >
-            {{ t('fieldset.history.draft') }}
-          </span>
-          <i v-if="event.notes" class="pi pi-comment" :aria-label="t('fieldset.history.notes')" />
+            <span
+              class="font-medium tabular-nums"
+              :class="{
+                'underline decoration-dotted underline-offset-4 cursor-help':
+                  event.type === 'PURCHASE' && event.vat != null,
+              }"
+              v-tooltip.bottom="amountTooltip(event)"
+            >
+              {{ amount(event) }}
+            </span>
+            <span v-if="event.vat != null" class="text-xs text-muted-color">
+              {{ t('fieldset.history.vat', { vat: event.vat }) }}
+            </span>
+          </div>
         </div>
 
         <div v-if="event.type === 'PURCHASE'" class="text-sm mt-1">
@@ -96,23 +121,6 @@
             {{ t('fieldset.history.invoice', { number: event.invoiceNumber ?? '-' }) }}
           </RouterLink>
           <span v-if="event.supplier" class="text-muted-color"> · {{ event.supplier }}</span>
-        </div>
-
-        <div v-if="event.price != null" class="text-xs text-muted-color mt-1">
-          <template v-if="isCost(event) && !revealed">
-            {{ t('fieldset.history.quantityOnly', { quantity: event.quantity }) }}
-          </template>
-          <template v-else>
-            {{
-              t('fieldset.history.unitPrice', {
-                quantity: event.quantity,
-                price: unit(event.price),
-              })
-            }}
-            <template v-if="event.type === 'PURCHASE' && event.vat != null">
-              · {{ t('fieldset.history.vat', { vat: event.vat }) }}
-            </template>
-          </template>
         </div>
       </li>
     </ol>
@@ -140,14 +148,18 @@ const revealed = ref(false)
 const isCost = (event: ProductEvent) => event.price != null
 const hasCosts = computed(() => events.value.some(isCost))
 
-const unit = (price?: number) => formatCurrency(price) ?? '-'
-
-// Per gli acquisti il totale comprende l'IVA
-const total = (event: ProductEvent) => {
-  if (event.price == null || event.quantity == null) return '-'
+// Importo unitario IVA inclusa (le vendite sono già IVA inclusa)
+const amount = (event: ProductEvent) => {
+  if (event.price == null) return '-'
   const vat = event.type === 'PURCHASE' ? 1 + (event.vat ?? 0) / 100 : 1
-  return formatCurrency(event.price * event.quantity * vat)
+  return formatCurrency(event.price * vat) ?? '-'
 }
+
+// Solo acquisti: costo unitario senza IVA e aliquota
+const amountTooltip = (event: ProductEvent) =>
+  event.type === 'PURCHASE' && event.vat != null
+    ? `${formatCurrency(event.price)} · ${t('fieldset.history.vat', { vat: event.vat })}`
+    : undefined
 
 const totals = computed(() => ({
   purchased: events.value

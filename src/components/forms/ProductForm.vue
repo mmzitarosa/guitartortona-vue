@@ -1,7 +1,5 @@
 <template>
-  <div
-    :class="readonly ? 'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] gap-4 items-start' : ''"
-  >
+  <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] gap-4 items-start">
     <!-- Priorità (anche a schermo stretto): vendita, prodotto, storico, stampa -->
     <div v-if="readonly && canEdit" class="lg:col-span-2">
       <SaleForm
@@ -18,7 +16,7 @@
         :max="product.stock || 0"
       />
     </div>
-    <Card :class="readonly ? 'lg:col-start-1' : ''">
+    <Card class="lg:col-start-1">
       <template #title>{{ constants.card.title + condition }}</template>
       <template #subtitle>{{ constants.card.subtitle + condition }}</template>
       <template #content>
@@ -181,7 +179,6 @@
       </template>
     </Card>
     <ProductTimeline
-      v-if="readonly"
       class="lg:col-start-2 lg:row-span-2"
       :productId="product.id"
       :refreshKey="historyKey"
