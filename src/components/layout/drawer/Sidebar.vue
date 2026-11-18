@@ -13,7 +13,7 @@
   <nav class="px-2 flex-1 overflow-auto">
     <!-- Prima parte -- Fatture in entrata -->
     <SidebarMenu
-      v-for="item in items"
+      v-for="item in visibleItems"
       :key="item.label"
       :label="item.label"
       :items="item.items"
@@ -46,9 +46,24 @@ import { useLayoutConstants } from '@/utils/i18nConstants'
 import { AUTH_CONFIG } from '@/config/auth'
 import { getUsername, logout } from '@/services/auth/authService'
 import SidebarMenu from './SidebarMenu.vue'
+import { computed } from 'vue'
+import { useRoles } from '@/composables/useRoles'
 
 const layoutConstants = useLayoutConstants()
 const username = getUsername() ?? '-'
 
-defineProps<{ items: Menu[] }>()
+const props = defineProps<{ items: Menu[] }>()
+
+// Senza permessi sui costi restano solo le voci dell'inventario
+const { canSeeCosts } = useRoles()
+const visibleItems = computed(() =>
+  canSeeCosts
+    ? props.items
+    : props.items
+        .map((menu) => ({
+          ...menu,
+          items: menu.items.filter((i) => i.route?.startsWith('/products')),
+        }))
+        .filter((menu) => menu.items.length),
+)
 </script>

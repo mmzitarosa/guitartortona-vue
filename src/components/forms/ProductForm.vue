@@ -1,185 +1,198 @@
 <template>
-  <Card>
-    <template #title>{{ constants.card.title + condition }}</template>
-    <template #subtitle>{{ constants.card.subtitle + condition }}</template>
-    <template #content>
-      <ProgressBar
-        :mode="formLoading ? 'indeterminate' : 'determinate'"
-        class="mt-2 bg-gre"
-        style="height: 1px"
-      ></ProgressBar>
+  <div
+    :class="readonly ? 'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] gap-4 items-start' : ''"
+  >
+    <!-- Priorità (anche a schermo stretto): vendita, prodotto, storico, stampa -->
+    <div v-if="readonly && canEdit" class="lg:col-span-2">
+      <SaleForm
+        v-model="saleForm.item.value"
+        @submit="onSaleSubmit"
+        @reset="saleForm.handleReset"
+        editable
+        :loading="saleForm.loading.value"
+        :validation="saleForm.validation.value"
+        :changes="saleForm.changes.value"
+        :dirty="saleForm.dirty.value"
+        :pristine="saleForm.pristine.value"
+        :existingItem="saleForm.existingItem.value"
+        :max="product.stock || 0"
+      />
+    </div>
+    <Card :class="readonly ? 'lg:col-start-1' : ''">
+      <template #title>{{ constants.card.title + condition }}</template>
+      <template #subtitle>{{ constants.card.subtitle + condition }}</template>
+      <template #content>
+        <ProgressBar
+          :mode="formLoading ? 'indeterminate' : 'determinate'"
+          class="mt-2 bg-gre"
+          style="height: 1px"
+        ></ProgressBar>
 
-      <div class="grid gap-4 w-full mt-6">
-        <!-- Prima riga: codice e codice interno-->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-          <InputTextField
-            v-model="product.code"
-            inputId="code"
-            :label="constants.code.label"
-            readonly
-          />
+        <div class="grid gap-4 w-full mt-6">
+          <!-- Prima riga: codice e codice interno-->
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4 col-span-full">
+            <InputTextField
+              v-model="product.code"
+              inputId="code"
+              :label="constants.code.label"
+              readonly
+            />
 
-          <InputTextField
-            v-model="product.internalCode"
-            inputId="internalCode"
-            :label="constants.internalCode.label"
-            readonly
-          />
-        </div>
+            <InputTextField
+              v-model="product.internalCode"
+              inputId="internalCode"
+              :label="constants.internalCode.label"
+              readonly
+            />
+          </div>
 
-        <!-- Seconda riga: categoria e marca -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-          <SelectField
-            v-model="product.category"
-            inputId="category"
-            optionId="id"
-            optionLabel="name"
-            :options="categories"
-          :optionDepth="getCategoryDepth"
-            :label="constants.category.label"
-            :readonly
-            showClear
-            :loading="categoriesLoading"
-          />
+          <!-- Seconda riga: categoria e marca -->
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4 col-span-full">
+            <SelectField
+              v-model="product.category"
+              inputId="category"
+              optionId="id"
+              optionLabel="name"
+              :options="categories"
+              :optionDepth="getCategoryDepth"
+              :label="constants.category.label"
+              :readonly
+              showClear
+              :loading="categoriesLoading"
+            />
 
-          <SelectField
-            v-model="product.brand"
-            inputId="brand"
-            optionId="id"
-            optionLabel="name"
-            :options="brands"
-            editable
-            showClear
-            :label="constants.brand.label"
-            :readonly
-            :loading="brandsLoading"
-            :formatter="brandFormatter"
-          />
-        </div>
+            <SelectField
+              v-model="product.brand"
+              inputId="brand"
+              optionId="id"
+              optionLabel="name"
+              :options="brands"
+              editable
+              showClear
+              :label="constants.brand.label"
+              :readonly
+              :loading="brandsLoading"
+              :formatter="brandFormatter"
+            />
+          </div>
 
-        <!-- Terza riga: descrizione -->
-        <div class="col-span-full">
-          <TextAreaField
-            v-model="product.description"
-            inputId="description"
-            :rows="2"
-            :label="constants.description.label"
-            :readonly
-          />
-        </div>
+          <!-- Terza riga: descrizione -->
+          <div class="col-span-full">
+            <TextAreaField
+              v-model="product.description"
+              inputId="description"
+              :rows="2"
+              :label="constants.description.label"
+              :readonly
+            />
+          </div>
 
-        <!-- Quarta riga: quantità prezzo vendita -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full items-center">
-          <InputTextField
-            :modelValue="
-              (product.stock ?? 0) +
-              (product.pendingStock ? ' (+' + product.pendingStock + ')' : '')
-            "
-            inputId="quantity"
-            :label="constants.quantity.label"
-            readonly
-          ></InputTextField>
-
-          <InputAmountField
-            v-model="product.price"
-            inputId="price"
-            :label="constants.price.label"
-            :readonly
-          />
-        </div>
-
-        <!-- Settima riga: note -->
-        <div class="col-span-full">
-          <TextAreaField
-            v-model="product.notes"
-            inputId="notes"
-            :label="constants.notes.label"
-            :readonly
+          <!-- Quarta riga: quantità prezzo vendita -->
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4 col-span-full items-center"
           >
-          </TextAreaField>
-        </div>
-      </div>
-    </template>
+            <InputTextField
+              :modelValue="
+                (product.stock ?? 0) +
+                (product.pendingStock ? ' (+' + product.pendingStock + ')' : '')
+              "
+              inputId="quantity"
+              :label="constants.quantity.label"
+              readonly
+            ></InputTextField>
 
-    <template #footer>
-      <div class="flex justify-between items-center w-full mt-2">
-        <!-- Bottoni di sinistra -->
-        <div class="flex gap-2">
-          <!-- Bottone Chiudi - Visualizzazione/Modifica senza cambiamenti-->
-          <Button
-            v-if="pristine"
-            type="button"
-            severity="secondary"
-            :label="constants.close.label"
-            :icon="constants.close.icon"
-            @click="onFormClose"
-          />
-          <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
-          <Button
-            v-else
-            type="button"
-            severity="secondary"
-            :label="constants.cancel.label"
-            :icon="constants.cancel.icon"
-            @click="onFormClose"
-          />
-          <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
-          <Button
-            type="button"
-            v-if="dirty"
-            :icon="constants.reset?.icon"
-            severity="secondary"
-            variant="text"
-            rounded
-            aria-label="Filter"
-            @click="onFormReset"
-          />
-        </div>
-        <!-- Bottoni di destra -->
-        <div class="flex gap-2">
-          <!-- Tasto Edit - Visualizzazione  -->
-          <Button
-            v-if="readonly"
-            type="button"
-            rounded
-            text
-            icon="pi pi-pen-to-square"
-            severity="secondary"
-            @click="onFormEdit"
-          />
-          <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
-          <Button
-            v-else-if="dirty"
-            type="button"
-            :label="constants.update.label"
-            :icon="constants.update.icon"
-            @click="onFormSubmit"
-          />
-        </div>
-      </div>
+            <InputAmountField
+              v-model="product.price"
+              inputId="price"
+              :label="constants.price.label"
+              :readonly
+            />
+          </div>
 
-      <div v-if="readonly" class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full mt-2">
-        <PrintFieldset :model-value="product" @print="onPrint"></PrintFieldset>
-        <SaleForm
-          v-model="saleForm.item.value"
-          @submit="onSaleSubmit"
-          @reset="saleForm.handleReset"
-          editable
-          :loading="saleForm.loading.value"
-          :validation="saleForm.validation.value"
-          :changes="saleForm.changes.value"
-          :dirty="saleForm.dirty.value"
-          :pristine="saleForm.pristine.value"
-          :existingItem="saleForm.existingItem.value"
-          :max="product.stock || 0"
-        />
-      </div>
-    </template>
-  </Card>
+          <!-- Settima riga: note -->
+          <div class="col-span-full">
+            <TextAreaField
+              v-model="product.notes"
+              inputId="notes"
+              :label="constants.notes.label"
+              :readonly
+            >
+            </TextAreaField>
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-between items-center w-full mt-2">
+          <!-- Bottoni di sinistra -->
+          <div class="flex gap-2">
+            <!-- Bottone Chiudi - Visualizzazione/Modifica senza cambiamenti-->
+            <Button
+              v-if="pristine"
+              type="button"
+              severity="secondary"
+              :label="constants.close.label"
+              :icon="constants.close.icon"
+              @click="onFormClose"
+            />
+            <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
+            <Button
+              v-else
+              type="button"
+              severity="secondary"
+              :label="constants.cancel.label"
+              :icon="constants.cancel.icon"
+              @click="onFormClose"
+            />
+            <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
+            <Button
+              type="button"
+              v-if="dirty"
+              :icon="constants.reset?.icon"
+              severity="secondary"
+              variant="text"
+              rounded
+              aria-label="Filter"
+              @click="onFormReset"
+            />
+          </div>
+          <!-- Bottoni di destra -->
+          <div class="flex gap-2">
+            <!-- Tasto Edit - Visualizzazione  -->
+            <Button
+              v-if="readonly && canEdit"
+              type="button"
+              rounded
+              text
+              icon="pi pi-pen-to-square"
+              severity="secondary"
+              @click="onFormEdit"
+            />
+            <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
+            <Button
+              v-else-if="dirty"
+              type="button"
+              :label="constants.update.label"
+              :icon="constants.update.icon"
+              @click="onFormSubmit"
+            />
+          </div>
+        </div>
+      </template>
+    </Card>
+    <ProductTimeline
+      v-if="readonly"
+      class="lg:col-start-2 lg:row-span-2"
+      :productId="product.id"
+      :refreshKey="historyKey"
+    />
+    <PrintFieldset v-if="readonly" class="lg:col-start-1" :model-value="product" @print="onPrint" />
+  </div>
   <ChangesDialog :changes="changes"></ChangesDialog>
 </template>
 
 <script setup lang="ts">
+import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted, ref } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
@@ -196,11 +209,14 @@ import SaleForm from './SaleForm.vue'
 import type { Sale } from '@/types/sale'
 import { useProduct } from '@/composables/useProduct'
 import PrintFieldset from './PrintFieldset.vue'
+import ProductTimeline from './ProductTimeline.vue'
 import { useForm } from '@/composables/useForm'
 import { formatDate } from '@/utils/dateUtils'
 import { useProductSaleConstants } from '@/utils/i18nConstants'
 import { formatCurrency } from '@/utils/currencyUtils'
 import { addProductSale } from '@/services/api/productService'
+
+const { canDelete, canEdit } = useRoles()
 
 const emit = defineEmits<{
   submit: [product: Product]
@@ -222,11 +238,7 @@ const props = withDefaults(defineProps<ProductFormProps>(), {
   editable: false,
 })
 
-const {
-  categories,
-  loading: categoriesLoading,
-  getCategoryDepth,
-} = useCategories()
+const { categories, loading: categoriesLoading, getCategoryDepth } = useCategories()
 const { brands, loading: brandsLoading, formatter: brandFormatter } = useBrands()
 
 const {
@@ -242,7 +254,7 @@ const {
   handleClose,
   handlePrint,
   constants,
-  setProduct
+  setProduct,
 } = useProduct()
 
 const readonly = computed(() => !props.editable)
@@ -339,11 +351,14 @@ const saleForm = useForm<Sale, Product>({
   fieldMappings,
 })
 
+const historyKey = ref(0)
+
 const onSaleSubmit = async () => {
   const result = await saleForm.handleSubmit()
   if (result) {
     setProduct(result as Product)
     saleForm.resetOriginal()
+    historyKey.value++
   }
 }
 </script>

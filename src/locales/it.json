@@ -209,6 +209,23 @@
     },
     "print": {
       "legend": "Stampa"
+    },
+    "history": {
+      "legend": "Storico",
+      "empty": "Nessun movimento registrato",
+      "draft": "Bozza",
+      "sale": "Vendita",
+      "purchase": "Acquisto",
+      "invoice": "Fattura {number}",
+      "unitPrice": "{quantity} × {price}",
+      "vat": "IVA {vat}%",
+      "vatIncluded": "IVA inclusa",
+      "totalPurchased": "Acquistati",
+      "totalSold": "Venduti",
+      "notes": "Note",
+      "showCosts": "Mostra costi",
+      "hideCosts": "Nascondi costi",
+      "quantityOnly": "{quantity} pz"
     }
   },
   "filters": {

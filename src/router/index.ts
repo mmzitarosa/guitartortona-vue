@@ -1,3 +1,4 @@
+import { useRoles } from '@/composables/useRoles'
 import ProductsListView from '@/views/ProductsListView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ProductView from '@/views/ProductView.vue'
@@ -61,7 +62,7 @@ const routes: RouteRecordRaw[] = [
     component: ProductView,
     meta: {
       title: 'Dettaglio Prodotto',
-      },
+    },
   },
   {
     path: '/ledgerEntry',
@@ -99,6 +100,9 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - Vue Guitar`
   }
+  // Fatture e brogliaccio contengono costi: non accessibili senza permessi
+  const costsPage = /^\/(incomingInvoice|ledger|usedReceipt)/.test(to.path)
+  if (costsPage && !useRoles().canSeeCosts) return next({ name: 'home' })
   next()
 })
 

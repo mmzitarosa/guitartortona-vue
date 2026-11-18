@@ -152,7 +152,7 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="existingItem"
+            v-if="canDelete && existingItem"
             type="button"
             rounded
             text
@@ -195,6 +195,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoles } from '@/composables/useRoles'
 import { Button, Divider, Fieldset, ProgressBar } from 'primevue'
 import ProductSearch from '@/components/forms/incomininvoice/ProductSearch.vue'
 import { computed } from 'vue'
@@ -233,6 +234,8 @@ interface IncomingInvoiceProductFormProps {
 withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
   loading: false,
 })
+
+const { canDelete, canEdit } = useRoles()
 
 const emit = defineEmits(['submit', 'close', 'delete', 'reset', 'search', 'print'])
 const model = defineModel<IncomingInvoiceProduct>({ required: true })

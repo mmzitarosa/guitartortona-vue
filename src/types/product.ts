@@ -16,7 +16,6 @@ export interface Product {
   price?: number
   stock?: number
   pendingStock?: number
-  purchases?: IncomingInvoiceProduct[]
   sales?: Sale[]
 }
 

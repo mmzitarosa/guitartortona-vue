@@ -1,6 +1,7 @@
 import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
+import type { ProductEvent } from '@/types/productEvent'
 import { fetchPrintPageUrl, openPrintPage } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
 
@@ -29,6 +30,11 @@ export async function getProducts(query: ProductsQuery): Promise<Page<ProductLig
 
 export async function getProductDetail(id: number): Promise<Product> {
   const { data } = await apiClient.get<Product>(`/product/${id}`)
+  return data
+}
+
+export async function getProductHistory(id: number): Promise<ProductEvent[]> {
+  const { data } = await apiClient.get<ProductEvent[]>(`/product/${id}/history`)
   return data
 }
 

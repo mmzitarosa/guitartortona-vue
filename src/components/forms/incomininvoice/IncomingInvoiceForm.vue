@@ -107,7 +107,7 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="!readonly && existingItem"
+            v-if="canDelete && !readonly && existingItem"
             type="button"
             rounded
             text
@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
@@ -196,6 +197,8 @@ const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
   backable: true,
   loading: false,
 })
+
+const { canDelete, canEdit } = useRoles()
 
 const emit = defineEmits<{
   submit: []

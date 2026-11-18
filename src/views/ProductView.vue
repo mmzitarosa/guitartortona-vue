@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { useRoles } from '@/composables/useRoles'
 import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
 import router from '@/router'
 import { computed } from 'vue'
@@ -19,10 +20,11 @@ import ProductForm from '@/components/forms/ProductForm.vue'
 
 const route = useRoute()
 
+const { canEdit } = useRoles()
 const id = Number(route.params.id)
 
 const editable = computed({
-  get: () => route.query.editable === 'true',
+  get: () => route.query.editable === 'true' && canEdit,
   set: (val: boolean) => {
     router.replace({
       query: {

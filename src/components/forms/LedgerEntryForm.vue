@@ -179,7 +179,7 @@
         <div class="flex gap-2">
           <!-- Tasto Delete - Visualizzazione  -->
           <Button
-            v-if="readonly"
+            v-if="readonly && canDelete"
             type="button"
             rounded
             text
@@ -221,6 +221,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import { Button, ProgressBar } from 'primevue'
@@ -251,6 +252,8 @@ import {
 } from '@/services/api/ledgerService'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
 import { formatDate } from '@/utils/dateUtils'
+
+const { canDelete, canEdit } = useRoles()
 
 const emit = defineEmits<{
   submit: [ledgerEntry: LedgerEntry]

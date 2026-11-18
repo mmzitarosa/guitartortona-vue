@@ -1,118 +1,125 @@
 <template>
-  <Fieldset :legend="constants.fieldset.legend">
-    <div class="grid gap-4 mt-6">
-      <InputDateField v-model="model.date" inputId="date" :label="constants.date.label" :readonly />
+  <Card :class="{ 'opacity-60': !available }">
+    <template #title>{{ constants.fieldset.legend }}</template>
+    <template #content>
+      <div class="mt-2">
+        <!-- Campi: data e scontrino, poi quantità, prezzo e IVA, poi note -->
+        <div class="flex-1 min-w-[18rem] grid gap-4">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4">
+            <InputDateField
+              v-model="model.date"
+              inputId="date"
+              :label="constants.date.label"
+              :readonly
+            />
+            <InputTextField
+              v-model="model.receiptNumber"
+              inputId="receiptNumber"
+              :label="constants.receiptNumber.label"
+              :readonly
+            />
+          </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
-        <InputNumberField
-          v-model="model.quantity"
-          inputId="quantity"
-          :label="constants.quantity.label"
-          :readonly
-          showButtons
-          buttonLayout="horizontal"
-          :min="1"
-          :max="max"
-        />
-        <VatRateField input-id="vat" :label="constants.vat.label" v-model="model.vat" :readonly />
-      </div>
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4">
+            <InputNumberField
+              v-model="model.quantity"
+              inputId="quantity"
+              :label="constants.quantity.label"
+              :readonly
+              showButtons
+              buttonLayout="horizontal"
+              :min="1"
+              :max="max"
+            />
+            <InputAmountField
+              v-model="model.salePrice"
+              inputId="price"
+              :label="constants.price.label"
+              :readonly
+            />
+            <VatRateField
+              input-id="vat"
+              :label="constants.vat.label"
+              v-model="model.vat"
+              :readonly
+            />
+          </div>
 
-      <InputTextField
-        v-model="model.receiptNumber"
-        inputId="receiptNumber"
-        :label="constants.receiptNumber.label"
-        :readonly
-      />
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex-1 min-w-[14rem] [&_textarea]:min-h-[2.625rem]">
+              <TextAreaField
+                v-model="model.notes"
+                inputId="notes"
+                :rows="1"
+                :label="constants.notes.label"
+                :readonly
+              />
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-auto">
+              <Button
+                v-if="existingItem && pristine"
+                type="button"
+                severity="secondary"
+                :label="constants.close.label"
+                :icon="constants.close.icon"
+                @click="emit('close')"
+              />
+              <Button
+                v-else-if="existingItem"
+                type="button"
+                severity="secondary"
+                :label="constants.cancel.label"
+                :icon="constants.cancel.icon"
+                @click="emit('close')"
+              />
+              <Button
+                v-if="existingItem"
+                type="button"
+                rounded
+                text
+                icon="pi pi-trash"
+                severity="secondary"
+                @click="emit('delete')"
+              />
 
-      <InputAmountField
-        v-model="model.salePrice"
-        inputId="price"
-        :label="constants.price.label"
-        :readonly
-      />
-
-      <TextAreaField
-        v-model="model.notes"
-        inputId="notes"
-        :label="constants.notes.label"
-        :readonly
-      />
-
-      <div class="flex justify-between items-center w-full mt-2">
-        <!-- Bottoni di sinistra -->
-        <div class="flex gap-2">
-          <!-- Bottone Chiudi - Visualizzazione/Modifica senza cambiamenti-->
-          <Button
-            v-if="existingItem && pristine"
-            type="button"
-            severity="secondary"
-            label="constants.close.label"
-            :icon="constants.close.icon"
-            @click="emit('close')"
-          />
-          <!-- Tasto Annulla - Inserimento/Modifica con cambiamenti -->
-          <Button
-            v-else-if="existingItem"
-            type="button"
-            severity="secondary"
-            :label="constants.cancel.label"
-            :icon="constants.cancel.icon"
-            @click="emit('close')"
-          />
-
-          <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
-          <Button
-            type="button"
-            v-if="dirty"
-            :icon="constants.reset?.icon"
-            severity="secondary"
-            variant="text"
-            rounded
-            aria-label="Filter"
-            @click="emit('reset')"
-          />
+              <!-- Tasto Aggiungi - Inserimento -->
+              <Button
+                v-if="!existingItem && available"
+                type="button"
+                :label="constants.save.label"
+                :icon="constants.save.icon"
+                @click="emit('submit')"
+              />
+              <!-- Tasto Aggiorna - Modifica con cambiamenti -->
+              <!-- TODO Controllare available con max+=original.quantity-->
+              <Button
+                v-else-if="dirty"
+                type="button"
+                :label="constants.update.label"
+                :icon="constants.update.icon"
+                @click="emit('submit')"
+              />
+              <Button
+                v-if="dirty"
+                type="button"
+                :icon="constants.reset?.icon"
+                severity="secondary"
+                variant="text"
+                rounded
+                :aria-label="constants.reset?.label"
+                @click="emit('reset')"
+              />
+            </div>
+          </div>
         </div>
-
-        <!-- Bottoni di destra -->
-        <div class="flex gap-2">
-          <!-- Tasto Delete - Visualizzazione  -->
-          <Button
-            v-if="existingItem"
-            type="button"
-            rounded
-            text
-            icon="pi pi-trash"
-            severity="secondary"
-            @click="emit('delete')"
-          />
-
-          <!-- Tasto Aggiungi - Inserimento  -->
-          <Button
-            v-if="!existingItem && available"
-            type="button"
-            :label="constants.save.label"
-            :icon="constants.save.icon"
-            @click="emit('submit')"
-          />
-
-          <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
-          <!-- TODO Controllare available con max+=original.quantity-->
-          <Button
-            v-else-if="dirty"
-            type="button"
-            :label="constants.update.label"
-            :icon="constants.update.icon"
-            @click="emit('submit')"
-          />
-        </div>
       </div>
-    </div>
-  </Fieldset>
+    </template>
+  </Card>
   <ChangesDialog :changes="changes ?? []" group="saleDifferences"></ChangesDialog>
 </template>
 
 <script setup lang="ts">
-import { Button, Fieldset } from 'primevue'
+import { Button, Card } from 'primevue'
 import { computed } from 'vue'
 import TextAreaField from '@/components/layout/fields/TextAreaField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
@@ -161,7 +168,7 @@ const emit = defineEmits<{
 
 const model = defineModel<Sale>({ required: true })
 
-const readonly = computed(() => !props.editable)
-
-const available = computed(() => props.max && props.max >= 1)
+const available = computed(() => !!props.max && props.max >= 1)
+// Senza giacenza il box di vendita è disabilitato
+const readonly = computed(() => !props.editable || !available.value)
 </script>
