@@ -47,6 +47,7 @@
           optionId="id"
           optionLabel="name"
           :options="categories"
+          :optionDepth="getCategoryDepth"
           :label="constants.category.label"
           showClear
           :loading="categoriesLoading"
@@ -238,7 +239,11 @@ const model = defineModel<IncomingInvoiceProduct>({ required: true })
 
 const { brands, loading: brandsLoading, formatter: brandFormatter } = useBrands()
 
-const { categories, loading: categoriesLoading } = useCategories()
+const {
+  categories,
+  loading: categoriesLoading,
+  getCategoryDepth,
+} = useCategories()
 
 const taxedPurchasePrice = computed(() => {
   if (model.value.purchasePrice && model.value.vat) {

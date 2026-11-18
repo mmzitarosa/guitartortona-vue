@@ -1,4 +1,5 @@
 import { useConfirm, useToast } from 'primevue'
+import { getApiErrorMessage } from '@/utils/errorHandler'
 
 export interface ConfirmDialogParams<T> {
   header: string
@@ -44,8 +45,8 @@ export const useConfirmDialog = () => {
           } catch (err: any) {
             toast.add({
               severity: 'error',
-              summary: err?.name || 'Errore',
-              detail: err?.message || 'Si è verificato un errore',
+              summary: err?.response ? 'Errore' : err?.name || 'Errore',
+              detail: getApiErrorMessage(err) || err?.response?.data?.message || err?.message || 'Si è verificato un errore',
               life: 6000,
             })
             error(err)

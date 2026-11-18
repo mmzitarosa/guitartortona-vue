@@ -275,5 +275,23 @@
         "vatIncluded": "IVA Inclusa:"
       }
     }
+  },
+  "apiErrors": {
+    "PRODUCT_NOT_FOUND": "Prodotto non trovato.",
+    "SUPPLIER_NOT_FOUND": "Fornitore non trovato.",
+    "BANK_NOT_FOUND": "Banca non trovata.",
+    "CATEGORY_NOT_FOUND": "Categoria non trovata.",
+    "BRAND_NOT_FOUND": "Marca non trovata.",
+    "LEDGER_ENTRY_NOT_FOUND": "Voce del brogliaccio non trovata.",
+    "INVOICE_NOT_FOUND": "Fattura non trovata.",
+    "PURCHASE_ITEM_NOT_FOUND": "Prodotto della fattura non trovato.",
+    "PRODUCT_STOCK_NOT_ENOUGH": "Giacenza insufficiente per la quantità richiesta.",
+    "INVOICE_NUMBER_ALREADY_EXISTS": "Esiste già una fattura con questo numero per il fornitore selezionato.",
+    "PRODUCT_ALREADY_IN_INVOICE": "Il prodotto è già presente in questa fattura.",
+    "PURCHASE_ITEM_NOT_IN_INVOICE": "Il prodotto non appartiene a questa fattura.",
+    "INVOICE_NOT_EDITABLE": "La fattura non è modificabile: solo le bozze non archiviate possono essere modificate.",
+    "INVOICE_ARCHIVED": "Una fattura archiviata non può essere completata.",
+    "VALIDATION_ERROR": "Dati non validi. Controlla i campi del modulo.",
+    "UNKNOWN": "Si è verificato un errore imprevisto."
   }
 }

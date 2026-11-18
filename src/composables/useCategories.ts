@@ -38,9 +38,24 @@ export const useCategories = () => {
     return map
   })
 
+  const depthMap = computed(() => {
+    const depths = new Map<number, number>()
+    const visit = (list: Category[] | undefined, depth: number) => {
+      list?.forEach((category) => {
+        if (category.id) depths.set(category.id, depth)
+        visit(category.subCategories, depth + 1)
+      })
+    }
+    visit(categories.value, 0)
+    return depths
+  })
+
+  const getCategoryDepth = (category: Category): number =>
+    category.id ? (depthMap.value.get(category.id) ?? 0) : 0
+
   const getCategory = (categoryId?: number): Category | undefined => {
     return categoryId ? map.value.get(categoryId) : undefined
   }
 
-  return { categories: allCategories, loading, getCategory }
+  return { categories: allCategories, loading, getCategory, getCategoryDepth }
 }

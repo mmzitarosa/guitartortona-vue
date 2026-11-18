@@ -16,7 +16,13 @@
       @update:modelValue="handleModelUpdate"
       class="p-inputwrapper-filled w-full"
       fluid
-    />
+    >
+      <template v-if="optionDepth" #option="{ option }">
+        <span :style="{ paddingLeft: `${optionDepth(option) * 1.25}rem` }">
+          {{ option[optionLabel] }}
+        </span>
+      </template>
+    </Select>
   </InputValidationField>
 </template>
 
@@ -36,6 +42,7 @@ interface SelectFieldProps<T extends object> {
   validation?: { message?: string; valid: boolean }
   showClear?: boolean
   editable?: boolean
+  optionDepth?: (option: T) => number
   formatter?: (value: string) => T | T[keyof T]
 }
 

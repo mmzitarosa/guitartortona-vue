@@ -35,6 +35,7 @@
             optionId="id"
             optionLabel="name"
             :options="categories"
+          :optionDepth="getCategoryDepth"
             :label="constants.category.label"
             :readonly
             showClear
@@ -221,7 +222,11 @@ const props = withDefaults(defineProps<ProductFormProps>(), {
   editable: false,
 })
 
-const { categories, loading: categoriesLoading } = useCategories()
+const {
+  categories,
+  loading: categoriesLoading,
+  getCategoryDepth,
+} = useCategories()
 const { brands, loading: brandsLoading, formatter: brandFormatter } = useBrands()
 
 const {

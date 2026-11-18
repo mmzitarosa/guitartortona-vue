@@ -1,4 +1,14 @@
 import { useToast } from 'primevue'
+import { i18n } from '@/config/i18n.config'
+
+/**
+ * Messaggio localizzato per un errore API: usa il codice restituito dal server, se tradotto
+ */
+export const getApiErrorMessage = (error: unknown): string | undefined => {
+  const code = (error as { response?: { data?: { code?: string } } })?.response?.data?.code
+  const key = `apiErrors.${code}`
+  return code && i18n.global.te(key) ? i18n.global.t(key) : undefined
+}
 
 /**
  * Error handling utility
@@ -60,11 +70,17 @@ export const useErrorHandler = () => {
           new AppError('Non hai i permessi per eseguire questa operazione.', 'FORBIDDEN', 403),
         )
       } else if (status === 404) {
-        handleError(new AppError('Risorsa non trovata.', 'NOT_FOUND', 404))
+        handleError(
+          new AppError(getApiErrorMessage(error) ?? 'Risorsa non trovata.', 'NOT_FOUND', 404),
+        )
       } else if (status >= 500) {
         handleError(new AppError('Errore del server. Riprova più tardi.', 'SERVER_ERROR', status))
       } else {
-        handleError(new AppError(data?.message || 'Errore nella richiesta', 'API_ERROR', status))
+        handleError(new AppError(
+            getApiErrorMessage(error) ?? data?.message ?? 'Errore nella richiesta',
+            'API_ERROR',
+            status,
+          ))
       }
     } else if (error.request) {
       // Request was made but no response received

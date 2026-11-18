@@ -90,13 +90,15 @@ const onSubmit = async () => {
   const result = await handleSubmit()
   if (result && result !== true) {
     addProductToInvoice(model.value, result)
-    //resetOriginal()
+    resetOriginal()
   }
 }
 
-const onClose = async () => {
-  await handleClose()
+const onClose = async (): Promise<boolean> => {
+  // undefined = l'utente ha rifiutato la conferma
+  if (!(await handleClose())) return false
   resetOriginal()
+  return true
 }
 
 const onReset = async () => {
@@ -104,14 +106,14 @@ const onReset = async () => {
 }
 
 const onDelete = async () => {
-  await handleDelete()
+  if (!(await handleDelete())) return
   removeProductFromInvoice(model.value, incomingInvoiceProduct.value.id!)
   resetOriginal()
 }
 
 const onViewProduct = async (product: IncomingInvoiceProductLight) => {
   if (props.editable) {
-    if (incomingInvoiceProduct.value.product) await onClose()
+    if (incomingInvoiceProduct.value.product && !(await onClose())) return
     setIncomingInvoiceProduct(product)
   } else emit('rowSelect', product.product?.id, false)
 }

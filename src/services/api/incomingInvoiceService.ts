@@ -1,7 +1,9 @@
 import apiClient from '@/services/api/apiClient'
 import type { IncomingInvoice, IncomingInvoiceLight } from '@/types/incomingInvoice'
 import type { IncomingInvoiceProduct } from '@/types/incomingInvoiceProduct'
-import { formatDate } from '@/utils/dateUtils'
+import { formatDate, parseDate } from '@/utils/dateUtils'
+
+const fromDTO = (dto: any): IncomingInvoice => ({ ...dto, date: parseDate(dto.date) })
 
 //Create
 export async function createIncomingInvoice(
@@ -11,7 +13,7 @@ export async function createIncomingInvoice(
     ...incomingInvoice,
     date: formatDate(incomingInvoice.date),
   })
-  return data
+  return fromDTO(data)
 }
 
 //Read
@@ -27,7 +29,7 @@ export async function getArchivedIncomingInvoices(): Promise<IncomingInvoiceLigh
 
 export async function getIncomingInvoiceDetail(id: number): Promise<IncomingInvoice> {
   const { data } = await apiClient.get<IncomingInvoice>(`/incomingInvoice/${id}`)
-  return data
+  return fromDTO(data)
 }
 
 //Update
@@ -35,18 +37,21 @@ export async function updateIncomingInvoice(
   id: number,
   incomingInvoice: IncomingInvoice,
 ): Promise<IncomingInvoice> {
-  const { data } = await apiClient.put<IncomingInvoice>(`/incomingInvoice/${id}`, incomingInvoice)
-  return data
+  const { data } = await apiClient.put<IncomingInvoice>(`/incomingInvoice/${id}`, {
+    ...incomingInvoice,
+    date: formatDate(incomingInvoice.date),
+  })
+  return fromDTO(data)
 }
 
 export async function completeIncomingInvoice(id: number): Promise<IncomingInvoice> {
   const { data } = await apiClient.patch<IncomingInvoice>(`/incomingInvoice/${id}/complete`)
-  return data
+  return fromDTO(data)
 }
 
 export async function restoreIncomingInvoice(id: number): Promise<IncomingInvoice> {
   const { data } = await apiClient.patch<IncomingInvoice>(`/incomingInvoice/${id}/restore`)
-  return data
+  return fromDTO(data)
 }
 
 //Delete

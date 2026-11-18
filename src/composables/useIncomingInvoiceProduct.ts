@@ -85,7 +85,7 @@ export function useIncomingInvoiceProduct(incomingInvoiceId: MaybeRef<number | u
       const { categoryId, brandId } = product as ProductLight
 
       ;(incomingInvoiceProduct.product as Product).category = categoryId
-        ? getCategory(brandId)
+        ? getCategory(categoryId)
         : undefined
       ;(incomingInvoiceProduct.product as Product).brand = brandId ? getBrand(brandId) : undefined
     }
