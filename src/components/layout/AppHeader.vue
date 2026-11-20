@@ -1,12 +1,12 @@
 <template>
-  <header class="flex px-4 py-4 items-center justify-between bg-white shadow-sm">
+  <header class="flex px-4 py-4 gap-3 items-center justify-between bg-white shadow-sm">
     <!-- Solo da Mobile mostro il menu hamburger -->
-    <div class="lg:hidden flex items-center w-10">
+    <div class="lg:hidden flex items-center w-10 shrink-0">
       <Button icon="pi pi-bars" rounded @click="openMenu" />
     </div>
 
     <!-- Contenuto della top bar -->
-    <div class="flex-1">
+    <div class="flex-1 min-w-0">
       <form class="max-w-96 mx-auto" @submit.prevent="onSearch">
         <InputGroup>
           <InputText v-model="searchText" :placeholder="layoutConstants.search" />
@@ -21,6 +21,18 @@
         </InputGroup>
       </form>
     </div>
+
+    <!-- Scansione codice a barre: solo da smartphone -->
+    <div class="md:hidden flex items-center justify-end w-10 shrink-0">
+      <Button
+        type="button"
+        icon="pi pi-camera"
+        rounded
+        :aria-label="t('barcode.title')"
+        @click="scannerVisible = true"
+      />
+    </div>
+    <BarcodeScanner v-model="scannerVisible" @found="onBarcodeFound" />
   </header>
 </template>
 
@@ -29,14 +41,22 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLayoutConstants } from '@/utils/i18nConstants'
 import { getProductDetailByCode } from '@/services/api/productService'
+import { useI18n } from 'vue-i18n'
 import { Button, InputGroup, InputText } from 'primevue'
+import BarcodeScanner from './BarcodeScanner.vue'
 
 const model = defineModel<boolean>()
 const layoutConstants = useLayoutConstants()
 const route = useRoute()
 const router = useRouter()
 
+const { t } = useI18n()
 const searchText = ref('')
+const scannerVisible = ref(false)
+
+const onBarcodeFound = (id: number): void => {
+  router.push({ name: 'product', params: { id }, query: { editable: 'false' } })
+}
 
 // Il campo riflette la ricerca attiva nell'inventario (anche aprendo un link o tornando indietro)
 watch(

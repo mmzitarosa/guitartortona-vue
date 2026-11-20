@@ -1,1 +1,10 @@
-{}
+{
+  "barcode": {
+    "title": "Scan barcode",
+    "hint": "Point the camera at the product barcode",
+    "retry": "Retry",
+    "notFound": "No product found for code {code}",
+    "permissionDenied": "Camera access denied. Enable it in the browser settings and retry.",
+    "cameraError": "Unable to start the camera"
+  }
+}
