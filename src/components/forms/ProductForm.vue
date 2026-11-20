@@ -126,18 +126,6 @@
               :icon="constants.cancel.icon"
               @click="onFormClose"
             />
-            <!-- Tasto Stampa - Visualizzazione -->
-            <Button
-              v-if="readonly && pristine"
-              type="button"
-              rounded
-              text
-              severity="secondary"
-              :icon="printConstants.print.icon"
-              :aria-label="printConstants.print.label"
-              v-tooltip.top="printConstants.print.label"
-              @click="printDialog = true"
-            />
             <!-- Tasto Reset - Inserimento/Modifica con cambiamenti  -->
             <Button
               type="button"
@@ -152,6 +140,18 @@
           </div>
           <!-- Bottoni di destra -->
           <div class="flex gap-2">
+            <!-- Tasto Stampa - Visualizzazione -->
+            <Button
+              v-if="readonly && pristine"
+              type="button"
+              rounded
+              text
+              severity="secondary"
+              :icon="printConstants.print.icon"
+              :aria-label="printConstants.print.label"
+              v-tooltip.top="printConstants.print.label"
+              @click="printDialog = true"
+            />
             <!-- Tasto Edit - Visualizzazione  -->
             <Button
               v-if="readonly && canEdit"
