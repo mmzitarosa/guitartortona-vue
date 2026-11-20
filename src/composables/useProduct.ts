@@ -42,6 +42,7 @@ export const useProduct = () => {
   const form = useForm<Product>({
     getById: getProductDetail,
     update: updateProduct,
+    mapResponse: (product: Product) => product,
     fieldMappings,
   })
 

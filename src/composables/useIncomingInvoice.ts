@@ -65,6 +65,7 @@ export function useIncomingInvoice() {
     update: updateIncomingInvoice,
     complete: completeIncomingInvoice,
     remove: deleteIncomingInvoice,
+    mapResponse: (invoice: IncomingInvoice) => invoice,
     fieldMappings,
   })
 

@@ -2,10 +2,11 @@ import { computed, onMounted, ref } from 'vue'
 import type { Brand } from '@/types/brand'
 import { getAllBrands } from '@/services/api/brandService'
 
-export const useBrands = () => {
-  const brands = ref<Brand[]>([])
-  const loading = ref(false)
+// Stato condiviso: una marca creata in un form deve essere visibile anche nelle tabelle
+const brands = ref<Brand[]>([])
+const loading = ref(false)
 
+export const useBrands = () => {
   onMounted(() => loadBrands())
 
   const addBrand = (current?: Brand) => {
@@ -29,6 +30,10 @@ export const useBrands = () => {
     }
   }
 
+  const ensureBrand = async (brandId?: number) => {
+    if (brandId && !brands.value.some((brand) => brand.id === brandId)) await loadBrands()
+  }
+
   const formatter = (value: string) => {
     return { id: undefined, name: value } as Brand
   }
@@ -47,5 +52,5 @@ export const useBrands = () => {
     return brandId ? map.value.get(brandId) : undefined
   }
 
-  return { brands, loading, formatter, getBrand, addBrand }
+  return { brands, loading, formatter, getBrand, addBrand, ensureBrand }
 }

@@ -42,6 +42,7 @@ import { useIncomingInvoiceProduct } from '@/composables/useIncomingInvoiceProdu
 import { useIncomingInvoiceProductsTableConstants } from '@/utils/i18nConstants'
 import { getProductDetailByCode } from '@/services/api/productService'
 import { computed } from 'vue'
+import { useBrands } from '@/composables/useBrands'
 
 interface IncomingInvoiceProductProps {
   editable?: boolean
@@ -73,6 +74,8 @@ const {
   resetOriginal,
 } = useIncomingInvoiceProduct(computed(() => model.value.id))
 
+const { ensureBrand } = useBrands()
+
 const emit = defineEmits<{
   rowSelect: [id?: number, edit?: boolean]
 }>()
@@ -89,6 +92,7 @@ const onSearch = async (value?: string) => {
 const onSubmit = async () => {
   const result = await handleSubmit()
   if (result && result !== true) {
+    await ensureBrand((result.product as { brandId?: number } | undefined)?.brandId)
     addProductToInvoice(model.value, result)
     resetOriginal()
   }
