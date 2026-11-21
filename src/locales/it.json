@@ -388,5 +388,13 @@
     },
     "detail": "Dettaglio",
     "close": "Chiudi"
+  },
+  "barcode": {
+    "title": "Scansiona codice a barre",
+    "hint": "Inquadra il codice a barre del prodotto",
+    "retry": "Riprova",
+    "notFound": "Nessun prodotto trovato per il codice {code}",
+    "permissionDenied": "Accesso alla fotocamera negato. Abilitalo dalle impostazioni del browser e riprova.",
+    "cameraError": "Impossibile avviare la fotocamera"
   }
 }
