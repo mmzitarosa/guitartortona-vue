@@ -318,6 +318,7 @@ onMounted(async () => {
 
 const onFormSubmit = async () => {
   const result = await handleSubmit()
+  if (result) historyKey.value++
   if (result && result !== true) emit('submit', result)
 }
 

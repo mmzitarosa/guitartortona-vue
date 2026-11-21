@@ -13,6 +13,8 @@ export function useRoles() {
   const isUser = isAdmin || hasRole(USER)
 
   return {
+    /** Registro di audit e modifiche riservate */
+    isAdmin,
     /** Modifiche e vendite */
     canEdit: isUser,
     /** Cancellazioni */

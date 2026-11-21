@@ -1,7 +1,7 @@
 import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
-import type { ProductEvent } from '@/types/productEvent'
+import type { ProductTimeline } from '@/types/productTimeline'
 import { fetchPrintPageUrl, openPrintPage } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
 
@@ -33,8 +33,8 @@ export async function getProductDetail(id: number): Promise<Product> {
   return data
 }
 
-export async function getProductHistory(id: number): Promise<ProductEvent[]> {
-  const { data } = await apiClient.get<ProductEvent[]>(`/product/${id}/history`)
+export async function getProductTimeline(id: number): Promise<ProductTimeline> {
+  const { data } = await apiClient.get<ProductTimeline>(`/product/${id}/timeline`)
   return data
 }
 

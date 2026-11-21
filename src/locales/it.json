@@ -224,7 +224,12 @@
       "notes": "Note",
       "showCosts": "Mostra costi",
       "hideCosts": "Nascondi costi",
-      "quantityOnly": "{quantity} pz"
+      "quantityOnly": "{quantity} pz",
+      "created": "Prodotto creato",
+      "changedPurchase": "Modificato acquisto",
+      "changed": "Modificato",
+      "by": "da {user}",
+      "emptyValue": "(vuoto)"
     }
   },
   "filters": {
@@ -256,7 +261,8 @@
       "incomingInvoices": "Fatture in Entrata",
       "used": "Usato",
       "products": "Prodotti",
-      "ledger": "Prima Nota"
+      "ledger": "Prima Nota",
+      "admin": "Amministrazione"
     },
     "items": {
       "insertInvoice": "Inserisci Fattura",
@@ -266,7 +272,8 @@
       "insertProduct": "Inserisci Prodotto",
       "inventory": "Inventario",
       "insertRecord": "Inserisci Record",
-      "ledger": "Brogliaccio"
+      "ledger": "Brogliaccio",
+      "audit": "Registro modifiche"
     }
   },
   "incomingInvoiceProducts": {
@@ -328,6 +335,59 @@
     "done": "Vendita registrata",
     "doneDetail": "Il carrello è stato venduto.",
     "noStock": "Quantità non disponibile (già nel carrello: {inCart})"
+  },
+  "audit": {
+    "title": "Registro modifiche",
+    "empty": "Nessuna modifica trovata.",
+    "loading": "Caricamento...",
+    "columns": {
+      "date": "Data",
+      "user": "Utente",
+      "entity": "Entità",
+      "operation": "Operazione",
+      "field": "Campo",
+      "oldValue": "Prima",
+      "newValue": "Dopo"
+    },
+    "filters": {
+      "user": "Utente",
+      "entity": "Entità",
+      "operation": "Operazione",
+      "from": "Da",
+      "to": "A",
+      "reset": "Azzera filtri",
+      "all": "Tutte"
+    },
+    "operations": {
+      "CREATE": "Creazione",
+      "UPDATE": "Modifica",
+      "DELETE": "Eliminazione"
+    },
+    "entities": {
+      "Product": "Prodotto",
+      "Sale": "Vendita",
+      "IncomingInvoice": "Fattura",
+      "PurchaseItem": "Riga acquisto",
+      "LedgerEntry": "Brogliaccio",
+      "Supplier": "Fornitore",
+      "Brand": "Marca",
+      "Category": "Categoria"
+    },
+    "fields": {
+      "description": "Descrizione",
+      "price": "Prezzo",
+      "code": "Codice",
+      "brand": "Marca",
+      "category": "Categoria",
+      "condition": "Condizione",
+      "reorderPoint": "Scorta minima",
+      "purchasePrice": "Costo di acquisto",
+      "quantity": "Quantità",
+      "vat": "IVA",
+      "notes": "Note"
+    },
+    "detail": "Dettaglio",
+    "close": "Chiudi"
   },
   "barcode": {
     "title": "Scansiona codice a barre",
