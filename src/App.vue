@@ -3,7 +3,7 @@
   <Drawer v-model="mobileMenu"></Drawer>
 
   <!-- Main area -->
-  <div class="flex-1 flex flex-col">
+  <div class="flex-1 min-w-0 flex flex-col">
     <!-- Topbar -->
     <AppHeader v-model="mobileMenu"></AppHeader>
 
