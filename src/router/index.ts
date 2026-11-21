@@ -11,6 +11,7 @@ const IncomingInvoicesListView = () => import('@/views/IncomingInvoicesListView.
 const AddLedgerEntryView = () => import('@/views/AddLedgerEntryView.vue')
 const LedgerEntryView = () => import('@/views/LedgerEntryView.vue')
 const LedgerView = () => import('@/views/LedgerView.vue')
+const AuditView = () => import('@/views/AuditView.vue')
 
 /**
  * Application routes configuration
@@ -81,6 +82,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/audit',
+    name: 'audit',
+    component: AuditView,
+    meta: {
+      title: 'Registro Modifiche',
+    },
+  },
+  {
     path: '/ledger',
     name: 'ledger',
     component: LedgerView,
@@ -103,6 +112,7 @@ router.beforeEach((to, from, next) => {
   // Fatture e brogliaccio contengono costi: non accessibili senza permessi
   const costsPage = /^\/(incomingInvoice|ledger|usedReceipt)/.test(to.path)
   if (costsPage && !useRoles().canSeeCosts) return next({ name: 'home' })
+  if (to.path.startsWith('/audit') && !useRoles().isAdmin) return next({ name: 'home' })
   next()
 })
 

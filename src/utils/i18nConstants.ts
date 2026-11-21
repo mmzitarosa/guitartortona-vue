@@ -697,5 +697,15 @@ export const useSidebarItems = (): Menu[] => {
         },
       ],
     },
+    {
+      label: t('navigation.sections.admin'),
+      items: [
+        {
+          label: t('navigation.items.audit'),
+          icon: 'pi pi-history',
+          route: '/audit',
+        },
+      ],
+    },
   ]
 }

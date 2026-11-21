@@ -55,15 +55,19 @@ const username = getUsername() ?? '-'
 const props = defineProps<{ items: Menu[] }>()
 
 // Senza permessi sui costi restano solo le voci dell'inventario
-const { canSeeCosts } = useRoles()
+const { canSeeCosts, isAdmin } = useRoles()
 const visibleItems = computed(() =>
-  canSeeCosts
+  (canSeeCosts
     ? props.items
     : props.items
         .map((menu) => ({
           ...menu,
           items: menu.items.filter((i) => i.route?.startsWith('/products')),
         }))
-        .filter((menu) => menu.items.length),
+        .filter((menu) => menu.items.length)
+  )
+    // Il registro di audit è solo per l'admin
+    .map((menu) => ({ ...menu, items: menu.items.filter((i) => isAdmin || i.route !== '/audit') }))
+    .filter((menu) => menu.items.length),
 )
 </script>
