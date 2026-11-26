@@ -156,6 +156,7 @@ const ENTITIES = [
   'Product',
   'Sale',
   'IncomingInvoice',
+  'UsedReceipt',
   'PurchaseItem',
   'LedgerEntry',
   'Supplier',

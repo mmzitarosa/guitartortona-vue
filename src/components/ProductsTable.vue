@@ -69,6 +69,42 @@
             <p v-if="data.description">{{ data.description }}</p>
           </template>
         </Column>
+        <Column filterField="condition" :showFilterMenu="false">
+          <template #header>
+            <span class="p-datatable-column-title">{{ conditionConstants.column }}</span>
+          </template>
+          <template #filter>
+            <Select
+              v-model="_condition"
+              :options="conditionConstants.options"
+              optionValue="value"
+              optionLabel="label"
+              showClear
+              :placeholder="conditionConstants.filter"
+              class="w-40"
+              :class="_condition ? 'border-black! text-black!' : ''"
+            >
+              <template #option="{ option }">
+                <Tag :value="option.label" :severity="option.severity" />
+              </template>
+              <template #value="{ value, placeholder }">
+                <Tag
+                  v-if="value"
+                  :value="conditionOf(value)?.label"
+                  :severity="conditionOf(value)?.severity"
+                />
+                <span v-else>{{ placeholder }}</span>
+              </template>
+            </Select>
+          </template>
+          <template #body="{ data }">
+            <Tag
+              v-if="data.condition && conditionOf(data.condition)"
+              :value="conditionOf(data.condition)?.label"
+              :severity="conditionOf(data.condition)?.severity"
+            />
+          </template>
+        </Column>
         <Column filterField="available" :showFilterMenu="false" style="text-align: center">
           <template #header>
             <span class="p-datatable-column-title w-full"> Quantità </span>
@@ -115,6 +151,7 @@ import {
   type DataTableRowSelectEvent,
   InputText,
   Select,
+  Tag,
 } from 'primevue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -122,6 +159,11 @@ import { useCategories } from '@/composables/useCategories'
 import { useBrands } from '@/composables/useBrands'
 import { useProductsTable } from '@/composables/useProductsTable'
 import { formatCurrency } from '@/utils/currencyUtils'
+import { useConditionConstants } from '@/utils/i18nConstants'
+
+const conditionConstants = useConditionConstants()
+const conditionOf = (value: 'NEW' | 'USED') =>
+  conditionConstants.options.find((option) => option.value === value)
 
 const { products, totalRecords, loadProducts, loading } = useProductsTable()
 
@@ -138,13 +180,20 @@ const props = defineProps<{
     brandId?: number
     description?: string
     search?: string
+    condition?: 'NEW' | 'USED'
   }
 }>()
 
 const emit = defineEmits<{
   page: [page: number, size: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [categoryId?: number, brandId?: number, description?: string, available?: boolean]
+  filter: [
+    categoryId?: number,
+    brandId?: number,
+    description?: string,
+    available?: boolean,
+    condition?: 'NEW' | 'USED',
+  ]
 }>()
 
 // Ricarica la tabella quando cambiano pagina o filtri (query della route)
@@ -156,6 +205,7 @@ watch(
       description: filter.description,
       categoryId: filter.categoryId,
       brandId: filter.brandId,
+      condition: filter.condition,
       available: filter.available,
       page: filter.page,
       size: filter.size,
@@ -171,6 +221,7 @@ const filters = computed((): DataTableFilterMeta => {
   return {
     categoryId: { value: props.filter.categoryId, matchMode: FilterMatchMode.EQUALS },
     brandId: { value: props.filter.brandId, matchMode: FilterMatchMode.EQUALS },
+    condition: { value: props.filter.condition, matchMode: FilterMatchMode.EQUALS },
     available: {
       value: props.filter.available ? true : undefined,
       matchMode: FilterMatchMode.EQUALS,
@@ -178,16 +229,24 @@ const filters = computed((): DataTableFilterMeta => {
   }
 })
 
+const currentDescription = () => descriptionText.value.trim() || undefined
+
 const _categoryId = computed({
   get: (): number | undefined => props.filter.categoryId,
   set: (value?: number): void =>
-    onFilter(value, _brandId.value, descriptionText.value.trim() || undefined, _available.value),
+    onFilter(value, _brandId.value, currentDescription(), _available.value, _condition.value),
 })
 
 const _brandId = computed({
   get: (): number | undefined => props.filter.brandId,
   set: (value?: number): void =>
-    onFilter(_categoryId.value, value, descriptionText.value.trim() || undefined, _available.value),
+    onFilter(_categoryId.value, value, currentDescription(), _available.value, _condition.value),
+})
+
+const _condition = computed({
+  get: (): 'NEW' | 'USED' | undefined => props.filter.condition,
+  set: (value?: 'NEW' | 'USED'): void =>
+    onFilter(_categoryId.value, _brandId.value, currentDescription(), _available.value, value),
 })
 
 // Il testo digitato è locale; il filtro parte 300 ms dopo l'ultimo carattere
@@ -200,7 +259,7 @@ watch(descriptionText, (value) => {
   descriptionTimer = setTimeout(() => {
     const description = value.trim() || undefined
     if (description !== props.filter.description)
-      onFilter(_categoryId.value, _brandId.value, description, _available.value)
+      onFilter(_categoryId.value, _brandId.value, description, _available.value, _condition.value)
   }, FILTER_DELAY_MS)
 })
 
@@ -217,7 +276,7 @@ onBeforeUnmount(() => clearTimeout(descriptionTimer))
 const _available = computed({
   get: (): boolean => props.filter.available,
   set: (value?: boolean): void =>
-    onFilter(_categoryId.value, _brandId.value, descriptionText.value.trim() || undefined, value),
+    onFilter(_categoryId.value, _brandId.value, currentDescription(), value, _condition.value),
 })
 
 const onPage = (event: DataTablePageEvent): void => {
@@ -231,7 +290,8 @@ const onFilter = (
   brandId?: number,
   description?: string,
   available?: boolean,
+  condition?: 'NEW' | 'USED',
 ): void => {
-  emit('filter', categoryId, brandId, description, available)
+  emit('filter', categoryId, brandId, description, available, condition)
 }
 </script>
