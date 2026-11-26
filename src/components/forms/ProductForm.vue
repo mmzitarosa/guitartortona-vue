@@ -14,6 +14,14 @@
           <!-- Prima riga: codice e codice interno-->
           <div class="grid grid-cols-[repeat(auto-fit,minmax(14rem,1fr))] gap-4 col-span-full">
             <InputTextField
+              v-if="product.condition === 'USED'"
+              v-model="product.usedReference"
+              inputId="usedReference"
+              :label="constants.usedReference.label"
+              readonly
+            />
+            <InputTextField
+              v-else
               v-model="product.code"
               inputId="code"
               :label="constants.code.label"

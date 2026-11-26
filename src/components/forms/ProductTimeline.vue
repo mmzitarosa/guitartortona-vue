@@ -96,7 +96,16 @@
               <span>{{ fieldValue(c.field, c.newValue) }}</span>
             </div>
 
-            <div v-if="hasInvoice(entry)" class="text-sm mt-1">
+            <div v-if="hasInvoice(entry) && entry.receiptId" class="text-sm mt-1">
+              <RouterLink
+                :to="{ path: `/usedReceipt/${entry.receiptId}`, query: { editable: 'false' } }"
+                class="text-primary hover:underline"
+                @click.stop
+              >
+                {{ t('fieldset.history.receipt', { number: entry.receiptNumber ?? '-' }) }}
+              </RouterLink>
+            </div>
+            <div v-else-if="hasInvoice(entry)" class="text-sm mt-1">
               <RouterLink
                 v-if="entry.invoiceId"
                 :to="{ path: `/incomingInvoice/${entry.invoiceId}`, query: { editable: 'false' } }"

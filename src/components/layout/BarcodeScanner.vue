@@ -32,9 +32,9 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button, Dialog, Message } from 'primevue'
 import { BrowserMultiFormatReader, type IScannerControls } from '@zxing/browser'
-import { getProductDetailByCode } from '@/services/api/productService'
+import { findByCode, type CodeTarget } from '@/services/codeLookup'
 
-const emit = defineEmits<{ found: [productId: number] }>()
+const emit = defineEmits<{ found: [target: CodeTarget] }>()
 
 const { t } = useI18n()
 const visible = defineModel<boolean>({ default: false })
@@ -55,18 +55,14 @@ const stopScan = (): void => {
 const onDetected = async (code: string): Promise<void> => {
   if (handling) return
   handling = true
-  try {
-    const product = await getProductDetailByCode(code)
-    if (product.id) {
-      stopScan()
-      visible.value = false
-      emit('found', product.id)
-      return
-    }
-    error.value = t('barcode.notFound', { code })
-  } catch {
-    error.value = t('barcode.notFound', { code })
+  const target = await findByCode(code)
+  if (target) {
+    stopScan()
+    visible.value = false
+    emit('found', target)
+    return
   }
+  error.value = t('barcode.notFound', { code })
   stopScan()
   handling = false
 }

@@ -367,6 +367,9 @@ export const useProductConstants = () => {
     internalCode: {
       label: t('common.labels.internalCode'),
     },
+    usedReference: {
+      label: t('usedReceipt.labels.number'),
+    },
     category: {
       label: t('common.labels.category'),
       messages: {
@@ -667,6 +670,173 @@ export const useConfirmDialogConstants = () => {
 }
 
 /**
+ * Used receipts (form, products, list) using i18n
+ */
+export const useUsedReceiptConstants = () => {
+  const { t } = useI18n()
+
+  const base = useIncomingInvoiceConstants()
+  const product = useIncomingInvoiceProductConstants()
+
+  return {
+    ...base,
+    card: {
+      title: t('usedReceipt.card.title'),
+      subtitle: t('usedReceipt.card.subtitle'),
+    },
+    archived: { message: t('usedReceipt.card.archivedMessage') },
+    date: {
+      label: t('usedReceipt.labels.date'),
+      messages: { required: t('usedReceipt.messages.dateRequired') },
+    },
+    customer: {
+      label: t('usedReceipt.labels.customer'),
+      newLabel: t('usedReceipt.customerDialog.new'),
+      editLabel: t('usedReceipt.customerDialog.edit'),
+    },
+    number: {
+      label: t('usedReceipt.labels.number'),
+      placeholder: t('usedReceipt.labels.numberPlaceholder'),
+    },
+    internalCode: { label: t('usedReceipt.labels.internalCode') },
+    amount: { label: t('usedReceipt.labels.amount') },
+    notes: {
+      label: t('common.labels.notes'),
+      messages: { tooLong: t('usedReceipt.messages.notesTooLong') },
+    },
+    confirm: { label: t('usedReceipt.confirm.label') },
+    register: {
+      label: t('usedReceipt.register.label'),
+      title: t('usedReceipt.register.title'),
+      message: t('usedReceipt.register.message'),
+      acceptLabel: t('usedReceipt.register.acceptLabel'),
+      toastTitle: t('usedReceipt.register.toastTitle'),
+      toastMessage: t('usedReceipt.register.toastMessage'),
+    },
+    print: {
+      receipt: t('usedReceipt.print.receipt'),
+      label: t('usedReceipt.print.label'),
+      title: t('usedReceipt.print.title'),
+      receiptOption: t('usedReceipt.print.receiptOption'),
+      labelsOption: t('usedReceipt.print.labelsOption'),
+      printReceipt: t('usedReceipt.print.printReceipt'),
+      printLabels: t('usedReceipt.print.printLabels'),
+    },
+    propagate: {
+      title: t('usedReceipt.propagate.title'),
+      message: t('usedReceipt.propagate.message'),
+      acceptLabel: t('usedReceipt.propagate.acceptLabel'),
+      rejectLabel: t('usedReceipt.propagate.rejectLabel'),
+    },
+    customerDialog: {
+      newTitle: t('usedReceipt.customerDialog.newTitle'),
+      editTitle: t('usedReceipt.customerDialog.editTitle'),
+      hint: t('usedReceipt.customerDialog.optionalHint'),
+      save: t('usedReceipt.customerDialog.save'),
+      required: t('usedReceipt.messages.required'),
+      tooLong: t('usedReceipt.messages.tooLong'),
+      fields: {
+        firstName: t('usedReceipt.labels.firstName'),
+        lastName: t('usedReceipt.labels.lastName'),
+        address: t('usedReceipt.labels.address'),
+        zipCode: t('usedReceipt.labels.zipCode'),
+        city: t('usedReceipt.labels.city'),
+        province: t('usedReceipt.labels.province'),
+        documentType: t('usedReceipt.labels.documentType'),
+        documentNumber: t('usedReceipt.labels.documentNumber'),
+        taxCode: t('usedReceipt.labels.taxCode'),
+      },
+    },
+    product: {
+      ...product,
+      fieldset: { legend: t('usedReceipt.products.legend') },
+      add: { label: t('usedReceipt.products.add'), icon: t('buttons.add.icon') },
+      purchaseDivider: t('usedReceipt.products.purchaseDivider'),
+      saleDivider: t('usedReceipt.products.saleDivider'),
+      reference: {
+        label: t('usedReceipt.products.columns.reference'),
+        placeholder: t('usedReceipt.labels.numberPlaceholder'),
+      },
+    },
+    table: {
+      title: t('usedReceipt.products.title'),
+      subtitle: t('usedReceipt.products.subtitle'),
+      empty: t('usedReceipt.products.empty'),
+      columns: {
+        category: t('usedReceipt.products.columns.category'),
+        brand: t('usedReceipt.products.columns.brand'),
+        description: t('usedReceipt.products.columns.description'),
+        amount: t('usedReceipt.products.columns.amount'),
+        vat: t('usedReceipt.products.columns.vat'),
+        sale: t('usedReceipt.products.columns.sale'),
+        number: t('usedReceipt.products.columns.number'),
+      },
+      total: t('usedReceipt.products.footer.total'),
+    },
+  }
+}
+
+/**
+ * Used receipts list using i18n
+ */
+export const useUsedReceiptsTableConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    empty: t('usedReceipt.list.empty'),
+    loading: t('usedReceipt.list.loading'),
+    customerFilter: t('usedReceipt.list.customerFilter'),
+    columns: {
+      date: t('usedReceipt.list.columns.date'),
+      customer: t('usedReceipt.list.columns.customer'),
+      number: t('usedReceipt.list.columns.number'),
+      amount: t('usedReceipt.list.columns.amount'),
+      status: t('usedReceipt.list.columns.status'),
+    },
+    item: {
+      number: t('usedReceipt.list.items.number'),
+      description: t('usedReceipt.list.items.description'),
+      cost: t('usedReceipt.list.items.cost'),
+      saleDate: t('usedReceipt.list.items.saleDate'),
+      price: t('usedReceipt.list.items.price'),
+      margin: t('usedReceipt.list.items.margin'),
+      vat: t('usedReceipt.list.items.vat'),
+      receipt: t('usedReceipt.list.items.receipt'),
+    },
+    status: {
+      DRAFT: {
+        label: t('usedReceipt.status.draft.label'),
+        severity: t('usedReceipt.status.draft.severity'),
+      },
+      PENDING: {
+        label: t('usedReceipt.status.pending.label'),
+        severity: t('usedReceipt.status.pending.severity'),
+      },
+      COMPLETED: {
+        label: t('usedReceipt.status.completed.label'),
+        severity: t('usedReceipt.status.completed.severity'),
+      },
+    },
+  }
+}
+
+/**
+ * Product condition (new / used) using i18n
+ */
+export const useConditionConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    column: t('condition.column'),
+    filter: t('condition.filter'),
+    options: [
+      { value: 'NEW', label: t('condition.new'), severity: 'success' },
+      { value: 'USED', label: t('condition.used'), severity: 'warn' },
+    ] as { value: 'NEW' | 'USED'; label: string; severity: string }[],
+  }
+}
+
+/**
  * Sidebar items using i18n
  */
 export const useSidebarItems = (): Menu[] => {
@@ -695,13 +865,11 @@ export const useSidebarItems = (): Menu[] => {
           label: t('navigation.items.newReceipt'),
           icon: 'pi pi-plus',
           route: '/usedReceipt',
-          disabled: true,
         },
         {
           label: t('navigation.items.usedRegister'),
           icon: 'pi pi-list',
           route: '/usedReceipts',
-          disabled: true,
         },
       ],
     },

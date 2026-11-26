@@ -254,6 +254,7 @@
       "sale": "Vendita",
       "purchase": "Acquisto",
       "invoice": "Fattura {number}",
+      "receipt": "Ricevuta Usato {number}",
       "vat": "IVA {vat}%",
       "vatIncluded": "IVA inclusa",
       "totalPurchased": "Acquistati",
@@ -336,6 +337,126 @@
       }
     }
   },
+  "usedReceipt": {
+    "card": {
+      "title": "Nuova Ricevuta",
+      "subtitle": "Dati Ricevuta",
+      "archivedMessage": "Ricevuta eliminata."
+    },
+    "labels": {
+      "date": "Data Ricevuta",
+      "customer": "Cliente",
+      "number": "Numero",
+      "internalCode": "Codice Interno",
+      "amount": "Importo Totale",
+      "numberPlaceholder": "Assegnato alla registrazione",
+      "noCustomer": "Nessun cliente",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "address": "Indirizzo",
+      "zipCode": "CAP",
+      "city": "Città",
+      "province": "Provincia",
+      "documentType": "Tipo documento",
+      "documentNumber": "Numero documento",
+      "taxCode": "Codice fiscale"
+    },
+    "messages": {
+      "dateRequired": "Seleziona una data",
+      "notesTooLong": "Note troppo lunghe",
+      "required": "Campo obbligatorio",
+      "tooLong": "Valore troppo lungo"
+    },
+    "customerDialog": {
+      "newTitle": "Nuovo cliente",
+      "editTitle": "Modifica cliente",
+      "new": "Nuovo cliente",
+      "edit": "Modifica dati cliente",
+      "optionalHint": "Documento e codice fiscale sono facoltativi.",
+      "save": "Conferma"
+    },
+    "propagate": {
+      "title": "Aggiornare l'anagrafica?",
+      "message": "I dati del cliente sono stati modificati. Vuoi aggiornare anche l'anagrafica o applicarli solo a questa ricevuta?",
+      "acceptLabel": "Aggiorna anagrafica",
+      "rejectLabel": "Solo questa ricevuta"
+    },
+    "register": {
+      "label": "Registra",
+      "title": "Registrare la ricevuta",
+      "message": "Confermando la ricevuta verrà registrata.",
+      "acceptLabel": "Registra",
+      "toastTitle": "Registrata",
+      "toastMessage": "La ricevuta è stata registrata."
+    },
+    "confirm": {
+      "label": "Conferma"
+    },
+    "print": {
+      "receipt": "Stampa ricevuta",
+      "label": "Stampa etichetta",
+      "title": "Stampa",
+      "receiptOption": "Ricevuta",
+      "labelsOption": "Etichette prodotto",
+      "printReceipt": "Stampa ricevuta",
+      "printLabels": "Stampa etichette"
+    },
+    "status": {
+      "draft": { "label": "BOZZA", "severity": "warn" },
+      "pending": { "label": "CONFERMATA", "severity": "info" },
+      "completed": { "label": "REGISTRATA", "severity": "success" }
+    },
+    "products": {
+      "title": "Gestione Prodotti",
+      "subtitle": "Dati Prodotti Ricevuta",
+      "add": "Aggiungi prodotto usato",
+      "legend": "Prodotto usato",
+      "purchaseDivider": "Acquisto",
+      "saleDivider": "Vendita",
+      "empty": "Nessun prodotto trovato.",
+      "columns": {
+        "category": "Categoria",
+        "brand": "Marca",
+        "description": "Descrizione",
+        "amount": "Importo",
+        "vat": "IVA",
+        "sale": "Vendita",
+        "number": "Numero",
+        "reference": "Numero"
+      },
+      "footer": {
+        "total": "Totale"
+      }
+    },
+    "list": {
+      "empty": "Nessuna ricevuta trovata.",
+      "loading": "Caricando le ricevute...",
+      "customerFilter": "Filtro per Cliente",
+      "columns": {
+        "date": "Data",
+        "customer": "Cliente",
+        "number": "Numero/Anno",
+        "amount": "Importo",
+        "status": "Stato"
+      },
+      "items": {
+        "number": "Numero",
+        "description": "Descrizione",
+        "cost": "Costo",
+        "saleDate": "Venduto il",
+        "price": "Prezzo",
+        "margin": "Margine",
+        "vat": "IVA",
+        "receipt": "Scontrino"
+      }
+    }
+  },
+  "condition": {
+    "new": "Nuovo",
+    "used": "Usato",
+    "filter": "Filtro condizione",
+    "column": "Condizione"
+  },
   "apiErrors": {
     "PRODUCT_NOT_FOUND": "Prodotto non trovato.",
     "SUPPLIER_NOT_FOUND": "Fornitore non trovato.",
@@ -351,6 +472,16 @@
     "PURCHASE_ITEM_NOT_IN_INVOICE": "Il prodotto non appartiene a questa fattura.",
     "INVOICE_NOT_EDITABLE": "La fattura non è modificabile: le fatture confermate possono essere modificate solo da un admin, quelle archiviate mai.",
     "INVOICE_ARCHIVED": "Una fattura archiviata non può essere completata.",
+    "CUSTOMER_NOT_FOUND": "Cliente non trovato.",
+    "USED_RECEIPT_NOT_FOUND": "Ricevuta non trovata.",
+    "USED_RECEIPT_EMPTY": "La ricevuta deve contenere almeno un prodotto.",
+    "USED_RECEIPT_NOT_DRAFT": "L'operazione è consentita solo sulle bozze.",
+    "USED_RECEIPT_NOT_PENDING": "La ricevuta deve essere confermata prima di essere registrata.",
+    "USED_RECEIPT_NOT_EDITABLE": "La ricevuta non è modificabile: quelle confermate possono essere modificate solo da un admin, quelle eliminate mai.",
+    "USED_RECEIPT_NOT_PRINTABLE": "La ricevuta si può stampare solo dopo la conferma.",
+    "USED_RECEIPT_NOT_ARCHIVABLE": "Gli operatori possono eliminare solo le bozze.",
+    "USED_RECEIPT_NOT_ARCHIVED": "La ricevuta deve essere eliminata prima dell'eliminazione definitiva.",
+    "USED_RECEIPT_HAS_SALES": "Alcuni prodotti della ricevuta risultano già venduti.",
     "VALIDATION_ERROR": "Dati non validi. Controlla i campi del modulo.",
     "UNKNOWN": "Si è verificato un errore imprevisto."
   },
@@ -404,6 +535,7 @@
       "Product": "Prodotto",
       "Sale": "Vendita",
       "IncomingInvoice": "Fattura",
+      "UsedReceipt": "Ricevuta usato",
       "PurchaseItem": "Riga acquisto",
       "LedgerEntry": "Brogliaccio",
       "Supplier": "Fornitore",
@@ -430,7 +562,7 @@
     "title": "Scansiona codice a barre",
     "hint": "Inquadra il codice a barre del prodotto",
     "retry": "Riprova",
-    "notFound": "Nessun prodotto trovato per il codice {code}",
+    "notFound": "Nessun prodotto o ricevuta trovati per il codice {code}",
     "permissionDenied": "Accesso alla fotocamera negato. Abilitalo dalle impostazioni del browser e riprova.",
     "cameraError": "Impossibile avviare la fotocamera"
   }

@@ -8,6 +8,9 @@ const HomeView = () => import('@/views/HomeView.vue')
 const AddIncomingInvoiceView = () => import('@/views/AddIncomingInvoiceView.vue')
 const IncomingInvoiceView = () => import('@/views/IncomingInvoiceView.vue')
 const IncomingInvoicesListView = () => import('@/views/IncomingInvoicesListView.vue')
+const AddUsedReceiptView = () => import('@/views/AddUsedReceiptView.vue')
+const UsedReceiptView = () => import('@/views/UsedReceiptView.vue')
+const UsedReceiptsListView = () => import('@/views/UsedReceiptsListView.vue')
 const AddLedgerEntryView = () => import('@/views/AddLedgerEntryView.vue')
 const LedgerEntryView = () => import('@/views/LedgerEntryView.vue')
 const LedgerView = () => import('@/views/LedgerView.vue')
@@ -47,6 +50,30 @@ const routes: RouteRecordRaw[] = [
     component: IncomingInvoicesListView,
     meta: {
       title: 'Lista Fatture',
+    },
+  },
+  {
+    path: '/usedReceipt',
+    name: 'addUsedReceipt',
+    component: AddUsedReceiptView,
+    meta: {
+      title: 'Aggiungi Ricevuta Usato',
+    },
+  },
+  {
+    path: '/usedReceipt/:id',
+    name: 'usedReceipt',
+    component: UsedReceiptView,
+    meta: {
+      title: 'Dettaglio Ricevuta Usato',
+    },
+  },
+  {
+    path: '/usedReceipts',
+    name: 'usedReceiptsList',
+    component: UsedReceiptsListView,
+    meta: {
+      title: 'Registro Usato',
     },
   },
   {

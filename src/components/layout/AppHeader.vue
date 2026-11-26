@@ -32,7 +32,7 @@
         @click="scannerVisible = true"
       />
     </div>
-    <BarcodeScanner v-model="scannerVisible" @found="onBarcodeFound" />
+    <BarcodeScanner v-model="scannerVisible" @found="openTarget" />
   </header>
 </template>
 
@@ -40,7 +40,7 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLayoutConstants } from '@/utils/i18nConstants'
-import { getProductDetailByCode } from '@/services/api/productService'
+import { findByCode, type CodeTarget } from '@/services/codeLookup'
 import { useI18n } from 'vue-i18n'
 import { Button, InputGroup, InputText } from 'primevue'
 import BarcodeScanner from './BarcodeScanner.vue'
@@ -54,9 +54,8 @@ const { t } = useI18n()
 const searchText = ref('')
 const scannerVisible = ref(false)
 
-const onBarcodeFound = (id: number): void => {
-  router.push({ name: 'product', params: { id }, query: { editable: 'false' } })
-}
+const openTarget = (target: CodeTarget): Promise<unknown> =>
+  router.push({ name: target.name, params: { id: target.id }, query: { editable: 'false' } })
 
 // Il campo riflette la ricerca attiva nell'inventario (anche aprendo un link o tornando indietro)
 watch(
@@ -81,23 +80,15 @@ const goToProducts = (search?: string): void => {
 // Un codice a barre non contiene spazi
 const isBarcode = (text: string): boolean => !/\s/.test(text)
 
-// Se il testo è un codice prodotto o interno esistente apro direttamente il dettaglio,
+// Se il testo è un codice di prodotto o ricevuta esistente apro direttamente il dettaglio,
 // altrimenti (anche in caso di errore) ricerca nell'inventario, comprese le giacenze a zero
 const onSearch = async (): Promise<void> => {
   const search = searchText.value.trim()
   if (search && isBarcode(search)) {
-    try {
-      const product = await getProductDetailByCode(search)
-      if (product.id) {
-        await router.push({
-          name: 'product',
-          params: { id: product.id },
-          query: { editable: 'false' },
-        })
-        return
-      }
-    } catch {
-      // Nessun prodotto con quel codice: prosegue con la ricerca
+    const target = await findByCode(search)
+    if (target) {
+      await openTarget(target)
+      return
     }
   }
   goToProducts(search || undefined)
