@@ -2,7 +2,7 @@ import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
 import type { ProductTimeline } from '@/types/productTimeline'
-import { fetchPrintPageUrl, openPrintPage } from '@/services/api/printService'
+import { fetchPrintPageUrl, printPageInFrame } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
 
 //Read
@@ -11,6 +11,7 @@ export interface ProductsQuery {
   description?: string
   categoryId?: number
   brandId?: number
+  condition?: 'NEW' | 'USED'
   available?: boolean
   page: number
   size: number
@@ -68,7 +69,7 @@ export async function addCartSale(
 }
 
 export function printProductLabel(internalCode: string, quantity: number): Promise<void> {
-  return openPrintPage('/product/print', { code: internalCode, quantity })
+  return printPageInFrame('/product/print', { code: internalCode, quantity })
 }
 
 // Blob URL dell'anteprima etichetta: va rilasciato con URL.revokeObjectURL

@@ -17,9 +17,10 @@
       class="p-inputwrapper-filled w-full"
       fluid
     >
-      <template v-if="optionDepth" #option="{ option }">
-        <span :style="{ paddingLeft: `${optionDepth(option) * 1.25}rem` }">
-          {{ option[optionLabel] }}
+      <template v-if="optionDepth || optionDetail" #option="{ option }">
+        <span :style="{ paddingLeft: `${(optionDepth?.(option) ?? 0) * 1.25}rem` }">
+          {{ option[optionLabel]
+          }}<template v-if="optionDetail?.(option)"> - {{ optionDetail(option) }}</template>
         </span>
       </template>
     </Select>
@@ -43,6 +44,7 @@ interface SelectFieldProps<T extends object> {
   showClear?: boolean
   editable?: boolean
   optionDepth?: (option: T) => number
+  optionDetail?: (option: T) => string | undefined
   formatter?: (value: string) => T | T[keyof T]
 }
 

@@ -28,6 +28,8 @@ export interface TimelineEntry {
   invoiceId?: number
   invoiceNumber?: string
   supplier?: string
+  receiptId?: number
+  receiptNumber?: string
   /** Campi poi sovrascritti da una modifica successiva */
   superseded?: string[]
   changes?: TimelineFieldChange[]

@@ -10,6 +10,7 @@
       :maxFractionDigits="2"
       :min="0"
       :readonly
+      :placeholder
       :invalid
       class="p-inputwrapper-filled"
       fluid
@@ -31,6 +32,7 @@ interface InputAmountFieldProps {
   readonly?: boolean
   validation?: { message?: string; valid: boolean }
   tooltip?: string
+  placeholder?: string
 }
 
 const props = defineProps<InputAmountFieldProps>()

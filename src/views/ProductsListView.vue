@@ -11,7 +11,16 @@ import ProductsTable from '@/components/ProductsTable.vue'
 const route = useRoute()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, category, brand, description, search, available = 'true' } = route.query
+  const {
+    page = 0,
+    size = 15,
+    category,
+    brand,
+    description,
+    search,
+    condition,
+    available = 'true',
+  } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
@@ -23,6 +32,10 @@ const filter = computed(() => {
     brandId: brand ? Number(brand) : undefined,
     description: description ? (description as string) : undefined,
     search: search ? (search as string) : undefined,
+    condition: (condition === 'NEW' || condition === 'USED' ? condition : undefined) as
+      | 'NEW'
+      | 'USED'
+      | undefined,
     available: available === 'true' ? true : false,
   }
 })
@@ -49,12 +62,14 @@ const onFilter = (
   brandId?: number,
   description?: string,
   available?: boolean,
+  condition?: 'NEW' | 'USED',
 ) => {
   router.replace({
     query: {
       category: categoryId,
       brand: brandId,
       description,
+      condition,
       // La ricerca della barra in alto resta attiva mentre si cambiano i filtri
       search: route.query.search,
       available: String(available),
