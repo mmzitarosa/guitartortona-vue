@@ -5,9 +5,11 @@ import { formatDate } from '@/utils/dateUtils'
 import { useIncomingInvoiceConstants } from '@/utils/i18nConstants'
 import {
   completeIncomingInvoice,
+  archiveIncomingInvoice,
   createIncomingInvoice,
   deleteIncomingInvoice,
   getIncomingInvoiceDetail,
+  restoreIncomingInvoice,
   updateIncomingInvoice,
 } from '@/services/api/incomingInvoiceService'
 import { formatCurrency } from '@/utils/currencyUtils'
@@ -64,7 +66,9 @@ export function useIncomingInvoice() {
     create: createIncomingInvoice,
     update: updateIncomingInvoice,
     complete: completeIncomingInvoice,
-    remove: deleteIncomingInvoice,
+    archive: archiveIncomingInvoice,
+    restore: restoreIncomingInvoice,
+    hardDelete: deleteIncomingInvoice,
     mapResponse: (invoice: IncomingInvoice) => invoice,
     fieldMappings,
   })
@@ -82,6 +86,8 @@ export function useIncomingInvoice() {
     handleComplete: form.handleComplete,
     handleReset: form.handleReset,
     handleClose: form.handleClose,
-    handleDelete: form.handleDelete,
+    handleArchive: form.handleArchive,
+    handleRestore: form.handleRestore,
+    handleHardDelete: form.handleHardDelete,
   }
 }

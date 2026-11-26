@@ -12,12 +12,14 @@
     @submit="onSubmit"
     @close="onClose"
     @edit="onEdit"
-    @delete="onDelete"
+    @archive="onArchive"
+    @restore="onRestore"
+    @hardDelete="onHardDelete"
     @reset="onReset"
     @complete="onComplete"
   />
 
-  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable @rowSelect="onRowSelect"/>
+  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable="editable && !incomingInvoice.archived" @rowSelect="onRowSelect"/>
 </template>
 
 <script setup lang="ts">
@@ -45,7 +47,9 @@ const {
   handleComplete,
   handleReset,
   handleClose,
-  handleDelete,
+  handleArchive,
+  handleRestore,
+  handleHardDelete,
 } = useIncomingInvoice()
 
 // Carica la fattura
@@ -92,9 +96,16 @@ const onEdit = () => {
   editable.value = true
 }
 
-const onDelete = async () => {
-  if(await handleDelete())
-    router.back()
+const onArchive = async () => {
+  if (await handleArchive()) router.back()
+}
+
+const onRestore = async () => {
+  await handleRestore()
+}
+
+const onHardDelete = async () => {
+  if (await handleHardDelete()) router.back()
 }
 
 const onRowSelect = (id?: number, edit?: boolean): void => {

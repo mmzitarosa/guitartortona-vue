@@ -10,8 +10,8 @@ export interface ConfirmDialogParams<T> {
   rejectLabel?: string
   acceptSeverity?: 'primary' | 'contrast'
   rejectSeverity?: 'primary' | 'contrast'
-  toastSummary: string
-  toastDetail: string
+  toastSummary?: string
+  toastDetail?: string
   accept: () => T | Promise<T>
 }
 
@@ -35,12 +35,13 @@ export const useConfirmDialog = () => {
         accept: async () => {
           try {
             const result = await params.accept()
-            toast.add({
-              severity: 'success',
-              summary: params.toastSummary,
-              detail: params.toastDetail,
-              life: 3000,
-            })
+            if (params.toastSummary)
+              toast.add({
+                severity: 'success',
+                summary: params.toastSummary,
+                detail: params.toastDetail,
+                life: 3000,
+              })
             resolve(result)
           } catch (err: any) {
             toast.add({

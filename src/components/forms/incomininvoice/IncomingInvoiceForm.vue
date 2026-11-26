@@ -8,6 +8,10 @@
         class="mt-2 max-h-[1px]"
       ></ProgressBar>
 
+      <Message v-if="model.archived" severity="warn" icon="pi pi-trash" class="mt-4">
+        {{ constants.archived.message }}
+      </Message>
+
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: fornitore e data-->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
@@ -104,21 +108,40 @@
         </div>
 
         <!-- Bottoni di destra -->
-        <div class="flex gap-2">
-          <!-- Tasto Delete - Visualizzazione  -->
+        <div class="flex flex-wrap justify-end gap-2">
+          <!-- Tasto Elimina (archivia) - Modifica: operatore solo bozze, admin sempre -->
           <Button
-            v-if="canDelete && !readonly && existingItem"
+            v-if="canArchive"
             type="button"
             rounded
             text
             icon="pi pi-trash"
             severity="secondary"
-            @click="emit('delete')"
+            @click="emit('archive')"
           />
+
+          <!-- Fattura eliminata: solo admin, ripristino ed eliminazione definitiva -->
+          <template v-if="model.archived && canDelete">
+            <Button
+              type="button"
+              text
+              severity="danger"
+              :label="constants.hardDelete.label"
+              icon="pi pi-times-circle"
+              @click="emit('hardDelete')"
+            />
+            <Button
+              type="button"
+              outlined
+              :label="constants.restore.label"
+              icon="pi pi-replay"
+              @click="emit('restore')"
+            />
+          </template>
 
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
-            v-if="readonly"
+            v-if="readonly && !model.archived"
             type="button"
             rounded
             text
@@ -164,7 +187,7 @@
 import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
-import { Button, ProgressBar } from 'primevue'
+import { Button, Message, ProgressBar } from 'primevue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
 import { isEditable } from '@/types/incomingInvoice'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
@@ -205,7 +228,9 @@ const emit = defineEmits<{
   complete: []
   close: []
   edit: []
-  delete: []
+  archive: []
+  restore: []
+  hardDelete: []
   reset: []
 }>()
 const model = defineModel<IncomingInvoice>({ required: true })
@@ -217,7 +242,14 @@ const {
   formatter: supplierFormatter,
 } = useSuppliers()
 
-const readonly = computed(() => !props.editable)
+const readonly = computed(() => !props.editable || !!model.value.archived)
+
+const canArchive = computed(
+  () =>
+    props.existingItem &&
+    !readonly.value &&
+    (canDelete || (canEdit && model.value.status === 'DRAFT')),
+)
 
 onMounted(async () => {
   await loadSuppliers()

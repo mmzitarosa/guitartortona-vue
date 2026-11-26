@@ -54,7 +54,12 @@ export async function restoreIncomingInvoice(id: number): Promise<IncomingInvoic
   return fromDTO(data)
 }
 
-//Delete
+//Archive (eliminazione apparente)
+export async function archiveIncomingInvoice(id: number): Promise<void> {
+  await apiClient.patch(`/incomingInvoice/${id}/archive`)
+}
+
+//Delete (fisica, solo admin e solo se già archiviata)
 export async function deleteIncomingInvoice(id: number): Promise<void> {
   await apiClient.delete(`/incomingInvoice/${id}`)
 }

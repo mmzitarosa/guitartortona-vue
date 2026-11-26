@@ -16,7 +16,7 @@ import IncomingInvoicesTable from '@/components/IncomingInvoicesTable.vue'
 const route = useRoute()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, supplier, status } = route.query
+  const { page = 0, size = 15, supplier, status, archived } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
@@ -26,6 +26,7 @@ const filter = computed(() => {
     first: pageN * sizeN,
     supplierId: supplier ? Number(supplier) : undefined,
     status: status ? (status as string) : undefined,
+    archived: archived === 'true',
   }
 })
 
@@ -46,11 +47,12 @@ const onRowSelect = (id?: number, edit?: boolean): void => {
   }
 }
 
-const onFilter = (supplierId?: number, status?: string) => {
+const onFilter = (supplierId?: number, status?: string, archived?: boolean) => {
   router.replace({
     query: {
       supplier: supplierId,
       status,
+      archived: archived ? 'true' : undefined,
     },
   })
 }

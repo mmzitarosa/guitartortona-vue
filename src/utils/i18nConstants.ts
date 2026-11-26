@@ -229,6 +229,17 @@ export const useIncomingInvoiceConstants = () => {
       label: t('buttons.delete.label'),
       icon: t('buttons.delete.icon'),
     },
+    restore: {
+      label: t('buttons.restore.label'),
+      icon: t('buttons.restore.icon'),
+    },
+    hardDelete: {
+      label: t('buttons.hardDelete.label'),
+      icon: t('buttons.hardDelete.icon'),
+    },
+    archived: {
+      message: t('cards.newInvoice.archivedMessage'),
+    },
   }
 }
 
@@ -614,6 +625,34 @@ export const useConfirmDialogConstants = () => {
       rejectLabel: t('dialogs.delete.rejectLabel'),
       toastTitle: t('dialogs.delete.toastTitle'),
       toastMessage: t('dialogs.delete.toastMessage'),
+    },
+    archiveDialog: {
+      title: t('dialogs.archive.title'),
+      message: t('dialogs.archive.message'),
+      icon: t('dialogs.archive.icon'),
+      acceptLabel: t('dialogs.archive.acceptLabel'),
+      rejectLabel: t('dialogs.archive.rejectLabel'),
+      toastTitle: t('dialogs.archive.toastTitle'),
+      toastMessage: t('dialogs.archive.toastMessage'),
+    },
+    restoreDialog: {
+      title: t('dialogs.restore.title'),
+      message: t('dialogs.restore.message'),
+      icon: t('dialogs.restore.icon'),
+      acceptLabel: t('dialogs.restore.acceptLabel'),
+      rejectLabel: t('dialogs.restore.rejectLabel'),
+      toastTitle: t('dialogs.restore.toastTitle'),
+      toastMessage: t('dialogs.restore.toastMessage'),
+    },
+    hardDeleteDialog: {
+      title: t('dialogs.hardDelete.title'),
+      message: t('dialogs.hardDelete.message'),
+      confirmMessage: t('dialogs.hardDelete.confirmMessage'),
+      icon: t('dialogs.hardDelete.icon'),
+      firstAcceptLabel: t('dialogs.hardDelete.firstAcceptLabel'),
+      acceptLabel: t('dialogs.hardDelete.acceptLabel'),
+      toastTitle: t('dialogs.hardDelete.toastTitle'),
+      toastMessage: t('dialogs.hardDelete.toastMessage'),
     },
     completeDialog: {
       title: t('dialogs.complete.title'),

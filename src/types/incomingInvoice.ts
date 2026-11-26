@@ -11,8 +11,8 @@ export interface IncomingInvoice {
   amount?: number
   notes?: string
   status?: InvoiceStatus
+  archived?: boolean
   items?: IncomingInvoiceProduct[]
-  daysLeft?: number
 }
 
 export interface IncomingInvoiceLight {
@@ -22,11 +22,10 @@ export interface IncomingInvoiceLight {
   date: Date
   amount: number
   status: InvoiceStatus
-  daysLeft?: number
 }
 
 export function isEditable(invoice: IncomingInvoice): boolean {
-  return invoice.status === 'DRAFT'
+  return invoice.status === 'DRAFT' && !invoice.archived
 }
 
 export function addProductToInvoice(
