@@ -13,6 +13,9 @@ export function useForm<T extends { id?: number }, R = T>(options: FormOptions<T
     update,
     complete,
     remove,
+    archive,
+    restore,
+    hardDelete,
     fieldMappings,
     group,
     mapResponse,
@@ -189,6 +192,56 @@ export function useForm<T extends { id?: number }, R = T>(options: FormOptions<T
     })
   }
 
+  const handleArchive = () => {
+    if (!archive) return
+    return requireConfirm({
+      header: constants.archiveDialog.title,
+      message: constants.archiveDialog.message,
+      icon: constants.archiveDialog.icon,
+      acceptLabel: constants.archiveDialog.acceptLabel,
+      toastSummary: constants.archiveDialog.toastTitle,
+      toastDetail: constants.archiveDialog.toastMessage,
+      accept: () => executeAndReset(() => archive(item.value.id as number)),
+    })
+  }
+
+  const handleRestore = () => {
+    if (!restore) return
+    return requireConfirm({
+      header: constants.restoreDialog.title,
+      message: constants.restoreDialog.message,
+      icon: constants.restoreDialog.icon,
+      acceptLabel: constants.restoreDialog.acceptLabel,
+      toastSummary: constants.restoreDialog.toastTitle,
+      toastDetail: constants.restoreDialog.toastMessage,
+      accept: () => executeAndReset(() => restore(item.value.id as number)),
+    })
+  }
+
+  // Doppia conferma: l'eliminazione fisica è irreversibile
+  const handleHardDelete = async () => {
+    if (!hardDelete) return
+    const confirmed = await requireConfirm<boolean>({
+      header: constants.hardDeleteDialog.title,
+      message: constants.hardDeleteDialog.message,
+      icon: constants.hardDeleteDialog.icon,
+      acceptLabel: constants.hardDeleteDialog.firstAcceptLabel,
+      acceptSeverity: 'contrast',
+      accept: async () => true,
+    })
+    if (!confirmed) return
+    return requireConfirm({
+      header: constants.hardDeleteDialog.title,
+      message: constants.hardDeleteDialog.confirmMessage,
+      icon: constants.hardDeleteDialog.icon,
+      acceptLabel: constants.hardDeleteDialog.acceptLabel,
+      acceptSeverity: 'contrast',
+      toastSummary: constants.hardDeleteDialog.toastTitle,
+      toastDetail: constants.hardDeleteDialog.toastMessage,
+      accept: () => executeAndReset(() => hardDelete(item.value.id as number)),
+    })
+  }
+
   return {
     item,
     loading,
@@ -205,6 +258,9 @@ export function useForm<T extends { id?: number }, R = T>(options: FormOptions<T
     handleReset,
     handleClose,
     handleDelete,
+    handleArchive,
+    handleRestore,
+    handleHardDelete,
     withLoading,
   }
 }

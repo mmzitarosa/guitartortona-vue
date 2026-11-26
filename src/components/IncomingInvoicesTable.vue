@@ -4,8 +4,8 @@
       <!-- TODO Da telefono fa un po' cagare -->
       <DataTable
         v-model:filters="filters"
-        :value="incomingInvoices"
-        :paginator="incomingInvoices.length > props.filter.size"
+        :value="rows"
+        :paginator="rows.length > props.filter.size"
         @page="onPage"
         :rows="props.filter.size"
         :first="props.filter.first"
@@ -21,21 +21,31 @@
             <Button
               label="Rimuovi filtri"
               icon="pi pi-filter-slash"
-              :disabled="!_status && !_supplierId"
+              :disabled="!_status && !_supplierId && !_archived"
               severity="secondary"
               variant="text"
-              @click="onFilter(undefined, undefined)"
+              @click="onFilter(undefined, undefined, false)"
             />
 
-            <div class="flex gap-4">
+            <div class="flex flex-wrap gap-4">
               <Button
                 v-if="totalDrafts > 0"
                 :label="'Bozze (' + totalDrafts + ')'"
                 icon="pi pi-pen-to-square"
-                :disabled="!!_status"
+                :disabled="!!_status || _archived"
                 severity="warn"
                 variant="text"
                 @click="_status = 'DRAFT'"
+              />
+
+              <Button
+                v-if="isAdmin && totalArchived > 0"
+                :label="'Eliminate (' + totalArchived + ')'"
+                icon="pi pi-trash"
+                :disabled="_archived"
+                severity="secondary"
+                variant="text"
+                @click="_archived = true"
               />
 
               <SelectField
@@ -149,13 +159,22 @@ import { computed, onMounted } from 'vue'
 import { useIncomingInvoicesTable } from '@/composables/useIncomingInvoicesTable'
 import { useIncomingInvoicesTableConstants } from '@/utils/i18nConstants'
 import { useSuppliers } from '@/composables/useSuppliers'
+import { useRoles } from '@/composables/useRoles'
 import { FilterMatchMode } from '@primevue/core/api'
 import { formatDate } from '@/utils/dateUtils'
 import SelectField from '@/components/layout/fields/SelectField.vue'
 
 const constants = useIncomingInvoicesTableConstants()
 
-const { incomingInvoices, totalDrafts, loadIncomingInvoices, loading } = useIncomingInvoicesTable()
+const {
+  incomingInvoices,
+  archivedInvoices,
+  totalArchived,
+  totalDrafts,
+  loadIncomingInvoices,
+  loading,
+} = useIncomingInvoicesTable()
+const { isAdmin } = useRoles()
 
 const { suppliers, loadSuppliers, loading: suppliersLoading } = useSuppliers()
 
@@ -166,13 +185,14 @@ const props = defineProps<{
     first: number
     supplierId?: number
     status?: string
+    archived?: boolean
   }
 }>()
 
 const emit = defineEmits<{
   page: [page: number, size: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [supplierId?: number, status?: string]
+  filter: [supplierId?: number, status?: string, archived?: boolean]
 }>()
 
 // Carica la tabella al primo caricamento della pagina
@@ -206,14 +226,21 @@ const filters = computed((): DataTableFilterMeta => {
   }
 })
 
+const _archived = computed({
+  get: (): boolean => !!props.filter.archived && isAdmin,
+  set: (value: boolean): void => onFilter(_supplierId.value, _status.value, value),
+})
+
+const rows = computed(() => (_archived.value ? archivedInvoices.value : incomingInvoices.value))
+
 const _supplierId = computed({
   get: (): number | undefined => props.filter.supplierId,
-  set: (value?: number): void => onFilter(value, _status.value),
+  set: (value?: number): void => onFilter(value, _status.value, _archived.value),
 })
 
 const _status = computed({
   get: (): string | undefined => props.filter.status,
-  set: (value?: string): void => onFilter(_supplierId.value, value),
+  set: (value?: string): void => onFilter(_supplierId.value, value, _archived.value),
 })
 
 const onPage = (event: DataTablePageEvent): void => {
@@ -222,7 +249,7 @@ const onPage = (event: DataTablePageEvent): void => {
   emit('page', page, rows)
 }
 
-const onFilter = (supplierId?: number, status?: string): void => {
-  emit('filter', supplierId, status)
+const onFilter = (supplierId?: number, status?: string, archived?: boolean): void => {
+  emit('filter', supplierId, status, archived)
 }
 </script>

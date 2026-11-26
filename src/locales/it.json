@@ -90,6 +90,14 @@
       "label": "Elimina",
       "icon": "pi pi-trash"
     },
+    "restore": {
+      "label": "Ripristina",
+      "icon": "pi pi-replay"
+    },
+    "hardDelete": {
+      "label": "Elimina definitivamente",
+      "icon": "pi pi-times-circle"
+    },
     "search": {
       "label": "Cerca",
       "icon": "pi pi-search"
@@ -149,6 +157,34 @@
       "toastTitle": "Eliminato",
       "toastMessage": "I dati sono stati eliminati correttamente."
     },
+    "archive": {
+      "title": "Eliminare",
+      "message": "Confermando i dati verranno eliminati.",
+      "icon": "pi pi-trash",
+      "acceptLabel": "Elimina",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Eliminato",
+      "toastMessage": "L'elemento è stato eliminato."
+    },
+    "restore": {
+      "title": "Ripristinare",
+      "message": "L'elemento tornerà visibile nello stato in cui era prima dell'eliminazione.",
+      "icon": "pi pi-replay",
+      "acceptLabel": "Ripristina",
+      "rejectLabel": "Chiudi",
+      "toastTitle": "Ripristinato",
+      "toastMessage": "L'elemento è stato ripristinato."
+    },
+    "hardDelete": {
+      "title": "Eliminare definitivamente",
+      "message": "L'eliminazione definitiva cancella fisicamente l'elemento e i dati collegati.",
+      "confirmMessage": "Operazione irreversibile: confermi di voler eliminare definitivamente l'elemento?",
+      "icon": "pi pi-exclamation-triangle",
+      "firstAcceptLabel": "Continua",
+      "acceptLabel": "Elimina definitivamente",
+      "toastTitle": "Eliminato definitivamente",
+      "toastMessage": "L'elemento è stato cancellato."
+    },
     "close": {
       "title": "Chiudere",
       "message": "Confermando la finestra verrà chiusa.",
@@ -189,7 +225,8 @@
     },
     "newInvoice": {
       "title": "Nuova Fattura",
-      "subtitle": "Dati Fattura"
+      "subtitle": "Dati Fattura",
+      "archivedMessage": "Fattura eliminata."
     },
     "product": {
       "title": "Prodotto",

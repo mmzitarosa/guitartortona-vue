@@ -31,6 +31,9 @@ export type FormOptions<T, R = T> = ValidationFormOptions<T> & {
   update?: (id: number, item: T) => Promise<R>
   complete?: (id: number) => Promise<R>
   remove?: (id: number) => Promise<void>
+  archive?: (id: number) => Promise<void>
+  restore?: (id: number) => Promise<R>
+  hardDelete?: (id: number) => Promise<void>
   group?: string
 } & (R extends T ? { mapResponse?: (response: R) => T } : { mapResponse: undefined })
 
