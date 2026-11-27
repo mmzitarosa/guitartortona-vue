@@ -351,17 +351,6 @@ const onFilter = (
   emit('filter', from, to, archived, status)
 }
 
-// Ricerca automatica: parte quando entrambe le date sono valorizzate e cambiate
-watch(
-  () => [searchFormItem.value.fromDate?.getTime(), searchFormItem.value.toDate?.getTime()],
-  ([from, to]) => {
-    const applied = (value?: string) => (value ? parseDate(value, '-')?.getTime() : undefined)
-    if (from === applied(props.filter.from) && to === applied(props.filter.to)) return
-    if (from && to) onFormSubmit()
-    else if (!from && !to) onFilter(undefined, undefined)
-  },
-)
-
 // DateForm
 const onFormSubmit = () => {
   const result = handleSubmit()
@@ -425,4 +414,15 @@ const {
     return { from, to }
   },
 })
+
+// Ricerca automatica: parte quando entrambe le date sono valorizzate e cambiate
+watch(
+  () => [searchFormItem.value.fromDate?.getTime(), searchFormItem.value.toDate?.getTime()],
+  ([from, to]) => {
+    const applied = (value?: string) => (value ? parseDate(value, '-')?.getTime() : undefined)
+    if (from === applied(props.filter.from) && to === applied(props.filter.to)) return
+    if (from && to) onFormSubmit()
+    else if (!from && !to) onFilter(undefined, undefined)
+  },
+)
 </script>
