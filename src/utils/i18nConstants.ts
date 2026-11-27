@@ -1002,6 +1002,11 @@ export const useSidebarItems = (): Menu[] => {
           icon: 'pi pi-history',
           route: '/audit',
         },
+        {
+          label: t('navigation.items.customers'),
+          icon: 'pi pi-users',
+          route: '/customers',
+        },
       ],
     },
   ]

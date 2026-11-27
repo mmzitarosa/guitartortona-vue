@@ -177,6 +177,7 @@ const ENTITIES = [
   'PurchaseItem',
   'LedgerEntry',
   'Supplier',
+  'Customer',
   'Brand',
   'Category',
 ]
