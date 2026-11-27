@@ -2,6 +2,7 @@ import { AUTH_CONFIG } from '@/config/auth'
 import { hasRole } from '@/services/auth/authService'
 import {
   documentPermissions,
+  ledgerPermissions,
   receiptPermissions,
   type DocumentLike,
 } from '@/utils/permissions'
@@ -31,5 +32,7 @@ export function useRoles() {
     invoicePermissions: (doc: DocumentLike) => documentPermissions(doc, roles),
     /** Azioni consentite su una ricevuta dell'usato, in base a stato e ruolo */
     receiptPermissions: (doc: DocumentLike) => receiptPermissions(doc, roles),
+    /** Azioni consentite su una riga del brogliaccio */
+    ledgerPermissions: (entry: { archived?: boolean }) => ledgerPermissions(entry, roles),
   }
 }

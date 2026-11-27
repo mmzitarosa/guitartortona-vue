@@ -69,3 +69,25 @@ export function receiptPermissions(doc: DocumentLike, roles: Roles): ReceiptPerm
     print: !doc.archived && (doc.status === 'PENDING' || doc.status === 'COMPLETED'),
   }
 }
+
+export interface LedgerPermissions {
+  /** Modificare la riga */
+  edit: boolean
+  /** Eliminare (archiviare), qualsiasi riga e stato */
+  archive: boolean
+  /** Ripristinare una riga eliminata */
+  restore: boolean
+  /** Eliminare definitivamente */
+  hardDelete: boolean
+}
+
+/**
+ * Brogliaccio: operatore e admin modificano ed eliminano qualsiasi riga, a prescindere dallo stato.
+ * Una riga eliminata è in sola lettura, visibile solo all'admin, che può ripristinarla o cancellarla.
+ */
+export function ledgerPermissions(entry: { archived?: boolean }, roles: Roles): LedgerPermissions {
+  if (entry.archived) {
+    return { edit: false, archive: false, restore: roles.isAdmin, hardDelete: roles.isAdmin }
+  }
+  return { edit: roles.isUser, archive: roles.isUser, restore: false, hardDelete: false }
+}

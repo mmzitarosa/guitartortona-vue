@@ -4,8 +4,8 @@
       <!-- TODO Da telefono fa un po' cagare -->
       <DataTable
         v-model:filters="filters"
-        :value="ledger"
-        :paginator="ledger.length > props.filter.size"
+        :value="rows"
+        :paginator="rows.length > props.filter.size"
         @page="onPage"
         :rows="props.filter.size"
         :first="props.filter.first"
@@ -21,13 +21,23 @@
             <Button
               label="Rimuovi filtri"
               icon="pi pi-filter-slash"
-              :disabled="!hasDateFilter"
+              :disabled="!hasDateFilter && !_archived"
               severity="secondary"
               variant="text"
-              @click="onFilter(undefined, undefined)"
+              @click="onFilter(undefined, undefined, false)"
             />
 
-            <div class="flex gap-4">
+            <div class="flex flex-wrap gap-4">
+              <Button
+                v-if="isAdmin && totalArchived > 0"
+                :label="'Eliminate (' + totalArchived + ')'"
+                icon="pi pi-trash"
+                :disabled="_archived"
+                severity="secondary"
+                variant="text"
+                @click="_archived = true"
+              />
+
               <!-- Da data -->
               <InputDateField
                 v-model="searchFormItem.fromDate"
@@ -162,6 +172,7 @@ import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import { useLedgerTable } from '@/composables/useLedgerTable'
 import { useLedgerTableConstants } from '@/utils/i18nConstants'
 import { useBanks } from '@/composables/useBanks'
+import { useRoles } from '@/composables/useRoles'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import { type FromDateToDate, useSearchForm } from '@/composables/useSearchForm'
 import { formatDate, parseDate } from '@/utils/dateUtils'
@@ -169,7 +180,8 @@ import SelectField from './layout/fields/SelectField.vue'
 
 const constants = useLedgerTableConstants()
 
-const { ledger, loadLedger, loading } = useLedgerTable()
+const { ledger, archivedLedger, totalArchived, loadLedger, loading } = useLedgerTable()
+const { isAdmin } = useRoles()
 const { banks, loadBanks, loading: banksLoading } = useBanks()
 
 const props = defineProps<{
@@ -180,6 +192,7 @@ const props = defineProps<{
     first: number
     from?: string
     to?: string
+    archived?: boolean
   }
 }>()
 
@@ -187,7 +200,7 @@ const emit = defineEmits<{
   page: [page: number, size: number]
   year: [year: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [from?: Date, to?: Date]
+  filter: [from?: Date, to?: Date, archived?: boolean]
   print: [from: Date, to: Date]
 }>()
 
@@ -235,6 +248,14 @@ const filters: Ref<DataTableFilterMeta> = ref({
   },
 })
 
+const _archived = computed({
+  get: (): boolean => !!props.filter.archived && isAdmin,
+  set: (value: boolean): void =>
+    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, value),
+})
+
+const rows = computed(() => (_archived.value ? archivedLedger.value : ledger.value))
+
 const _year = computed({
   get: (): number => props.filter.year,
   set: (value: number): void => emit('year', value),
@@ -262,8 +283,8 @@ const onPage = (event: DataTablePageEvent): void => {
   emit('page', page, rows)
 }
 
-const onFilter = (from?: Date, to?: Date): void => {
-  emit('filter', from, to)
+const onFilter = (from?: Date, to?: Date, archived: boolean = _archived.value): void => {
+  emit('filter', from, to, archived)
 }
 
 // DateForm

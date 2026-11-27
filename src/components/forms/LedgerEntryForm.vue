@@ -9,6 +9,10 @@
         style="height: 1px"
       ></ProgressBar>
 
+      <Message v-if="ledgerEntry.archived" severity="warn" icon="pi pi-trash" class="mt-4">
+        {{ constants.archived.message }}
+      </Message>
+
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: data-->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
@@ -177,19 +181,38 @@
         </div>
         <!-- Bottoni di destra -->
         <div class="flex gap-2">
-          <!-- Tasto Delete - Visualizzazione  -->
+          <!-- Riga eliminata: solo admin -->
+          <template v-if="existingItem && ledgerEntry.archived">
+            <Button
+              v-if="permissions.restore"
+              type="button"
+              severity="secondary"
+              :label="constants.restore.label"
+              :icon="constants.restore.icon"
+              @click="onFormRestore"
+            />
+            <Button
+              v-if="permissions.hardDelete"
+              type="button"
+              severity="danger"
+              :label="constants.hardDelete.label"
+              :icon="constants.hardDelete.icon"
+              @click="onFormHardDelete"
+            />
+          </template>
+          <!-- Tasto Elimina - Visualizzazione  -->
           <Button
-            v-if="readonly && canDelete"
+            v-if="readonly && permissions.archive"
             type="button"
             rounded
             text
             icon="pi pi-trash"
             severity="secondary"
-            @click="onFormDelete"
+            @click="onFormArchive"
           />
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
-            v-if="readonly"
+            v-if="readonly && permissions.edit"
             type="button"
             rounded
             text
@@ -224,7 +247,7 @@
 import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
-import { Button, ProgressBar } from 'primevue'
+import { Button, Message, ProgressBar } from 'primevue'
 import type { Bank } from '@/types/bank'
 import type { LedgerEntry } from '@/types/ledgerEntry'
 import {
@@ -245,21 +268,24 @@ import SelectField from '@/components/layout/fields/SelectField.vue'
 import { useBanks } from '@/composables/useBanks'
 import { useForm } from '@/composables/useForm'
 import {
+  archiveLedgerEntryById,
   deleteLedgerEntryById,
   getLedgerEntryById,
   postLedgerEntry,
   putLedgerEntryById,
+  restoreLedgerEntryById,
 } from '@/services/api/ledgerService'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
 import { formatDate } from '@/utils/dateUtils'
 
-const { canDelete, canEdit } = useRoles()
+const { ledgerPermissions } = useRoles()
 
 const emit = defineEmits<{
   submit: [ledgerEntry: LedgerEntry]
   close: []
   edit: []
   delete: []
+  restore: []
 }>()
 
 const constants = useLedgerEntryConstants()
@@ -289,12 +315,16 @@ const {
   handleSubmit,
   handleReset,
   handleClose,
-  handleDelete,
+  handleArchive,
+  handleRestore,
+  handleHardDelete,
 } = useForm<LedgerEntry>({
   getById: getLedgerEntryById,
   create: postLedgerEntry,
   update: putLedgerEntryById,
-  remove: deleteLedgerEntryById,
+  archive: archiveLedgerEntryById,
+  restore: restoreLedgerEntryById,
+  hardDelete: deleteLedgerEntryById,
 
   fieldMappings: [
     {
@@ -396,7 +426,12 @@ const {
   ],
 })
 
-const readonly = computed(() => !props.editable)
+const permissions = computed(() => ledgerPermissions(ledgerEntry.value))
+
+// Una riga nuova è sempre modificabile; una esistente solo se i permessi lo consentono
+const readonly = computed(
+  () => !props.editable || (existingItem.value && !permissions.value.edit),
+)
 
 onMounted(async () => {
   formLoading.value = true
@@ -418,9 +453,16 @@ const onFormEdit = () => {
   emit('edit')
 }
 
-const onFormDelete = async () => {
-  if (await handleDelete())
-    emit('delete')
+const onFormArchive = async () => {
+  if (await handleArchive()) emit('delete')
+}
+
+const onFormRestore = async () => {
+  if (await handleRestore()) emit('restore')
+}
+
+const onFormHardDelete = async () => {
+  if (await handleHardDelete()) emit('delete')
 }
 
 const onFormClose = async () => {

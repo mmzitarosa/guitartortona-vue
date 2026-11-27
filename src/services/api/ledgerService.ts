@@ -20,6 +20,11 @@ export async function getLedger(year: number): Promise<LedgerEntryLight[]> {
   return data.flatMap((dto: LedgerEntryDTO) => fromLightDTO(dto))
 }
 
+export async function getArchivedLedger(year: number): Promise<LedgerEntryLight[]> {
+  const { data } = await apiClient.get(`/archive/ledger`, { params: { year } })
+  return data.flatMap((dto: LedgerEntryDTO) => fromLightDTO(dto))
+}
+
 //Update
 export async function putLedgerEntryById(
   id: number,
@@ -29,7 +34,16 @@ export async function putLedgerEntryById(
   return fromDTO(data)
 }
 
-//Detele
+export async function archiveLedgerEntryById(id: number): Promise<void> {
+  await apiClient.patch(`/ledgerEntry/${id}/archive`)
+}
+
+export async function restoreLedgerEntryById(id: number): Promise<LedgerEntry> {
+  const { data } = await apiClient.patch(`/ledgerEntry/${id}/restore`)
+  return fromDTO(data)
+}
+
+//Delete (fisica, solo admin e solo se già archiviata)
 export async function deleteLedgerEntryById(id: number): Promise<void> {
   await apiClient.delete(`/ledgerEntry/${id}`)
 }

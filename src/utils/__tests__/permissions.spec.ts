@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { documentPermissions, receiptPermissions } from '@/utils/permissions'
+import { documentPermissions, ledgerPermissions, receiptPermissions } from '@/utils/permissions'
 
 const admin = { isAdmin: true, isUser: true }
 const operator = { isAdmin: false, isUser: true }
@@ -67,5 +67,34 @@ describe('receiptPermissions', () => {
     expect(receiptPermissions({ status: 'PENDING' }, operator).print).toBe(true)
     expect(receiptPermissions({ status: 'COMPLETED' }, operator).print).toBe(true)
     expect(receiptPermissions({ status: 'COMPLETED', archived: true }, admin).print).toBe(false)
+  })
+})
+
+describe('ledgerPermissions', () => {
+  it("operatore e admin modificano ed eliminano qualsiasi riga, l'ospite nulla", () => {
+    for (const roles of [operator, admin]) {
+      expect(ledgerPermissions({}, roles)).toEqual({
+        edit: true,
+        archive: true,
+        restore: false,
+        hardDelete: false,
+      })
+    }
+    expect(ledgerPermissions({}, guest)).toMatchObject({ edit: false, archive: false })
+  })
+
+  it("una riga eliminata è in sola lettura: solo l'admin ripristina ed elimina definitivamente", () => {
+    expect(ledgerPermissions({ archived: true }, admin)).toEqual({
+      edit: false,
+      archive: false,
+      restore: true,
+      hardDelete: true,
+    })
+    expect(ledgerPermissions({ archived: true }, operator)).toEqual({
+      edit: false,
+      archive: false,
+      restore: false,
+      hardDelete: false,
+    })
   })
 })
