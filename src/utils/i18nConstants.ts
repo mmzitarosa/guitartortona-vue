@@ -408,6 +408,9 @@ export const useProductConstants = () => {
     usedReference: {
       label: t('usedReceipt.labels.number'),
     },
+    receiptLink: {
+      label: t('cards.newRecord.receiptLinkLabel'),
+    },
     category: {
       label: t('common.labels.category'),
       messages: {
