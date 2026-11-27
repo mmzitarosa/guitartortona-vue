@@ -267,14 +267,13 @@ import { useProductPrintConstants, useProductSaleConstants } from '@/utils/i18nC
 import { formatCurrency } from '@/utils/currencyUtils'
 import { addProductSale } from '@/services/api/productService'
 
-const { canDelete, canEdit } = useRoles()
+const { canEdit } = useRoles()
 const { t } = useI18n()
 
 const emit = defineEmits<{
   submit: [product: Product]
   close: []
   edit: []
-  delete: []
 }>()
 
 const condition = computed(() =>

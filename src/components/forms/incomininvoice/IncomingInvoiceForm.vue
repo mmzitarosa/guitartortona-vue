@@ -109,9 +109,9 @@
 
         <!-- Bottoni di destra -->
         <div class="flex flex-wrap justify-end gap-2">
-          <!-- Tasto Elimina (archivia) - Modifica: operatore solo bozze, admin sempre -->
+          <!-- Tasto Elimina (archivia) - Visualizzazione e modifica, secondo stato e ruolo -->
           <Button
-            v-if="canArchive"
+            v-if="existingItem && permissions.archive"
             type="button"
             rounded
             text
@@ -247,9 +247,6 @@ const readonly = computed(
   () => !props.editable || (props.existingItem && !permissions.value.edit),
 )
 
-const canArchive = computed(
-  () => props.existingItem && !readonly.value && permissions.value.archive,
-)
 
 onMounted(async () => {
   await loadSuppliers()

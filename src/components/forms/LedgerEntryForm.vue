@@ -200,9 +200,9 @@
               @click="onFormHardDelete"
             />
           </template>
-          <!-- Tasto Elimina - Visualizzazione  -->
+          <!-- Tasto Elimina (archivia) - Visualizzazione e modifica, secondo ruolo -->
           <Button
-            v-if="readonly && permissions.archive"
+            v-if="existingItem && permissions.archive"
             type="button"
             rounded
             text
@@ -325,6 +325,7 @@ const {
   archive: archiveLedgerEntryById,
   restore: restoreLedgerEntryById,
   hardDelete: deleteLedgerEntryById,
+  mapResponse: (entry: LedgerEntry) => entry,
 
   fieldMappings: [
     {
