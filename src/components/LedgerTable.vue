@@ -17,29 +17,8 @@
         @rowSelect="onRowSelect"
       >
         <template #header>
-          <div class="flex justify-between">
-            <Button
-              label="Rimuovi filtri"
-              icon="pi pi-filter-slash"
-              :disabled="!hasDateFilter && !_archived && !_status"
-              severity="secondary"
-              variant="text"
-              @click="onFilter(undefined, undefined, false, '')"
-            />
-
+          <div class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex flex-wrap gap-4">
-              <SelectField
-                v-if="viewOptions.length"
-                v-model="_view"
-                inputId="view"
-                :options="viewOptions"
-                optionValue="value"
-                optionLabel="label"
-                showClear
-                label="Stato"
-                class="w-56"
-              />
-
               <!-- Da data -->
               <InputDateField
                 v-model="searchFormItem.fromDate"
@@ -55,19 +34,40 @@
                 :label="constants.toDate.label"
                 :validation="validation.fields.toDate"
               />
+            </div>
 
-              <div>
-                <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
-                <Button
-                  v-if="hasDateFilter"
-                  type="button"
-                  :icon="constants.print.icon"
-                  severity="secondary"
-                  @click="onPrint"
-                  class="mr-2"
-                />
-                <Button type="button" :icon="constants.search.icon" @click="onFormSubmit" />
-              </div>
+            <div class="flex flex-wrap items-center gap-4">
+              <SelectField
+                v-if="viewOptions.length"
+                v-model="_view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
+                showClear
+                label="Stato"
+                :optionSeverity="(option) => option.severity"
+                class="w-56"
+              />
+
+              <Button
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                :disabled="!hasDateFilter && !_archived && !_status"
+                severity="secondary"
+                variant="text"
+                @click="onFilter(undefined, undefined, false, '')"
+              />
+
+              <!-- Stampa del periodo filtrato -->
+              <Button
+                v-if="hasDateFilter"
+                type="button"
+                :icon="constants.print.icon"
+                :aria-label="constants.print.label"
+                severity="secondary"
+                @click="onPrint"
+              />
             </div>
           </div>
         </template>
@@ -295,11 +295,13 @@ const viewOptions = computed(() =>
   [
     {
       value: 'PENDING',
+      severity: constants.status.PENDING.severity,
       label: constants.pendingFilter.label + ' (' + totalPending + ')',
       show: totalPending.value > 0,
     },
     {
       value: 'ARCHIVED',
+      severity: constants.status.ARCHIVED.severity,
       label: 'Eliminate (' + totalArchived.value + ')',
       show: isAdmin && totalArchived.value > 0,
     },
@@ -348,6 +350,17 @@ const onFilter = (
 ): void => {
   emit('filter', from, to, archived, status)
 }
+
+// Ricerca automatica: parte quando entrambe le date sono valorizzate e cambiate
+watch(
+  () => [searchFormItem.value.fromDate?.getTime(), searchFormItem.value.toDate?.getTime()],
+  ([from, to]) => {
+    const applied = (value?: string) => (value ? parseDate(value, '-')?.getTime() : undefined)
+    if (from === applied(props.filter.from) && to === applied(props.filter.to)) return
+    if (from && to) onFormSubmit()
+    else if (!from && !to) onFilter(undefined, undefined)
+  },
+)
 
 // DateForm
 const onFormSubmit = () => {

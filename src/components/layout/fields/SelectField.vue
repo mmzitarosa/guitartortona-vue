@@ -17,11 +17,25 @@
       class="p-inputwrapper-filled w-full"
       fluid
     >
-      <template v-if="optionDepth || optionDetail" #option="{ option }">
+      <template v-if="optionSeverity" #option="{ option }">
+        <Tag
+          :value="String(option[optionLabel])"
+          :severity="optionSeverity(option) as TagProps['severity']"
+        />
+      </template>
+      <template v-else-if="optionDepth || optionDetail" #option="{ option }">
         <span :style="{ paddingLeft: `${(optionDepth?.(option) ?? 0) * 1.25}rem` }">
           {{ option[optionLabel]
           }}<template v-if="optionDetail?.(option)"> - {{ optionDetail(option) }}</template>
         </span>
+      </template>
+      <template v-if="optionSeverity" #value="{ value: selected }">
+        <Tag
+          v-if="selectedOption(selected)"
+          :value="String(selectedOption(selected)![optionLabel])"
+          :severity="optionSeverity(selectedOption(selected)!) as TagProps['severity']"
+        />
+        <span v-else>&nbsp;</span>
       </template>
     </Select>
   </InputValidationField>
@@ -29,7 +43,7 @@
 
 <script setup lang="ts" generic="T extends object">
 import { computed } from 'vue'
-import { InputText, Select } from 'primevue'
+import { InputText, Select, Tag, type TagProps } from 'primevue'
 import InputValidationField from '@/components/layout/fields/InputValidationField.vue'
 
 interface SelectFieldProps<T extends object> {
@@ -43,6 +57,7 @@ interface SelectFieldProps<T extends object> {
   validation?: { message?: string; valid: boolean }
   showClear?: boolean
   editable?: boolean
+  optionSeverity?: (option: T) => string | undefined
   optionDepth?: (option: T) => number
   optionDetail?: (option: T) => string | undefined
   formatter?: (value: string) => T | T[keyof T]
@@ -51,6 +66,11 @@ interface SelectFieldProps<T extends object> {
 const props = defineProps<SelectFieldProps<T>>()
 
 const model = defineModel<T | T[keyof T]>()
+
+const selectedOption = (selected: unknown): T | undefined =>
+  props.optionValue
+    ? props.options.find((option) => option[props.optionValue!] === selected)
+    : (selected as T | undefined)
 
 const value = computed(() => {
   if (model.value === undefined || model.value === null) return ''

@@ -18,17 +18,19 @@
         @rowSelect="onRowSelect"
       >
         <template #header>
-          <div class="flex justify-between">
-            <Button
-              label="Rimuovi filtri"
-              icon="pi pi-filter-slash"
-              :disabled="!_status && !_customer && !_archived"
-              severity="secondary"
-              variant="text"
-              @click="onFilter(undefined, undefined, false)"
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <SelectField
+              v-model="_customer"
+              inputId="customer"
+              :options="customerNames"
+              optionValue="name"
+              optionLabel="name"
+              showClear
+              :label="constants.customerFilter"
+              class="w-64"
             />
 
-            <div class="flex flex-wrap gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <SelectField
                 v-if="viewOptions.length"
                 v-model="_view"
@@ -38,18 +40,17 @@
                 optionLabel="label"
                 showClear
                 label="Stato"
+                :optionSeverity="(option) => option.severity"
                 class="w-56"
               />
 
-              <SelectField
-                v-model="_customer"
-                inputId="customer"
-                :options="customerNames"
-                optionValue="name"
-                optionLabel="name"
-                showClear
-                :label="constants.customerFilter"
-                class="w-64"
+              <Button
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                :disabled="!_status && !_customer && !_archived"
+                severity="secondary"
+                variant="text"
+                @click="onFilter(undefined, undefined, false)"
               />
             </div>
           </div>
@@ -270,9 +271,15 @@ const _view = computed({
 
 const viewOptions = computed(() =>
   [
-    { value: 'DRAFT', label: 'Bozze (' + totalDrafts + ')', show: totalDrafts.value > 0 },
+    {
+      value: 'DRAFT',
+      severity: constants.status.DRAFT.severity,
+      label: 'Bozze (' + totalDrafts.value + ')',
+      show: totalDrafts.value > 0,
+    },
     {
       value: 'ARCHIVED',
+      severity: constants.status.ARCHIVED.severity,
       label: 'Eliminate (' + totalArchived.value + ')',
       show: isAdmin && totalArchived.value > 0,
     },

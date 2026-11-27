@@ -17,15 +17,15 @@
         @row-click="onRowClick"
       >
         <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <Button
-              :label="t('customers.clearFilters')"
-              icon="pi pi-filter-slash"
-              :disabled="!filters.global.value && !archived"
-              severity="secondary"
-              variant="text"
-              @click="clearFilters"
-            />
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <IconField class="grow sm:grow-0 sm:w-80">
+              <InputIcon class="pi pi-search" />
+              <InputText
+                v-model="filters.global.value"
+                :placeholder="t('customers.search')"
+                class="w-full"
+              />
+            </IconField>
             <div class="flex flex-wrap items-center gap-4">
               <SelectField
                 v-if="viewOptions.length"
@@ -36,16 +36,17 @@
                 optionLabel="label"
                 showClear
                 label="Stato"
+                :optionSeverity="(option) => option.severity"
                 class="w-56"
               />
-              <IconField class="grow sm:grow-0 sm:w-80">
-                <InputIcon class="pi pi-search" />
-                <InputText
-                  v-model="filters.global.value"
-                  :placeholder="t('customers.search')"
-                  class="w-full"
-                />
-              </IconField>
+              <Button
+                :label="t('customers.clearFilters')"
+                icon="pi pi-filter-slash"
+                :disabled="!filters.global.value && !archived"
+                severity="secondary"
+                variant="text"
+                @click="clearFilters"
+              />
             </div>
           </div>
         </template>
@@ -130,7 +131,13 @@ const view = computed({
 })
 const viewOptions = computed(() =>
   totalArchived.value > 0 || archived.value
-    ? [{ value: 'ARCHIVED', label: 'Eliminate (' + totalArchived.value + ')' }]
+    ? [
+        {
+          value: 'ARCHIVED',
+          label: 'Eliminate (' + totalArchived.value + ')',
+          severity: t('status.archived.severity'),
+        },
+      ]
     : [],
 )
 const filters = ref({
