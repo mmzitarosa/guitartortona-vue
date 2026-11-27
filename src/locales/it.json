@@ -620,9 +620,8 @@
       "user": "Utente",
       "entity": "Entità",
       "operation": "Operazione",
-      "from": "Da",
-      "to": "A",
-      "reset": "Azzera filtri",
+      "from": "Filtra da",
+      "to": "Filtra a",
       "all": "Tutte"
     },
     "operations": {
