@@ -13,6 +13,15 @@
         {{ constants.archived.message }}
       </Message>
 
+      <Message
+        v-else-if="existingItem && ledgerEntry.status === 'PENDING'"
+        severity="info"
+        icon="pi pi-clock"
+        class="mt-4"
+      >
+        {{ constants.pending.message }}
+      </Message>
+
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: data-->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
@@ -200,6 +209,14 @@
               @click="onFormHardDelete"
             />
           </template>
+          <!-- Tasto Conferma - riga da confermare, in visualizzazione -->
+          <Button
+            v-if="existingItem && readonly && permissions.confirm"
+            type="button"
+            :label="constants.confirm.label"
+            :icon="constants.confirm.icon"
+            @click="onFormComplete"
+          />
           <!-- Tasto Elimina (archivia) - Visualizzazione e modifica, secondo ruolo -->
           <Button
             v-if="existingItem && permissions.archive"
@@ -274,6 +291,7 @@ import {
   postLedgerEntry,
   putLedgerEntryById,
   restoreLedgerEntryById,
+  confirmLedgerEntryById,
 } from '@/services/api/ledgerService'
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
 import { formatDate } from '@/utils/dateUtils'
@@ -286,6 +304,7 @@ const emit = defineEmits<{
   edit: []
   delete: []
   restore: []
+  complete: []
 }>()
 
 const constants = useLedgerEntryConstants()
@@ -317,6 +336,7 @@ const {
   handleClose,
   handleArchive,
   handleRestore,
+  handleComplete,
   handleHardDelete,
 } = useForm<LedgerEntry>({
   getById: getLedgerEntryById,
@@ -324,6 +344,7 @@ const {
   update: putLedgerEntryById,
   archive: archiveLedgerEntryById,
   restore: restoreLedgerEntryById,
+  complete: confirmLedgerEntryById,
   hardDelete: deleteLedgerEntryById,
   mapResponse: (entry: LedgerEntry) => entry,
 
@@ -460,6 +481,10 @@ const onFormArchive = async () => {
 
 const onFormRestore = async () => {
   if (await handleRestore()) emit('restore')
+}
+
+const onFormComplete = async () => {
+  if (await handleComplete()) emit('complete')
 }
 
 const onFormHardDelete = async () => {

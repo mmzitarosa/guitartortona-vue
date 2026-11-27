@@ -22,7 +22,7 @@ const route = useRoute()
 const { handleApiError } = useErrorHandler()
 
 const filter = computed(() => {
-  const { page = 0, size = 15, from, to, year = new Date().getFullYear() - 1, archived } = route.query
+  const { page = 0, size = 15, from, to, year = new Date().getFullYear() - 1, archived, status } = route.query
   const pageN = Number(page)
   const sizeN = Number(size)
 
@@ -34,6 +34,7 @@ const filter = computed(() => {
     from: from && (from as string).trim() ? (from as string) : undefined,
     to: to && (to as string).trim() ? (to as string) : undefined,
     archived: archived === 'true',
+    status: status === 'PENDING' ? 'PENDING' : undefined,
   }
 })
 
@@ -62,13 +63,14 @@ const onYear = (year: number) => {
   })
 }
 
-const onFilter = (from?: Date, to?: Date, archived?: boolean) => {
+const onFilter = (from?: Date, to?: Date, archived?: boolean, status?: string) => {
   router.replace({
     query: {
       year: route.query.year,
       from: formatDate(from, '-'),
       to: formatDate(to, '-'),
       archived: archived ? 'true' : undefined,
+      status: status || undefined,
     },
   })
 }

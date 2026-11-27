@@ -46,6 +46,23 @@ export const useLedgerTableConstants = () => {
     search: {
       icon: t('buttons.search.icon'),
     },
+    pendingFilter: {
+      label: t('filters.pending.label'),
+    },
+    status: {
+      PENDING: {
+        label: t('status.ledgerPending.label'),
+        severity: t('status.ledgerPending.severity'),
+      },
+      COMPLETED: {
+        label: t('status.ledgerCompleted.label'),
+        severity: t('status.ledgerCompleted.severity'),
+      },
+      ARCHIVED: {
+        label: t('status.archived.label'),
+        severity: t('status.archived.severity'),
+      },
+    } as Record<string, { label: string; severity: string }>,
   }
 }
 
@@ -160,6 +177,13 @@ export const useLedgerEntryConstants = () => {
     },
     archived: {
       message: t('cards.newRecord.archivedMessage'),
+    },
+    pending: {
+      message: t('cards.newRecord.pendingMessage'),
+    },
+    confirm: {
+      label: t('buttons.confirm.label'),
+      icon: t('buttons.confirm.icon'),
     },
   }
 }

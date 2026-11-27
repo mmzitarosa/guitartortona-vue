@@ -33,6 +33,6 @@ export function useRoles() {
     /** Azioni consentite su una ricevuta dell'usato, in base a stato e ruolo */
     receiptPermissions: (doc: DocumentLike) => receiptPermissions(doc, roles),
     /** Azioni consentite su una riga del brogliaccio */
-    ledgerPermissions: (entry: { archived?: boolean }) => ledgerPermissions(entry, roles),
+    ledgerPermissions: (entry: { archived?: boolean; status?: string }) => ledgerPermissions(entry, roles),
   }
 }
