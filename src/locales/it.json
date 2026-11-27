@@ -320,11 +320,9 @@
   "customers": {
     "title": "Anagrafica clienti",
     "search": "Cerca per nome, città o documento",
+    "clearFilters": "Rimuovi filtri",
     "empty": "Nessun cliente trovato.",
     "loading": "Caricando i clienti...",
-    "showArchived": "Eliminati",
-    "showActive": "Attivi",
-    "archivedMessage": "Stai vedendo i clienti eliminati. Per modificarli ripristinali prima.",
     "columns": {
       "name": "Nominativo",
       "address": "Indirizzo",

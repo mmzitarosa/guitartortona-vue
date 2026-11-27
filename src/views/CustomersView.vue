@@ -2,10 +2,6 @@
   <Card class="min-w-0">
     <template #title>{{ t('customers.title') }}</template>
     <template #content>
-      <Message v-if="archived" severity="warn" icon="pi pi-trash" class="mb-4">
-        {{ t('customers.archivedMessage') }}
-      </Message>
-
       <DataTable
         v-model:filters="filters"
         :value="customers"
@@ -16,36 +12,49 @@
         :rowsPerPageOptions="[15, 30, 50]"
         rowHover
         dataKey="id"
+        tableStyle="table-layout: fixed"
       >
         <template #header>
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <IconField class="grow sm:grow-0 sm:w-80">
-              <InputIcon class="pi pi-search" />
-              <InputText
-                v-model="filters.global.value"
-                :placeholder="t('customers.search')"
-                class="w-full"
-              />
-            </IconField>
             <Button
-              :label="archived ? t('customers.showActive') : t('customers.showArchived')"
-              :icon="archived ? 'pi pi-users' : 'pi pi-trash'"
+              :label="t('customers.clearFilters')"
+              icon="pi pi-filter-slash"
+              :disabled="!filters.global.value && !archived"
               severity="secondary"
               variant="text"
-              @click="toggleArchived"
+              @click="clearFilters"
             />
+            <div class="flex flex-wrap items-center gap-4">
+              <Button
+                v-if="totalArchived > 0"
+                :label="'Eliminate (' + totalArchived + ')'"
+                icon="pi pi-trash"
+                :disabled="archived"
+                severity="secondary"
+                variant="text"
+                @click="setArchived(true)"
+              />
+              <IconField class="grow sm:grow-0 sm:w-80">
+                <InputIcon class="pi pi-search" />
+                <InputText
+                  v-model="filters.global.value"
+                  :placeholder="t('customers.search')"
+                  class="w-full"
+                />
+              </IconField>
+            </div>
           </div>
         </template>
         <template #empty>{{ t('customers.empty') }}</template>
         <template #loading>{{ t('customers.loading') }}</template>
 
-        <Column field="fullName" :header="t('customers.columns.name')" />
-        <Column :header="t('customers.columns.address')">
+        <Column field="fullName" class="w-1/4" :header="t('customers.columns.name')" />
+        <Column class="w-2/5" :header="t('customers.columns.address')">
           <template #body="{ data }">
             {{ data.address }}, {{ data.zipCode }} {{ data.city }} ({{ data.province }})
           </template>
         </Column>
-        <Column :header="t('customers.columns.document')">
+        <Column class="w-1/4" :header="t('customers.columns.document')">
           <template #body="{ data }">
             <div v-if="data.documentType || data.documentNumber">
               {{ [data.documentType, data.documentNumber].filter(Boolean).join(' ') }}
@@ -53,37 +62,46 @@
             <div v-if="data.taxCode" class="text-sm text-gray-500">{{ data.taxCode }}</div>
           </template>
         </Column>
-        <Column :header="t('customers.columns.actions')">
+        <Column class="w-28">
           <template #body="{ data }">
-            <div class="flex flex-wrap gap-2">
+            <div class="flex justify-end gap-1">
               <template v-if="archived">
                 <Button
-                  :label="buttons.hardDelete.label"
+                  v-tooltip.top="buttons.hardDelete.label"
                   :icon="buttons.hardDelete.icon"
-                  severity="danger"
-                  size="small"
+                  :aria-label="buttons.hardDelete.label"
+                  severity="secondary"
+                  rounded
+                  text
                   @click="onHardDelete(data)"
                 />
                 <Button
-                  :label="buttons.restore.label"
+                  v-tooltip.top="buttons.restore.label"
                   :icon="buttons.restore.icon"
+                  :aria-label="buttons.restore.label"
                   severity="secondary"
-                  size="small"
+                  rounded
+                  text
                   @click="onRestore(data)"
                 />
               </template>
               <template v-else>
                 <Button
-                  :label="buttons.delete.label"
+                  v-tooltip.top="buttons.delete.label"
                   :icon="buttons.delete.icon"
-                  severity="danger"
-                  size="small"
+                  :aria-label="buttons.delete.label"
+                  severity="secondary"
+                  rounded
+                  text
                   @click="onArchive(data)"
                 />
                 <Button
-                  :label="buttons.edit.label"
+                  v-tooltip.top="buttons.edit.label"
                   :icon="buttons.edit.icon"
-                  size="small"
+                  :aria-label="buttons.edit.label"
+                  severity="secondary"
+                  rounded
+                  text
                   @click="onEdit(data)"
                 />
               </template>
@@ -99,6 +117,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   Button,
@@ -108,7 +127,6 @@ import {
   IconField,
   InputIcon,
   InputText,
-  Message,
   useToast,
 } from 'primevue'
 import { FilterMatchMode } from '@primevue/core/api'
@@ -127,6 +145,8 @@ import { useConfirmDialogConstants } from '@/utils/i18nConstants'
 import { useErrorHandler } from '@/utils/errorHandler'
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 const confirmDialog = useConfirmDialog()
 const dialogs = useConfirmDialogConstants()
@@ -139,10 +159,15 @@ const buttons = {
   edit: { label: t('buttons.edit.label'), icon: t('buttons.edit.icon') },
 }
 
-const archived = ref(false)
+// Come nelle altre liste, la vista degli eliminati è nell'URL
+const archived = computed(() => route.query.archived === 'true')
 const loading = ref(false)
-const list = ref<Customer[]>([])
-const customers = computed(() => list.value.map(withFullName))
+const active = ref<Customer[]>([])
+const archivedList = ref<Customer[]>([])
+const customers = computed(() =>
+  (archived.value ? archivedList.value : active.value).map(withFullName),
+)
+const totalArchived = computed(() => archivedList.value.length)
 const filters = ref({
   global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
 })
@@ -153,7 +178,12 @@ const editing = ref<Customer>()
 const load = async () => {
   loading.value = true
   try {
-    list.value = await (archived.value ? getArchivedCustomers() : getAllCustomers())
+    ;[active.value, archivedList.value] = await Promise.all([
+      getAllCustomers(),
+      getArchivedCustomers(),
+    ])
+    // Senza più eliminati non c'è nulla da mostrare in quella vista
+    if (archived.value && !archivedList.value.length) setArchived(false)
   } catch (error) {
     handleApiError(error)
   } finally {
@@ -161,9 +191,12 @@ const load = async () => {
   }
 }
 
-const toggleArchived = () => {
-  archived.value = !archived.value
-  load()
+const setArchived = (value: boolean) =>
+  router.replace({ query: { ...route.query, archived: value ? 'true' : undefined } })
+
+const clearFilters = () => {
+  filters.value.global.value = null
+  setArchived(false)
 }
 
 const onEdit = (customer: Customer) => {
