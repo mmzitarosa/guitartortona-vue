@@ -28,23 +28,16 @@
             />
 
             <div class="flex flex-wrap gap-4">
-              <Button
-                v-if="totalPending > 0 || _status === 'PENDING'"
-                :label="constants.pendingFilter.label + ' (' + totalPending + ')'"
-                icon="pi pi-clock"
-                :disabled="_archived || (!!_status && _status !== 'PENDING')"
-                severity="secondary"
-                :variant="_status === 'PENDING' ? undefined : 'text'"
-                @click="_status = _status === 'PENDING' ? undefined : 'PENDING'"
-              />
-
-              <Button
-                v-if="isAdmin && (totalArchived > 0 || _archived)"
-                :label="'Eliminate (' + totalArchived + ')'"
-                icon="pi pi-trash"
-                severity="secondary"
-                :variant="_archived ? undefined : 'text'"
-                @click="_archived = !_archived"
+              <SelectField
+                v-if="viewOptions.length"
+                v-model="_view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
+                showClear
+                label="Stato"
+                class="w-56"
               />
 
               <!-- Da data -->
@@ -285,6 +278,33 @@ const _status = computed({
       value ?? '',
     ),
 })
+
+// Un solo filtro per la vista: bozze/da confermare ed eliminate si escludono a vicenda
+const _view = computed({
+  get: (): string | undefined => (_archived.value ? 'ARCHIVED' : _status.value || undefined),
+  set: (v?: string): void =>
+    onFilter(
+      searchFormItem.value.fromDate,
+      searchFormItem.value.toDate,
+      v === 'ARCHIVED',
+      v && v !== 'ARCHIVED' ? v : '',
+    ),
+})
+
+const viewOptions = computed(() =>
+  [
+    {
+      value: 'PENDING',
+      label: constants.pendingFilter.label + ' (' + totalPending + ')',
+      show: totalPending.value > 0,
+    },
+    {
+      value: 'ARCHIVED',
+      label: 'Eliminate (' + totalArchived.value + ')',
+      show: isAdmin && totalArchived.value > 0,
+    },
+  ].filter((option) => option.show || option.value === _view.value),
+)
 
 const rows = computed(() => {
   if (_archived.value) return archivedLedger.value

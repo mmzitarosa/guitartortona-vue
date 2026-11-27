@@ -1,10 +1,9 @@
 <template>
   <Dialog
-    v-model:visible="visible"
     modal
     :header="customer ? constants.editTitle : constants.newTitle"
-    :closable="!registry"
-    :closeOnEscape="!registry"
+    :visible="visible"
+    @update:visible="onVisible"
     class="w-full max-w-xl mx-4"
   >
     <Message v-if="registry && archived" severity="warn" icon="pi pi-trash" class="mb-4">
@@ -261,6 +260,12 @@ const onSave = () => {
   if (!props.registry) visible.value = false
 }
 
+// X ed Esc nell'anagrafica passano dal controllo sulle modifiche non confermate
+const onVisible = (value: boolean) => {
+  if (value || !props.registry) visible.value = value
+  else onClose()
+}
+
 const onReset = () =>
   confirmDialog.require({
     header: dialogs.resetDialog.title,
@@ -270,6 +275,7 @@ const onReset = () =>
     toastSummary: dialogs.resetDialog.toastTitle,
     toastDetail: dialogs.resetDialog.toastMessage,
     accept: async () => {
+      Object.keys(draft).forEach((key) => delete draft[key as keyof Customer])
       Object.assign(draft, original.value)
       validate.value = false
       return true

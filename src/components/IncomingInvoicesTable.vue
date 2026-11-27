@@ -28,23 +28,16 @@
             />
 
             <div class="flex flex-wrap gap-4">
-              <Button
-                v-if="totalDrafts > 0 || _status === 'DRAFT'"
-                :label="'Bozze (' + totalDrafts + ')'"
-                icon="pi pi-pen-to-square"
-                :disabled="_archived || (!!_status && _status !== 'DRAFT')"
-                severity="warn"
-                :variant="_status === 'DRAFT' ? undefined : 'text'"
-                @click="_status = _status === 'DRAFT' ? undefined : 'DRAFT'"
-              />
-
-              <Button
-                v-if="isAdmin && (totalArchived > 0 || _archived)"
-                :label="'Eliminate (' + totalArchived + ')'"
-                icon="pi pi-trash"
-                severity="secondary"
-                :variant="_archived ? undefined : 'text'"
-                @click="_archived = !_archived"
+              <SelectField
+                v-if="viewOptions.length"
+                v-model="_view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
+                showClear
+                label="Stato"
+                class="w-56"
               />
 
               <SelectField
@@ -246,6 +239,24 @@ const _status = computed({
   get: (): string | undefined => props.filter.status,
   set: (value?: string): void => onFilter(_supplierId.value, value, _archived.value),
 })
+
+// Un solo filtro per la vista: bozze/da confermare ed eliminate si escludono a vicenda
+const _view = computed({
+  get: (): string | undefined => (_archived.value ? 'ARCHIVED' : _status.value || undefined),
+  set: (v?: string): void =>
+    onFilter(_supplierId.value, v && v !== 'ARCHIVED' ? v : undefined, v === 'ARCHIVED'),
+})
+
+const viewOptions = computed(() =>
+  [
+    { value: 'DRAFT', label: 'Bozze (' + totalDrafts + ')', show: totalDrafts.value > 0 },
+    {
+      value: 'ARCHIVED',
+      label: 'Eliminate (' + totalArchived.value + ')',
+      show: isAdmin && totalArchived.value > 0,
+    },
+  ].filter((option) => option.show || option.value === _view.value),
+)
 
 const onPage = (event: DataTablePageEvent): void => {
   const rows = event.rows

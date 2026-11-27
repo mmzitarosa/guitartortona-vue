@@ -27,13 +27,16 @@
               @click="clearFilters"
             />
             <div class="flex flex-wrap items-center gap-4">
-              <Button
-                v-if="totalArchived > 0 || archived"
-                :label="'Eliminate (' + totalArchived + ')'"
-                icon="pi pi-trash"
-                severity="secondary"
-                :variant="archived ? undefined : 'text'"
-                @click="setArchived(!archived)"
+              <SelectField
+                v-if="viewOptions.length"
+                v-model="view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
+                showClear
+                label="Stato"
+                class="w-56"
               />
               <IconField class="grow sm:grow-0 sm:w-80">
                 <InputIcon class="pi pi-search" />
@@ -88,6 +91,7 @@ import { Button, Card, Column, DataTable, IconField, InputIcon, InputText } from
 import type { DataTableRowClickEvent } from 'primevue'
 import { FilterMatchMode } from '@primevue/core/api'
 import CustomerDialog from '@/components/forms/usedreceipt/CustomerDialog.vue'
+import SelectField from '@/components/layout/fields/SelectField.vue'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import {
@@ -119,6 +123,16 @@ const customers = computed(() =>
   (archived.value ? archivedList.value : active.value).map(withFullName),
 )
 const totalArchived = computed(() => archivedList.value.length)
+// Come nelle altre liste: un solo filtro per la vista degli eliminati
+const view = computed({
+  get: (): string | undefined => (archived.value ? 'ARCHIVED' : undefined),
+  set: (value?: string) => setArchived(value === 'ARCHIVED'),
+})
+const viewOptions = computed(() =>
+  totalArchived.value > 0 || archived.value
+    ? [{ value: 'ARCHIVED', label: 'Eliminate (' + totalArchived.value + ')' }]
+    : [],
+)
 const filters = ref({
   global: { value: null as string | null, matchMode: FilterMatchMode.CONTAINS },
 })
