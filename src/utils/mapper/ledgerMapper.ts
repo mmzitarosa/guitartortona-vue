@@ -38,7 +38,8 @@ export function fromDTO(dto: LedgerEntryDTO): LedgerEntry {
     amount: dto.amount,
     notes: dto.notes,
     status: dto.status,
-    archived: dto.archived
+    archived: dto.archived,
+    usedReceiptId: dto.usedReceiptId
   }
 }
 

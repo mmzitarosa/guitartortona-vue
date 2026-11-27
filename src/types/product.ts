@@ -8,6 +8,7 @@ export interface Product {
   code?: string
   internalCode?: string
   usedReference?: string
+  usedReceiptId?: number
   brand?: Brand
   category?: Category
   description?: string

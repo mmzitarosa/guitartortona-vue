@@ -1,7 +1,20 @@
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_17rem] gap-4 items-start">
     <Card class="lg:col-start-1">
-      <template #title>{{ constants.card.title + condition }}</template>
+      <template #title>
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <span>{{ constants.card.title + condition }}</span>
+          <Button
+            v-if="product.usedReceiptId && canEdit"
+            type="button"
+            size="small"
+            text
+            icon="pi pi-file"
+            :label="constants.receiptLink.label"
+            @click="openReceipt"
+          />
+        </div>
+      </template>
       <template #subtitle>{{ constants.card.subtitle + condition }}</template>
       <template #content>
         <ProgressBar
@@ -148,6 +161,16 @@
           </div>
           <!-- Bottoni di destra -->
           <div class="flex gap-2">
+            <!-- Tasto Edit - Visualizzazione  -->
+            <Button
+              v-if="readonly && canEdit"
+              type="button"
+              rounded
+              text
+              icon="pi pi-pen-to-square"
+              severity="secondary"
+              @click="onFormEdit"
+            />
             <!-- Tasto Stampa - Visualizzazione -->
             <Button
               v-if="readonly && pristine"
@@ -160,19 +183,9 @@
               v-tooltip.top="printConstants.print.label"
               @click="printDialog = true"
             />
-            <!-- Tasto Edit - Visualizzazione  -->
-            <Button
-              v-if="readonly && canEdit"
-              type="button"
-              rounded
-              text
-              icon="pi pi-pen-to-square"
-              severity="secondary"
-              @click="onFormEdit"
-            />
             <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
             <Button
-              v-else-if="dirty"
+              v-if="dirty"
               type="button"
               :label="constants.update.label"
               :icon="constants.update.icon"
@@ -242,6 +255,7 @@
 
 <script setup lang="ts">
 import { useRoles } from '@/composables/useRoles'
+import { useRouter } from 'vue-router'
 import { computed, onMounted, ref, watch } from 'vue'
 import Card from 'primevue/card'
 import { Button, Dialog, ProgressBar, useToast } from 'primevue'
@@ -268,6 +282,14 @@ import { formatCurrency } from '@/utils/currencyUtils'
 import { addProductSale } from '@/services/api/productService'
 
 const { canEdit } = useRoles()
+const router = useRouter()
+
+const openReceipt = () =>
+  router.push({
+    name: 'usedReceipt',
+    params: { id: product.value.usedReceiptId },
+    query: { editable: 'false' },
+  })
 const { t } = useI18n()
 
 const emit = defineEmits<{

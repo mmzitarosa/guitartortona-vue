@@ -1,36 +1,50 @@
 <template>
-  <ConfirmDialog :group>
+  <ConfirmDialog :group class="w-full max-w-xl mx-4">
     <template #message="slotProps">
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-4">
-          <span :class="slotProps.message.icon" class="p-confirmdialog-icon"
-                data-pc-section="icon"></span>
-          <span class="p-confirmdialog-message"
-                data-pc-section="message">{{ slotProps.message.message
-            }}</span>
+          <span :class="slotProps.message.icon" class="p-confirmdialog-icon"></span>
+          <span class="p-confirmdialog-message">{{ slotProps.message.message }}</span>
         </div>
-        <div class="flex flex-col gap-2" >
-          <div v-for="change in changes" :key="change.field">
-          <span>{{ change.field }}:</span>
-          <span class="text-primary-700 ml-1" v-if="change.oldValue && !change.ignore">{{ change.oldValue }}</span>
-          <span class="ml-1" v-if="change.oldValue && !change.ignore">-></span>
-          <span class="text-primary-500 ml-1">{{ change.newValue }}</span>
-          </div>
+
+        <!-- Valori precedenti e nuovi a confronto -->
+        <div class="grid grid-cols-[auto_1fr_1fr] gap-x-4 gap-y-2 text-sm">
+          <span class="text-muted-color">{{ constants.field }}</span>
+          <span class="text-muted-color">{{ constants.before }}</span>
+          <span class="text-muted-color">{{ constants.after }}</span>
+
+          <template v-for="change in changes" :key="change.field">
+            <span class="text-muted-color">{{ change.field }}</span>
+            <span class="break-words min-w-0">{{ before(change) }}</span>
+            <span class="break-words min-w-0 font-semibold">{{ change.newValue }}</span>
+          </template>
         </div>
       </div>
-
     </template>
   </ConfirmDialog>
-
 </template>
+
 <script setup lang="ts">
 import { ConfirmDialog } from 'primevue'
-import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-const props = withDefaults(defineProps<{ changes: { field: string, oldValue: any, newValue: any, ignore: boolean }[], group?: string }>(), {
-  group: "differences"
+interface Change {
+  field: string
+  oldValue: unknown
+  newValue: unknown
+  ignore: boolean
+}
+
+withDefaults(defineProps<{ changes: Change[]; group?: string }>(), {
+  group: 'differences',
 })
 
-const reset = computed(() => {})
+const { t } = useI18n()
+const constants = {
+  field: t('common.changes.field'),
+  before: t('common.changes.before'),
+  after: t('common.changes.after'),
+}
 
+const before = (change: Change) => (change.oldValue && !change.ignore ? change.oldValue : '-')
 </script>

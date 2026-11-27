@@ -8,6 +8,8 @@
       :inputId
       :invalid
       :placeholder="constants.dateFormat"
+      :minDate
+      :maxDate
       show-icon
       icon-display="input"
       class="p-inputwrapper-filled"
@@ -27,6 +29,8 @@ interface InputDateFieldProps {
   inputId: string
   label: string
   readonly?: boolean
+  minDate?: Date
+  maxDate?: Date
   validation?: { message?: string; valid: boolean }
 }
 

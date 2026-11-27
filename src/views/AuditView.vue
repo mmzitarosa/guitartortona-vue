@@ -74,7 +74,15 @@
         <Column field="username" :header="t('audit.columns.user')" />
         <Column :header="t('audit.columns.entity')">
           <template #body="{ data }">
-            {{ entityLabel(data.entityType) }} #{{ data.entityId }}
+            <RouterLink
+              v-if="entityRoute(data)"
+              :to="entityRoute(data)!"
+              class="text-primary hover:underline"
+              @click.stop
+            >
+              {{ entityLabel(data.entityType) }} #{{ data.entityId }}
+            </RouterLink>
+            <template v-else>{{ entityLabel(data.entityType) }} #{{ data.entityId }}</template>
           </template>
         </Column>
         <Column :header="t('audit.columns.operation')">
@@ -115,7 +123,16 @@
       <dt class="text-muted-color">{{ t('audit.columns.user') }}</dt>
       <dd>{{ selected.username }}</dd>
       <dt class="text-muted-color">{{ t('audit.columns.entity') }}</dt>
-      <dd>{{ entityLabel(selected.entityType) }} #{{ selected.entityId }}</dd>
+      <dd>
+        <RouterLink
+          v-if="entityRoute(selected)"
+          :to="entityRoute(selected)!"
+          class="text-primary hover:underline"
+        >
+          {{ entityLabel(selected.entityType) }} #{{ selected.entityId }}
+        </RouterLink>
+        <template v-else>{{ entityLabel(selected.entityType) }} #{{ selected.entityId }}</template>
+      </dd>
       <dt class="text-muted-color">{{ t('audit.columns.operation') }}</dt>
       <dd>{{ t(`audit.operations.${selected.operation}`) }}</dd>
       <template v-if="selected.field">
@@ -163,7 +180,7 @@ const ENTITIES = [
   'Brand',
   'Category',
 ]
-const OPERATIONS = ['CREATE', 'UPDATE', 'DELETE']
+const OPERATIONS = ['CREATE', 'UPDATE', 'DELETE', 'ALIGN', 'IGNORE']
 
 const entityOptions = computed(() => ENTITIES.map((e) => ({ value: e, label: entityLabel(e) })))
 const operationOptions = computed(() =>
@@ -188,9 +205,28 @@ const selected = ref<AuditLog | null>(null)
 
 const entityLabel = (type: string) =>
   te(`audit.entities.${type}`) ? t(`audit.entities.${type}`) : type
+// Pagina di dettaglio dell'entità; l'eliminazione definitiva non ha più un documento da aprire
+const ENTITY_ROUTES: Record<string, string> = {
+  Product: 'product',
+  IncomingInvoice: 'incomingInvoice',
+  UsedReceipt: 'usedReceipt',
+  LedgerEntry: 'ledgerEntry',
+}
+const entityRoute = (log: AuditLog) => {
+  const name = ENTITY_ROUTES[log.entityType]
+  return name && log.operation !== 'DELETE'
+    ? { name, params: { id: log.entityId }, query: { editable: 'false' } }
+    : null
+}
 const fieldLabel = (field: string) =>
   te(`audit.fields.${field}`) ? t(`audit.fields.${field}`) : field
-const severity = (op: string) => (op === 'CREATE' ? 'success' : op === 'DELETE' ? 'danger' : 'info')
+const SEVERITIES: Record<string, string> = {
+  CREATE: 'success',
+  DELETE: 'danger',
+  ALIGN: 'warn',
+  IGNORE: 'secondary',
+}
+const severity = (op: string) => SEVERITIES[op] ?? 'info'
 
 const formatDateTime = (value: string) => {
   const d = new Date(value)

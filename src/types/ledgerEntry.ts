@@ -18,6 +18,7 @@ export interface LedgerEntry {
   notes?: string
   status?: LedgerEntryStatus
   archived?: boolean
+  usedReceiptId?: number
 }
 
 export interface LedgerEntryLight {
@@ -101,4 +102,5 @@ export interface LedgerEntryDTO {
   notes?: string
   status?: LedgerEntryStatus
   archived?: boolean
+  usedReceiptId?: number
 }

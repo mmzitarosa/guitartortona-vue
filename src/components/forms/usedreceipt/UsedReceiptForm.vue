@@ -1,6 +1,19 @@
 <template>
   <Card>
-    <template #title>{{ constants.card.title }}</template>
+    <template #title>
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <span>{{ constants.card.title }}</span>
+        <Button
+          v-if="model.ledgerEntryId && canEdit"
+          type="button"
+          size="small"
+          text
+          icon="pi pi-book"
+          :label="constants.ledgerAlignment.openLedger"
+          @click="emit('openLedger')"
+        />
+      </div>
+    </template>
     <template #subtitle>{{ constants.card.subtitle }}</template>
     <template #content>
       <ProgressBar
@@ -10,6 +23,25 @@
 
       <Message v-if="model.archived" severity="warn" icon="pi pi-trash" class="mt-4">
         {{ constants.archived.message }}
+      </Message>
+
+      <!-- Ricevuta registrata: riga di brogliaccio collegata e differenze da gestire (solo admin) -->
+      <Message
+        v-if="model.ledgerAlignment"
+        severity="warn"
+        icon="pi pi-exclamation-triangle"
+        class="mt-4"
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <span>{{ constants.ledgerAlignment.notice[model.ledgerAlignment.action] }}</span>
+          <Button
+            type="button"
+            link
+            class="!p-0 underline"
+            :label="constants.ledgerAlignment.review"
+            @click="emit('reviewLedger')"
+          />
+        </div>
       </Message>
 
       <div class="grid gap-4 w-full mt-6">
@@ -70,6 +102,8 @@
             inputId="date"
             :label="constants.date.label"
             :readonly
+            :minDate="frozenYear ? new Date(frozenYear, 0, 1) : undefined"
+            :maxDate="frozenYear ? new Date(frozenYear, 11, 31) : undefined"
             :validation="validation.fields.date"
           />
         </div>
@@ -175,6 +209,17 @@
             @click="emit('restore')"
           />
 
+          <!-- Tasto Edit - Visualizzazione  -->
+          <Button
+            v-if="readonly && existingItem && permissions.edit"
+            type="button"
+            rounded
+            text
+            icon="pi pi-pen-to-square"
+            severity="secondary"
+            @click="emit('edit')"
+          />
+
           <!-- Tasto Stampa - dalla conferma in poi -->
           <Button
             v-if="existingItem && permissions.print && !dirty"
@@ -186,17 +231,6 @@
             :aria-label="constants.print.receipt"
             v-tooltip.top="constants.print.receipt"
             @click="printDialog = true"
-          />
-
-          <!-- Tasto Edit - Visualizzazione  -->
-          <Button
-            v-if="readonly && existingItem && permissions.edit"
-            type="button"
-            rounded
-            text
-            icon="pi pi-pen-to-square"
-            severity="secondary"
-            @click="emit('edit')"
           />
 
           <!-- Tasto Aggiungi - Inserimento  -->
@@ -293,7 +327,7 @@ const props = withDefaults(defineProps<UsedReceiptFormProps>(), {
   loading: false,
 })
 
-const { receiptPermissions } = useRoles()
+const { receiptPermissions, canEdit } = useRoles()
 const confirmDialog = useConfirmDialog()
 
 const emit = defineEmits<{
@@ -306,6 +340,8 @@ const emit = defineEmits<{
   restore: []
   hardDelete: []
   reset: []
+  reviewLedger: []
+  openLedger: []
 }>()
 const model = defineModel<UsedReceipt>({ required: true })
 
@@ -313,10 +349,13 @@ const { options: customerOptions, loading: customersLoading, loadCustomers } = u
 
 const permissions = computed(() => receiptPermissions(model.value))
 
-const readonly = computed(
-  () => !props.editable || (props.existingItem && !permissions.value.edit),
-)
+// Anno e numero nascono alla registrazione ("n/aa"): la data si può cambiare solo dentro quell'anno
+const frozenYear = computed(() => {
+  const suffix = model.value.number?.split('/')[1]
+  return suffix ? 2000 + Number(suffix) : undefined
+})
 
+const readonly = computed(() => !props.editable || (props.existingItem && !permissions.value.edit))
 
 // Il cliente è una copia dei dati sulla ricevuta; scegliere dall'anagrafica non la modifica
 const customerModel = computed({

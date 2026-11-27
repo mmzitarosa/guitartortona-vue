@@ -1,5 +1,10 @@
 {
   "common": {
+    "changes": {
+      "field": "Dato",
+      "before": "Prima",
+      "after": "Dopo"
+    },
     "labels": {
       "date": "Data",
       "amount": "Importo",
@@ -239,7 +244,8 @@
       "title": "Nuovo Record",
       "subtitle": "Dati Record",
       "archivedMessage": "Riga eliminata. Per modificarla ripristinala prima.",
-      "pendingMessage": "Riga da confermare: generata da un altro documento, non ancora verificata."
+      "pendingMessage": "Riga da confermare: generata da un altro documento, non ancora verificata.",
+      "receiptLinkLabel": "Vedi la ricevuta"
     },
     "newInvoice": {
       "title": "Nuova Fattura",
@@ -413,6 +419,47 @@
     "confirm": {
       "label": "Conferma"
     },
+    "ledgerAlignment": {
+      "openLedger": "Vedi nel brogliaccio",
+      "review": "Rivedi",
+      "notice": {
+        "UPDATE": "La ricevuta è stata modificata dopo la registrazione: il brogliaccio non è allineato.",
+        "ARCHIVE": "La ricevuta è eliminata, ma la riga del brogliaccio è ancora attiva."
+      },
+      "title": {
+        "UPDATE": "Brogliaccio non allineato",
+        "ARCHIVE": "Ricevuta eliminata",
+        "DELETE": "Eliminazione definitiva"
+      },
+      "message": {
+        "UPDATE": "Vuoi aggiornare la riga del brogliaccio con i nuovi valori della ricevuta o lasciarla com'è?",
+        "ARCHIVE": "Vuoi eliminare anche la riga del brogliaccio generata da questa ricevuta o lasciarla com'è?",
+        "DELETE": "La riga del brogliaccio generata da questa ricevuta è ancora attiva: vuoi eliminarla insieme alla ricevuta o lasciarla com'è?"
+      },
+      "columns": {
+        "field": "Dato",
+        "current": "Brogliaccio",
+        "proposed": "Ricevuta"
+      },
+      "fields": {
+        "date": "Data",
+        "reason": "Cliente",
+        "amount": "Importo"
+      },
+      "accept": {
+        "UPDATE": "Allinea brogliaccio",
+        "ARCHIVE": "Elimina riga",
+        "DELETE": "Elimina anche la riga"
+      },
+      "ignore": "Ignora",
+      "keep": "Lascia la riga",
+      "archiveRow": "La riga verrà eliminata.",
+      "toastTitle": "Brogliaccio",
+      "toast": {
+        "ALIGN": "La riga del brogliaccio è stata allineata.",
+        "IGNORE": "La differenza è stata ignorata."
+      }
+    },
     "print": {
       "receipt": "Stampa ricevuta",
       "label": "Stampa etichetta",
@@ -506,6 +553,9 @@
     "USED_RECEIPT_NOT_PRINTABLE": "La ricevuta si può stampare solo dopo la conferma.",
     "USED_RECEIPT_NOT_ARCHIVABLE": "Gli operatori possono eliminare solo le bozze.",
     "USED_RECEIPT_NOT_ARCHIVED": "La ricevuta deve essere eliminata prima dell'eliminazione definitiva.",
+    "USED_RECEIPT_YEAR_FROZEN": "La data di una ricevuta registrata deve restare nell'anno di registrazione.",
+    "USED_RECEIPT_LEDGER_CHOICE_REQUIRED": "Scegli cosa fare della riga del brogliaccio collegata.",
+    "USED_RECEIPT_LEDGER_ALIGNED": "Il brogliaccio è già allineato alla ricevuta.",
     "USED_RECEIPT_HAS_SALES": "Alcuni prodotti della ricevuta risultano già venduti: non si può eliminare.",
     "PRODUCT_STOCK_WOULD_BE_NEGATIVE": "L'operazione porterebbe la giacenza di un prodotto sotto zero: alcuni pezzi risultano già venduti.",
     "VALIDATION_ERROR": "Dati non validi. Controlla i campi del modulo.",
@@ -555,7 +605,9 @@
     "operations": {
       "CREATE": "Creazione",
       "UPDATE": "Modifica",
-      "DELETE": "Eliminazione"
+      "DELETE": "Eliminazione",
+      "ALIGN": "Allineamento brogliaccio",
+      "IGNORE": "Differenza ignorata"
     },
     "entities": {
       "Product": "Prodotto",
@@ -569,6 +621,7 @@
       "Category": "Categoria"
     },
     "fields": {
+      "ledger": "Brogliaccio",
       "description": "Descrizione",
       "price": "Prezzo",
       "code": "Codice",
