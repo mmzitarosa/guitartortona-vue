@@ -41,6 +41,7 @@ export const useLedgerTableConstants = () => {
       icon: t('buttons.reset.icon'),
     },
     print: {
+      label: t('buttons.print.label'),
       icon: t('buttons.print.icon'),
     },
     search: {
@@ -1001,6 +1002,11 @@ export const useSidebarItems = (): Menu[] => {
           label: t('navigation.items.audit'),
           icon: 'pi pi-history',
           route: '/audit',
+        },
+        {
+          label: t('navigation.items.customers'),
+          icon: 'pi pi-users',
+          route: '/customers',
         },
       ],
     },

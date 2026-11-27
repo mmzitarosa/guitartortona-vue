@@ -3,7 +3,8 @@
     "changes": {
       "field": "Dato",
       "before": "Prima",
-      "after": "Dopo"
+      "after": "Dopo",
+      "value": "Valore inserito"
     },
     "labels": {
       "date": "Data",
@@ -98,6 +99,10 @@
     "restore": {
       "label": "Ripristina",
       "icon": "pi pi-replay"
+    },
+    "edit": {
+      "label": "Modifica",
+      "icon": "pi pi-pencil"
     },
     "confirm": {
       "label": "Conferma",
@@ -313,6 +318,21 @@
       "userPrefix": "Utente: "
     }
   },
+  "customers": {
+    "title": "Anagrafica clienti",
+    "search": "Cerca per nome, città o documento",
+    "clearFilters": "Rimuovi filtri",
+    "empty": "Nessun cliente trovato.",
+    "loading": "Caricando i clienti...",
+    "columns": {
+      "name": "Nominativo",
+      "address": "Indirizzo",
+      "document": "Documento"
+    },
+    "archiveMessage": "Il cliente non sarà più selezionabile nelle ricevute. Le ricevute già compilate non cambiano.",
+    "hardDeleteMessage": "L'eliminazione definitiva cancella il cliente dall'anagrafica. Le ricevute già compilate mantengono i loro dati.",
+    "archivedMessage": "Cliente eliminato. Per modificarlo ripristinalo prima."
+  },
   "navigation": {
     "titles": {
       "home": "Home",
@@ -338,7 +358,8 @@
       "inventory": "Inventario",
       "insertRecord": "Inserisci Record",
       "ledger": "Brogliaccio",
-      "audit": "Registro modifiche"
+      "audit": "Registro modifiche",
+      "customers": "Anagrafica clienti"
     }
   },
   "incomingInvoiceProducts": {
@@ -545,6 +566,9 @@
     "INVOICE_NOT_EDITABLE": "La fattura non è modificabile: le fatture confermate possono essere modificate solo da un admin, quelle archiviate mai.",
     "INVOICE_ARCHIVED": "Una fattura archiviata non può essere completata.",
     "CUSTOMER_NOT_FOUND": "Cliente non trovato.",
+    "CUSTOMER_ARCHIVED": "Il cliente è eliminato: ripristinalo per usarlo.",
+    "CUSTOMER_NOT_EDITABLE": "Il cliente è eliminato: ripristinalo per modificarlo.",
+    "CUSTOMER_NOT_ARCHIVED": "Per eliminare definitivamente il cliente eliminalo prima.",
     "USED_RECEIPT_NOT_FOUND": "Ricevuta non trovata.",
     "USED_RECEIPT_EMPTY": "La ricevuta deve contenere almeno un prodotto.",
     "USED_RECEIPT_NOT_DRAFT": "L'operazione è consentita solo sulle bozze.",
@@ -597,9 +621,8 @@
       "user": "Utente",
       "entity": "Entità",
       "operation": "Operazione",
-      "from": "Da",
-      "to": "A",
-      "reset": "Azzera filtri",
+      "from": "Filtra da",
+      "to": "Filtra a",
       "all": "Tutte"
     },
     "operations": {
@@ -618,7 +641,8 @@
       "LedgerEntry": "Brogliaccio",
       "Supplier": "Fornitore",
       "Brand": "Marca",
-      "Category": "Categoria"
+      "Category": "Categoria",
+      "Customer": "Cliente"
     },
     "fields": {
       "ledger": "Brogliaccio",

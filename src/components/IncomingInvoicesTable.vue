@@ -17,47 +17,39 @@
         @rowSelect="onRowSelect"
       >
         <template #header>
-          <div class="flex justify-between">
-            <Button
-              label="Rimuovi filtri"
-              icon="pi pi-filter-slash"
-              :disabled="!_status && !_supplierId && !_archived"
-              severity="secondary"
-              variant="text"
-              @click="onFilter(undefined, undefined, false)"
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <SelectField
+              v-model="_supplierId"
+              inputId="supplier"
+              :options="suppliers"
+              optionValue="id"
+              optionLabel="name"
+              showClear
+              :loading="suppliersLoading"
+              label="Filtro per Fornitore"
+              class="w-64"
             />
 
-            <div class="flex flex-wrap gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <Button
-                v-if="totalDrafts > 0"
-                :label="'Bozze (' + totalDrafts + ')'"
-                icon="pi pi-pen-to-square"
-                :disabled="!!_status || _archived"
-                severity="warn"
-                variant="text"
-                @click="_status = 'DRAFT'"
-              />
-
-              <Button
-                v-if="isAdmin && totalArchived > 0"
-                :label="'Eliminate (' + totalArchived + ')'"
-                icon="pi pi-trash"
-                :disabled="_archived"
+                v-if="_status || _supplierId || _archived"
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
                 severity="secondary"
                 variant="text"
-                @click="_archived = true"
+                @click="onFilter(undefined, undefined, false)"
               />
-
               <SelectField
-                v-model="_supplierId"
-                inputId="supplier"
-                :options="suppliers"
-                optionValue="id"
-                optionLabel="name"
+                v-if="viewOptions.length"
+                v-model="_view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
                 showClear
-                :loading="suppliersLoading"
-                label="Filtro per Fornitore"
-                class="w-64"
+                label="Stato"
+                :optionSeverity="(option) => option.severity"
+                class="w-56"
               />
             </div>
           </div>
@@ -247,6 +239,30 @@ const _status = computed({
   get: (): string | undefined => props.filter.status,
   set: (value?: string): void => onFilter(_supplierId.value, value, _archived.value),
 })
+
+// Un solo filtro per la vista: bozze/da confermare ed eliminate si escludono a vicenda
+const _view = computed({
+  get: (): string | undefined => (_archived.value ? 'ARCHIVED' : _status.value || undefined),
+  set: (v?: string): void =>
+    onFilter(_supplierId.value, v && v !== 'ARCHIVED' ? v : undefined, v === 'ARCHIVED'),
+})
+
+const viewOptions = computed(() =>
+  [
+    {
+      value: 'DRAFT',
+      severity: constants.draft.severity,
+      label: constants.draft.label + ' (' + totalDrafts.value + ')',
+      show: totalDrafts.value > 0,
+    },
+    {
+      value: 'ARCHIVED',
+      severity: constants.archived.severity,
+      label: constants.archived.label + ' (' + totalArchived.value + ')',
+      show: isAdmin && totalArchived.value > 0,
+    },
+  ].filter((option) => option.show || option.value === _view.value),
+)
 
 const onPage = (event: DataTablePageEvent): void => {
   const rows = event.rows

@@ -12,6 +12,7 @@ export interface FieldChange {
   oldValue: any
   newValue: any
   ignore: boolean
+  isNew?: boolean
 }
 
 export function useOriginalData<T extends { id?: number }>(options: UseOriginalDataOptions<T>) {
@@ -39,7 +40,13 @@ export function useOriginalData<T extends { id?: number }>(options: UseOriginalD
     const hasChanged = oldValue !== newValue
 
     if (isUnchangedDefault || hasChanged) {
-      return { field: fieldLabel, oldValue, newValue, ignore: isUnchangedDefault }
+      return {
+        field: fieldLabel,
+        oldValue,
+        newValue,
+        ignore: isUnchangedDefault,
+        isNew: !isExistingItem.value,
+      }
     }
     return null
   }

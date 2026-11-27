@@ -2,54 +2,60 @@
   <Card class="min-w-0">
     <template #title>{{ t('audit.title') }}</template>
     <template #content>
-      <form class="flex flex-wrap items-end gap-3 mb-4" @submit.prevent="onSearch">
-        <div class="flex flex-col gap-1 grow sm:grow-0">
-          <label for="audit-user" class="text-sm">{{ t('audit.filters.user') }}</label>
-          <InputText id="audit-user" v-model="form.username" />
-        </div>
-        <div class="flex flex-col gap-1 grow sm:grow-0">
-          <label for="audit-entity" class="text-sm">{{ t('audit.filters.entity') }}</label>
-          <Select
-            inputId="audit-entity"
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div class="flex flex-wrap items-center gap-4">
+          <InputTextField
+            v-model="form.username"
+            inputId="audit-user"
+            :label="t('audit.filters.user')"
+            class="w-48"
+          />
+          <SelectField
             v-model="form.entityType"
+            inputId="audit-entity"
             :options="entityOptions"
-            optionLabel="label"
             optionValue="value"
+            optionLabel="label"
             showClear
-            :placeholder="t('audit.filters.all')"
+            :label="t('audit.filters.entity')"
+            class="w-56"
+          />
+          <InputDateField
+            v-model="form.from"
+            inputId="audit-from"
+            :label="t('audit.filters.from')"
+            clearable
+          />
+          <InputDateField
+            v-model="form.to"
+            inputId="audit-to"
+            :label="t('audit.filters.to')"
+            clearable
           />
         </div>
-        <div class="flex flex-col gap-1 grow sm:grow-0">
-          <label for="audit-operation" class="text-sm">{{ t('audit.filters.operation') }}</label>
-          <Select
-            inputId="audit-operation"
-            v-model="form.operation"
-            :options="operationOptions"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-            :placeholder="t('audit.filters.all')"
-          />
-        </div>
-        <div class="flex flex-col gap-1 grow sm:grow-0">
-          <label for="audit-from" class="text-sm">{{ t('audit.filters.from') }}</label>
-          <DatePicker inputId="audit-from" v-model="form.from" dateFormat="dd/mm/yy" showIcon />
-        </div>
-        <div class="flex flex-col gap-1 grow sm:grow-0">
-          <label for="audit-to" class="text-sm">{{ t('audit.filters.to') }}</label>
-          <DatePicker inputId="audit-to" v-model="form.to" dateFormat="dd/mm/yy" showIcon />
-        </div>
-        <div class="flex gap-2">
-          <Button type="submit" icon="pi pi-search" :aria-label="t('audit.filters.user')" />
+
+        <div class="flex flex-wrap items-center gap-4">
           <Button
-            type="button"
+            v-if="hasFilters"
+            label="Rimuovi filtri"
             icon="pi pi-filter-slash"
             severity="secondary"
-            :label="t('audit.filters.reset')"
+            variant="text"
             @click="onReset"
           />
+          <SelectField
+            v-model="form.operation"
+            inputId="audit-operation"
+            :options="operationOptions"
+            optionValue="value"
+            optionLabel="label"
+            showClear
+            :label="t('audit.filters.operation')"
+            :optionSeverity="(option) => severity(option.value)"
+            class="w-56"
+          />
         </div>
-      </form>
+      </div>
 
       <DataTable
         :value="rows"
@@ -61,18 +67,23 @@
         :rowsPerPageOptions="[15, 30, 50]"
         :loading
         rowHover
-        scrollable
+        tableStyle="table-layout: fixed"
         dataKey="id"
         selectionMode="single"
         @page="onPage"
         @rowSelect="(e: { data: AuditLog }) => (selected = e.data)"
       >
         <template #empty>{{ t('audit.empty') }}</template>
-        <Column field="date" :header="t('audit.columns.date')">
+        <Column field="date" class="w-[11%]" bodyClass="truncate" :header="t('audit.columns.date')">
           <template #body="{ data }">{{ formatDateTime(data.date) }}</template>
         </Column>
-        <Column field="username" :header="t('audit.columns.user')" />
-        <Column :header="t('audit.columns.entity')">
+        <Column
+          field="username"
+          class="w-[11%]"
+          bodyClass="truncate"
+          :header="t('audit.columns.user')"
+        />
+        <Column class="w-[16%]" bodyClass="truncate" :header="t('audit.columns.entity')">
           <template #body="{ data }">
             <RouterLink
               v-if="entityRoute(data)"
@@ -85,7 +96,7 @@
             <template v-else>{{ entityLabel(data.entityType) }} #{{ data.entityId }}</template>
           </template>
         </Column>
-        <Column :header="t('audit.columns.operation')">
+        <Column class="w-[18%]" bodyClass="truncate" :header="t('audit.columns.operation')">
           <template #body="{ data }">
             <Tag
               :value="t(`audit.operations.${data.operation}`)"
@@ -93,17 +104,17 @@
             />
           </template>
         </Column>
-        <Column :header="t('audit.columns.field')">
+        <Column class="w-[12%]" bodyClass="truncate" :header="t('audit.columns.field')">
           <template #body="{ data }">{{ data.field ? fieldLabel(data.field) : '' }}</template>
         </Column>
-        <Column :header="t('audit.columns.oldValue')">
+        <Column class="w-[16%]" bodyClass="truncate" :header="t('audit.columns.oldValue')">
           <template #body="{ data }">
-            <span class="block max-w-60 truncate">{{ data.field ? data.oldValue : '' }}</span>
+            <span class="block truncate">{{ data.field ? data.oldValue : '' }}</span>
           </template>
         </Column>
-        <Column :header="t('audit.columns.newValue')">
+        <Column class="w-[16%]" bodyClass="truncate" :header="t('audit.columns.newValue')">
           <template #body="{ data }">
-            <span class="block max-w-60 truncate">{{ data.field ? data.newValue : '' }}</span>
+            <span class="block truncate">{{ data.field ? data.newValue : '' }}</span>
           </template>
         </Column>
       </DataTable>
@@ -148,19 +159,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  Button,
-  Card,
-  Column,
-  DataTable,
-  DatePicker,
-  Dialog,
-  InputText,
-  Select,
-  Tag,
-} from 'primevue'
+import { Button, Card, Column, DataTable, Dialog, Tag } from 'primevue'
+import InputDateField from '@/components/layout/fields/InputDateField.vue'
+import InputTextField from '@/components/layout/fields/InputTextField.vue'
+import SelectField from '@/components/layout/fields/SelectField.vue'
 import { getAuditLog } from '@/services/api/auditService'
 import { useErrorHandler } from '@/utils/errorHandler'
 import { formatDate } from '@/utils/dateUtils'
@@ -177,6 +181,7 @@ const ENTITIES = [
   'PurchaseItem',
   'LedgerEntry',
   'Supplier',
+  'Customer',
   'Brand',
   'Category',
 ]
@@ -188,13 +193,14 @@ const operationOptions = computed(() =>
 )
 
 const emptyForm = () => ({
-  username: '',
-  entityType: null as string | null,
-  operation: null as string | null,
-  from: null as Date | null,
-  to: null as Date | null,
+  username: undefined as string | undefined,
+  entityType: undefined as string | undefined,
+  operation: undefined as string | undefined,
+  from: undefined as Date | undefined,
+  to: undefined as Date | undefined,
 })
 const form = reactive(emptyForm())
+const hasFilters = computed(() => Object.values(form).some((value) => !!value))
 
 const rows = ref<AuditLog[]>([])
 const total = ref(0)
@@ -247,9 +253,9 @@ const load = async () => {
   loading.value = true
   try {
     const result = await getAuditLog({
-      username: form.username.trim() || undefined,
-      entityType: form.entityType ?? undefined,
-      operation: form.operation ?? undefined,
+      username: form.username?.trim() || undefined,
+      entityType: form.entityType,
+      operation: form.operation,
       from: formatDate(form.from ?? undefined, '-')
         ?.split('-')
         .reverse()
@@ -275,10 +281,14 @@ const onSearch = () => {
   load()
 }
 
-const onReset = () => {
-  Object.assign(form, emptyForm())
-  onSearch()
-}
+const onReset = () => Object.assign(form, emptyForm())
+
+// Ricerca automatica al variare dei filtri (con attesa mentre si digita l'utente)
+let timer: ReturnType<typeof setTimeout> | undefined
+watch(form, () => {
+  clearTimeout(timer)
+  timer = setTimeout(onSearch, 300)
+})
 
 const onPage = (event: { page: number; rows: number }) => {
   page.value = event.page

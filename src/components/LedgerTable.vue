@@ -17,43 +17,15 @@
         @rowSelect="onRowSelect"
       >
         <template #header>
-          <div class="flex justify-between">
-            <Button
-              label="Rimuovi filtri"
-              icon="pi pi-filter-slash"
-              :disabled="!hasDateFilter && !_archived && !_status"
-              severity="secondary"
-              variant="text"
-              @click="onFilter(undefined, undefined, false, '')"
-            />
-
-            <div class="flex flex-wrap gap-4">
-              <Button
-                v-if="totalPending > 0"
-                :label="constants.pendingFilter.label + ' (' + totalPending + ')'"
-                icon="pi pi-clock"
-                :disabled="!!_status || _archived"
-                severity="secondary"
-                variant="text"
-                @click="_status = 'PENDING'"
-              />
-
-              <Button
-                v-if="isAdmin && totalArchived > 0"
-                :label="'Eliminate (' + totalArchived + ')'"
-                icon="pi pi-trash"
-                :disabled="_archived"
-                severity="secondary"
-                variant="text"
-                @click="_archived = true"
-              />
-
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <!-- Da data -->
               <InputDateField
                 v-model="searchFormItem.fromDate"
                 inputId="fromDate"
                 :label="constants.fromDate.label"
                 :validation="validation.fields.fromDate"
+                clearable
               />
 
               <!-- A data -->
@@ -62,20 +34,44 @@
                 inputId="toDate"
                 :label="constants.toDate.label"
                 :validation="validation.fields.toDate"
+                clearable
               />
 
-              <div>
-                <!-- Messo tutto dentro un div per evitare che si allunghino, adeguandosi all'altezza dei due input -->
-                <Button
-                  v-if="hasDateFilter"
-                  type="button"
-                  :icon="constants.print.icon"
-                  severity="secondary"
-                  @click="onPrint"
-                  class="mr-2"
-                />
-                <Button type="button" :icon="constants.search.icon" @click="onFormSubmit" />
-              </div>
+              <!-- Stampa del periodo filtrato -->
+              <Button
+                v-if="hasDateFilter"
+                type="button"
+                rounded
+                text
+                :icon="constants.print.icon"
+                severity="secondary"
+                :aria-label="constants.print.label"
+                v-tooltip.top="constants.print.label"
+                @click="onPrint"
+              />
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+              <Button
+                v-if="hasDateFilter || _archived || _status"
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                severity="secondary"
+                variant="text"
+                @click="onFilter(undefined, undefined, false, '')"
+              />
+              <SelectField
+                v-if="viewOptions.length"
+                v-model="_view"
+                inputId="view"
+                :options="viewOptions"
+                optionValue="value"
+                optionLabel="label"
+                showClear
+                label="Stato"
+                :optionSeverity="(option) => option.severity"
+                class="w-56"
+              />
             </div>
           </div>
         </template>
@@ -279,8 +275,42 @@ const _archived = computed({
 const _status = computed({
   get: (): string | undefined => props.filter.status,
   set: (value?: string): void =>
-    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, _archived.value, value ?? ''),
+    onFilter(
+      searchFormItem.value.fromDate,
+      searchFormItem.value.toDate,
+      _archived.value,
+      value ?? '',
+    ),
 })
+
+// Un solo filtro per la vista: bozze/da confermare ed eliminate si escludono a vicenda
+const _view = computed({
+  get: (): string | undefined => (_archived.value ? 'ARCHIVED' : _status.value || undefined),
+  set: (v?: string): void =>
+    onFilter(
+      searchFormItem.value.fromDate,
+      searchFormItem.value.toDate,
+      v === 'ARCHIVED',
+      v && v !== 'ARCHIVED' ? v : '',
+    ),
+})
+
+const viewOptions = computed(() =>
+  [
+    {
+      value: 'PENDING',
+      severity: constants.status.PENDING.severity,
+      label: constants.status.PENDING.label + ' (' + totalPending.value + ')',
+      show: totalPending.value > 0,
+    },
+    {
+      value: 'ARCHIVED',
+      severity: constants.status.ARCHIVED.severity,
+      label: constants.status.ARCHIVED.label + ' (' + totalArchived.value + ')',
+      show: isAdmin && totalArchived.value > 0,
+    },
+  ].filter((option) => option.show || option.value === _view.value),
+)
 
 const rows = computed(() => {
   if (_archived.value) return archivedLedger.value
@@ -388,4 +418,15 @@ const {
     return { from, to }
   },
 })
+
+// Ricerca automatica: parte quando entrambe le date sono valorizzate e cambiate
+watch(
+  () => [searchFormItem.value.fromDate?.getTime(), searchFormItem.value.toDate?.getTime()],
+  ([from, to]) => {
+    const applied = (value?: string) => (value ? parseDate(value, '-')?.getTime() : undefined)
+    if (from === applied(props.filter.from) && to === applied(props.filter.to)) return
+    if (from && to) onFormSubmit()
+    else if (!from && !to) onFilter(undefined, undefined)
+  },
+)
 </script>

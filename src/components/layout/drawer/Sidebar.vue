@@ -49,6 +49,8 @@ import SidebarMenu from './SidebarMenu.vue'
 import { computed } from 'vue'
 import { useRoles } from '@/composables/useRoles'
 
+const ADMIN_ROUTES = ['/audit', '/customers']
+
 const layoutConstants = useLayoutConstants()
 const username = getUsername() ?? '-'
 
@@ -66,8 +68,11 @@ const visibleItems = computed(() =>
         }))
         .filter((menu) => menu.items.length)
   )
-    // Il registro di audit è solo per l'admin
-    .map((menu) => ({ ...menu, items: menu.items.filter((i) => isAdmin || i.route !== '/audit') }))
+    // Registro di audit e anagrafica clienti sono solo per l'admin
+    .map((menu) => ({
+      ...menu,
+      items: menu.items.filter((i) => isAdmin || !ADMIN_ROUTES.includes(i.route ?? '')),
+    }))
     .filter((menu) => menu.items.length),
 )
 </script>
