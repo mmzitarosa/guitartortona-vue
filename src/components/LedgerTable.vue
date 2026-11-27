@@ -29,23 +29,22 @@
 
             <div class="flex flex-wrap gap-4">
               <Button
-                v-if="totalPending > 0"
+                v-if="totalPending > 0 || _status === 'PENDING'"
                 :label="constants.pendingFilter.label + ' (' + totalPending + ')'"
                 icon="pi pi-clock"
-                :disabled="!!_status || _archived"
+                :disabled="_archived || (!!_status && _status !== 'PENDING')"
                 severity="secondary"
-                variant="text"
-                @click="_status = 'PENDING'"
+                :variant="_status === 'PENDING' ? undefined : 'text'"
+                @click="_status = _status === 'PENDING' ? undefined : 'PENDING'"
               />
 
               <Button
-                v-if="isAdmin && totalArchived > 0"
+                v-if="isAdmin && (totalArchived > 0 || _archived)"
                 :label="'Eliminate (' + totalArchived + ')'"
                 icon="pi pi-trash"
-                :disabled="_archived"
                 severity="secondary"
-                variant="text"
-                @click="_archived = true"
+                :variant="_archived ? undefined : 'text'"
+                @click="_archived = !_archived"
               />
 
               <!-- Da data -->
@@ -279,7 +278,12 @@ const _archived = computed({
 const _status = computed({
   get: (): string | undefined => props.filter.status,
   set: (value?: string): void =>
-    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, _archived.value, value ?? ''),
+    onFilter(
+      searchFormItem.value.fromDate,
+      searchFormItem.value.toDate,
+      _archived.value,
+      value ?? '',
+    ),
 })
 
 const rows = computed(() => {

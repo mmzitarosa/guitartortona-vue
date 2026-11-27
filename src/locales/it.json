@@ -326,12 +326,11 @@
     "columns": {
       "name": "Nominativo",
       "address": "Indirizzo",
-      "document": "Documento",
-      "actions": "Azioni"
+      "document": "Documento"
     },
     "archiveMessage": "Il cliente non sarà più selezionabile nelle ricevute. Le ricevute già compilate non cambiano.",
     "hardDeleteMessage": "L'eliminazione definitiva cancella il cliente dall'anagrafica. Le ricevute già compilate mantengono i loro dati.",
-    "updated": "Il cliente è stato aggiornato."
+    "archivedMessage": "Cliente eliminato. Per modificarlo ripristinalo prima."
   },
   "navigation": {
     "titles": {

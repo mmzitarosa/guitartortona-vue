@@ -13,6 +13,8 @@
         rowHover
         dataKey="id"
         tableStyle="table-layout: fixed"
+        :rowClass="() => 'cursor-pointer'"
+        @row-click="onRowClick"
       >
         <template #header>
           <div class="flex flex-wrap items-center justify-between gap-3">
@@ -26,13 +28,12 @@
             />
             <div class="flex flex-wrap items-center gap-4">
               <Button
-                v-if="totalArchived > 0"
+                v-if="totalArchived > 0 || archived"
                 :label="'Eliminate (' + totalArchived + ')'"
                 icon="pi pi-trash"
-                :disabled="archived"
                 severity="secondary"
-                variant="text"
-                @click="setArchived(true)"
+                :variant="archived ? undefined : 'text'"
+                @click="setArchived(!archived)"
               />
               <IconField class="grow sm:grow-0 sm:w-80">
                 <InputIcon class="pi pi-search" />
@@ -49,7 +50,7 @@
         <template #loading>{{ t('customers.loading') }}</template>
 
         <Column field="fullName" class="w-1/4" :header="t('customers.columns.name')" />
-        <Column class="w-2/5" :header="t('customers.columns.address')">
+        <Column class="w-1/2" :header="t('customers.columns.address')">
           <template #body="{ data }">
             {{ data.address }}, {{ data.zipCode }} {{ data.city }} ({{ data.province }})
           </template>
@@ -62,75 +63,32 @@
             <div v-if="data.taxCode" class="text-sm text-gray-500">{{ data.taxCode }}</div>
           </template>
         </Column>
-        <Column class="w-28">
-          <template #body="{ data }">
-            <div class="flex justify-end gap-1">
-              <template v-if="archived">
-                <Button
-                  v-tooltip.top="buttons.hardDelete.label"
-                  :icon="buttons.hardDelete.icon"
-                  :aria-label="buttons.hardDelete.label"
-                  severity="secondary"
-                  rounded
-                  text
-                  @click="onHardDelete(data)"
-                />
-                <Button
-                  v-tooltip.top="buttons.restore.label"
-                  :icon="buttons.restore.icon"
-                  :aria-label="buttons.restore.label"
-                  severity="secondary"
-                  rounded
-                  text
-                  @click="onRestore(data)"
-                />
-              </template>
-              <template v-else>
-                <Button
-                  v-tooltip.top="buttons.delete.label"
-                  :icon="buttons.delete.icon"
-                  :aria-label="buttons.delete.label"
-                  severity="secondary"
-                  rounded
-                  text
-                  @click="onArchive(data)"
-                />
-                <Button
-                  v-tooltip.top="buttons.edit.label"
-                  :icon="buttons.edit.icon"
-                  :aria-label="buttons.edit.label"
-                  severity="secondary"
-                  rounded
-                  text
-                  @click="onEdit(data)"
-                />
-              </template>
-            </div>
-          </template>
-        </Column>
       </DataTable>
     </template>
   </Card>
 
-  <CustomerDialog v-model:visible="dialogVisible" :customer="editing" @save="onSave" />
+  <CustomerDialog
+    v-model:visible="dialogVisible"
+    :customer="editing"
+    registry
+    :archived
+    @save="onSave"
+    @archive="editing && onArchive(editing)"
+    @restore="editing && onRestore(editing)"
+    @hardDelete="editing && onHardDelete(editing)"
+  />
+  <ChangesDialog :changes="changes" />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import {
-  Button,
-  Card,
-  Column,
-  DataTable,
-  IconField,
-  InputIcon,
-  InputText,
-  useToast,
-} from 'primevue'
+import { Button, Card, Column, DataTable, IconField, InputIcon, InputText } from 'primevue'
+import type { DataTableRowClickEvent } from 'primevue'
 import { FilterMatchMode } from '@primevue/core/api'
 import CustomerDialog from '@/components/forms/usedreceipt/CustomerDialog.vue'
+import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
 import {
   archiveCustomer,
@@ -141,23 +99,16 @@ import {
   restoreCustomer,
 } from '@/services/api/customerService'
 import { type Customer, withFullName } from '@/types/customer'
-import { useConfirmDialogConstants } from '@/utils/i18nConstants'
+import { useConfirmDialogConstants, useUsedReceiptConstants } from '@/utils/i18nConstants'
 import { useErrorHandler } from '@/utils/errorHandler'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const toast = useToast()
 const confirmDialog = useConfirmDialog()
 const dialogs = useConfirmDialogConstants()
+const { customerDialog: customerLabels } = useUsedReceiptConstants()
 const { handleApiError } = useErrorHandler()
-
-const buttons = {
-  delete: { label: t('buttons.delete.label'), icon: t('buttons.delete.icon') },
-  restore: { label: t('buttons.restore.label'), icon: t('buttons.restore.icon') },
-  hardDelete: { label: t('buttons.hardDelete.label'), icon: t('buttons.hardDelete.icon') },
-  edit: { label: t('buttons.edit.label'), icon: t('buttons.edit.icon') },
-}
 
 // Come nelle altre liste, la vista degli eliminati è nell'URL
 const archived = computed(() => route.query.archived === 'true')
@@ -182,8 +133,6 @@ const load = async () => {
       getAllCustomers(),
       getArchivedCustomers(),
     ])
-    // Senza più eliminati non c'è nulla da mostrare in quella vista
-    if (archived.value && !archivedList.value.length) setArchived(false)
   } catch (error) {
     handleApiError(error)
   } finally {
@@ -199,28 +148,55 @@ const clearFilters = () => {
   setArchived(false)
 }
 
-const onEdit = (customer: Customer) => {
-  editing.value = customer
+const onRowClick = (event: DataTableRowClickEvent) => {
+  editing.value = event.data
   dialogVisible.value = true
 }
 
+const changes = ref<{ field: string; oldValue: unknown; newValue: unknown; ignore: boolean }[]>([])
+
 const onSave = async (customer: Customer) => {
+  const before = editing.value as Record<string, unknown>
+  changes.value = Object.entries(customerLabels.fields)
+    .filter(([key]) => (before[key] ?? '') !== ((customer as Record<string, unknown>)[key] ?? ''))
+    .map(([key, field]) => ({
+      field,
+      oldValue: before[key],
+      newValue: (customer as Record<string, unknown>)[key] || '-',
+      ignore: false,
+    }))
   try {
-    await putCustomer(customer.id as number, customer)
-    toast.add({ severity: 'success', summary: t('customers.updated'), life: 3000 })
+    const saved = await confirmDialog.require({
+      header: dialogs.updateDialog.title,
+      message: dialogs.updateDialog.message,
+      group: 'differences',
+      icon: dialogs.updateDialog.icon,
+      acceptLabel: dialogs.updateDialog.acceptLabel,
+      toastSummary: dialogs.updateDialog.toastTitle,
+      toastDetail: dialogs.updateDialog.toastMessage,
+      accept: async () => {
+        await putCustomer(customer.id as number, customer)
+        return true
+      },
+    })
+    if (saved) {
+      dialogVisible.value = false
+      await load()
+    }
+  } catch {
     await load()
-  } catch (error) {
-    handleApiError(error)
   }
 }
 
 // Gli errori dell'azione confermata sono già mostrati da useConfirmDialog
 const run = async (params: Parameters<typeof confirmDialog.require>[0]) => {
   try {
-    if (await confirmDialog.require(params)) await load()
+    if (!(await confirmDialog.require(params))) return
   } catch {
-    await load()
+    // l'elenco viene comunque ricaricato
   }
+  dialogVisible.value = false
+  await load()
 }
 
 const onArchive = (customer: Customer) =>

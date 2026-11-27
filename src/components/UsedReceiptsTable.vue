@@ -30,23 +30,22 @@
 
             <div class="flex flex-wrap gap-4">
               <Button
-                v-if="totalDrafts > 0"
+                v-if="totalDrafts > 0 || _status === 'DRAFT'"
                 :label="'Bozze (' + totalDrafts + ')'"
                 icon="pi pi-pen-to-square"
-                :disabled="!!_status || _archived"
+                :disabled="_archived || (!!_status && _status !== 'DRAFT')"
                 severity="warn"
-                variant="text"
-                @click="_status = 'DRAFT'"
+                :variant="_status === 'DRAFT' ? undefined : 'text'"
+                @click="_status = _status === 'DRAFT' ? undefined : 'DRAFT'"
               />
 
               <Button
-                v-if="isAdmin && totalArchived > 0"
+                v-if="isAdmin && (totalArchived > 0 || _archived)"
                 :label="'Eliminate (' + totalArchived + ')'"
                 icon="pi pi-trash"
-                :disabled="_archived"
                 severity="secondary"
-                variant="text"
-                @click="_archived = true"
+                :variant="_archived ? undefined : 'text'"
+                @click="_archived = !_archived"
               />
 
               <SelectField
@@ -140,7 +139,10 @@
             <div
               v-for="item in data.items"
               :key="item.id"
-              :class="[itemGrid, 'cursor-pointer rounded hover:bg-surface-100 dark:hover:bg-surface-800']"
+              :class="[
+                itemGrid,
+                'cursor-pointer rounded hover:bg-surface-100 dark:hover:bg-surface-800',
+              ]"
               @click.stop="emit('productSelect', item.productId)"
             >
               <span class="font-medium">{{ item.reference }}</span>
