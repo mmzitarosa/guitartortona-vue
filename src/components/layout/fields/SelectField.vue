@@ -32,6 +32,7 @@
       <template v-if="optionSeverity" #value="{ value: selected }">
         <Tag
           v-if="selectedOption(selected)"
+          class="!py-0 align-middle"
           :value="String(selectedOption(selected)![optionLabel])"
           :severity="optionSeverity(selectedOption(selected)!) as TagProps['severity']"
         />
