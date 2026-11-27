@@ -216,6 +216,10 @@
     "other": {
       "label": "ALTRO",
       "severity": "error"
+    },
+    "archived": {
+      "label": "ELIMINATA",
+      "severity": "secondary"
     }
   },
   "cards": {
@@ -226,7 +230,7 @@
     "newInvoice": {
       "title": "Nuova Fattura",
       "subtitle": "Dati Fattura",
-      "archivedMessage": "Fattura eliminata."
+      "archivedMessage": "Fattura eliminata. Per modificarla ripristinala prima."
     },
     "product": {
       "title": "Prodotto",
@@ -341,7 +345,7 @@
     "card": {
       "title": "Nuova Ricevuta",
       "subtitle": "Dati Ricevuta",
-      "archivedMessage": "Ricevuta eliminata."
+      "archivedMessage": "Ricevuta eliminata. Per modificarla ripristinala prima."
     },
     "labels": {
       "date": "Data Ricevuta",
@@ -404,7 +408,8 @@
     "status": {
       "draft": { "label": "BOZZA", "severity": "warn" },
       "pending": { "label": "CONFERMATA", "severity": "info" },
-      "completed": { "label": "REGISTRATA", "severity": "success" }
+      "completed": { "label": "REGISTRATA", "severity": "success" },
+      "archived": { "label": "ELIMINATA", "severity": "secondary" }
     },
     "products": {
       "title": "Gestione Prodotti",
@@ -481,7 +486,8 @@
     "USED_RECEIPT_NOT_PRINTABLE": "La ricevuta si può stampare solo dopo la conferma.",
     "USED_RECEIPT_NOT_ARCHIVABLE": "Gli operatori possono eliminare solo le bozze.",
     "USED_RECEIPT_NOT_ARCHIVED": "La ricevuta deve essere eliminata prima dell'eliminazione definitiva.",
-    "USED_RECEIPT_HAS_SALES": "Alcuni prodotti della ricevuta risultano già venduti.",
+    "USED_RECEIPT_HAS_SALES": "Alcuni prodotti della ricevuta risultano già venduti: non si può eliminare.",
+    "PRODUCT_STOCK_WOULD_BE_NEGATIVE": "L'operazione porterebbe la giacenza di un prodotto sotto zero: alcuni pezzi risultano già venduti.",
     "VALIDATION_ERROR": "Dati non validi. Controlla i campi del modulo.",
     "UNKNOWN": "Si è verificato un errore imprevisto."
   },

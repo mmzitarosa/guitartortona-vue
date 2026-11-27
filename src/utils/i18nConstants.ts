@@ -456,6 +456,10 @@ export const useIncomingInvoicesTableConstants = () => {
       label: t('status.other.label'),
       severity: t('status.other.severity'),
     },
+    archived: {
+      label: t('status.archived.label'),
+      severity: t('status.archived.severity'),
+    },
   }
 }
 
@@ -815,6 +819,10 @@ export const useUsedReceiptsTableConstants = () => {
       COMPLETED: {
         label: t('usedReceipt.status.completed.label'),
         severity: t('usedReceipt.status.completed.severity'),
+      },
+      ARCHIVED: {
+        label: t('usedReceipt.status.archived.label'),
+        severity: t('usedReceipt.status.archived.severity'),
       },
     },
   }

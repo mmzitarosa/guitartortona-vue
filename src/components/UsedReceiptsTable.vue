@@ -118,9 +118,9 @@
           </template>
           <template #body="{ data }">
             <Tag
-              v-if="data && constants.status[data.status as keyof typeof constants.status]"
-              :value="constants.status[data.status as keyof typeof constants.status].label"
-              :severity="constants.status[data.status as keyof typeof constants.status].severity"
+              v-if="data && constants.status[statusOf(data)]"
+              :value="constants.status[statusOf(data)].label"
+              :severity="constants.status[statusOf(data)].severity"
             />
           </template>
         </Column>
@@ -230,6 +230,10 @@ const _archived = computed({
 })
 
 const rows = computed(() => (_archived.value ? archivedReceipts.value : usedReceipts.value))
+
+// Nell'elenco delle eliminate lo stato mostrato è sempre "eliminata"
+const statusOf = (data: { status: string }) =>
+  (_archived.value ? 'ARCHIVED' : data.status) as keyof typeof constants.status
 
 const expandedRows = computed(() =>
   Object.fromEntries(rows.value.map((receipt) => [receipt.id, true])),

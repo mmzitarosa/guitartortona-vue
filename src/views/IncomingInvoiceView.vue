@@ -78,7 +78,7 @@ const onSubmit = async () => {
 }
 
 const onComplete = async () => {
-  await handleComplete()
+  if (await handleComplete()) editable.value = false
 }
 
 const onClose = async () => {

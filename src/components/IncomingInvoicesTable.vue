@@ -127,7 +127,12 @@
           </template>
           <template #body="{ data }">
             <Tag
-              v-if="data && data.status === 'DRAFT'"
+              v-if="_archived"
+              :value="constants.archived.label"
+              :severity="constants.archived.severity"
+            />
+            <Tag
+              v-else-if="data && data.status === 'DRAFT'"
               :value="constants.draft.label"
               :severity="constants.draft.severity"
             />
