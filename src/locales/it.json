@@ -3,7 +3,8 @@
     "changes": {
       "field": "Dato",
       "before": "Prima",
-      "after": "Dopo"
+      "after": "Dopo",
+      "value": "Valore inserito"
     },
     "labels": {
       "date": "Data",
