@@ -4,6 +4,7 @@ export type TimelineEntryType =
   | 'PURCHASE_CHANGE'
   | 'PRODUCT_CHANGE'
   | 'PRODUCT_CREATED'
+  | 'STOCK_ADJUSTMENT'
 
 export interface TimelineFieldChange {
   field: string
@@ -19,6 +20,8 @@ export interface TimelineEntry {
   at?: string
   users?: string
   quantity?: number
+  previousStock?: number
+  countedStock?: number
   price?: number
   vat?: number
   previousPrice?: number

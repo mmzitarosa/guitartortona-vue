@@ -605,6 +605,41 @@ export const useProductSaleConstants = () => {
   }
 }
 
+export const useStockAdjustmentConstants = () => {
+  const { t } = useI18n()
+
+  return {
+    fieldset: {
+      legend: t('fieldset.stockAdjustment.legend'),
+    },
+    currentStock: { label: t('common.labels.currentStock') },
+    countedStock: {
+      label: t('common.labels.countedStock'),
+      messages: {
+        required: t('common.messages.countedStockRequired'),
+        same: t('common.messages.countedStockSame'),
+      },
+    },
+    difference: { label: t('common.labels.difference') },
+    reason: {
+      label: t('common.labels.adjustmentReason'),
+      messages: { required: t('common.messages.adjustmentReasonRequired') },
+    },
+    reset: {
+      label: t('buttons.reset.label'),
+      icon: t('buttons.reset.icon'),
+    },
+    adjust: {
+      label: t('buttons.adjust.label'),
+      icon: t('buttons.adjust.icon'),
+    },
+    confirm: {
+      label: t('buttons.confirm.label'),
+      icon: t('buttons.confirm.icon'),
+    },
+  }
+}
+
 export const useProductPrintConstants = () => {
   const { t } = useI18n()
 

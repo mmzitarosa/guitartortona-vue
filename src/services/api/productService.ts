@@ -1,6 +1,7 @@
 import apiClient from '@/services/api/apiClient'
 import type { Product, ProductLight } from '@/types/product'
 import type { Sale } from '@/types/sale'
+import type { StockAdjustment } from '@/types/stockAdjustment'
 import type { ProductTimeline } from '@/types/productTimeline'
 import { fetchPrintPageUrl, printPageInFrame } from '@/services/api/printService'
 import { formatDate } from '@/utils/dateUtils'
@@ -56,6 +57,18 @@ export async function addProductSale(id: number, sale: Sale): Promise<Product> {
   const { data } = await apiClient.post<Product>(`/product/${id}/sell`, {
     ...sale,
     date: formatDate(sale.date),
+  })
+  return data
+}
+
+//Stock adjustment
+export async function adjustProductStock(
+  id: number,
+  adjustment: StockAdjustment,
+): Promise<Product> {
+  const { data } = await apiClient.post<Product>(`/product/${id}/stockAdjustment`, {
+    countedStock: adjustment.countedStock,
+    reason: adjustment.reason,
   })
   return data
 }

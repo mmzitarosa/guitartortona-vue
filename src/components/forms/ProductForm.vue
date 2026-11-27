@@ -171,6 +171,18 @@
               severity="secondary"
               @click="onFormEdit"
             />
+            <!-- Tasto Rettifica giacenza - Visualizzazione -->
+            <Button
+              v-if="readonly && canEdit && pristine"
+              type="button"
+              rounded
+              text
+              severity="secondary"
+              :icon="adjustConstants.adjust.icon"
+              :aria-label="adjustConstants.adjust.label"
+              v-tooltip.top="adjustConstants.adjust.label"
+              @click="openAdjustment"
+            />
             <!-- Tasto Stampa - Visualizzazione -->
             <Button
               v-if="readonly && pristine"
@@ -241,6 +253,27 @@
   </Dialog>
 
   <Dialog
+    :visible="adjustDialog"
+    @update:visible="(visible: boolean) => (visible ? (adjustDialog = true) : onAdjustClose())"
+    modal
+    :focusOnShow="false"
+    :pt="{ pcCloseButton: { root: { class: '!outline-none' } } }"
+    :header="adjustConstants.fieldset.legend"
+    class="w-[40rem] max-w-[95vw]"
+  >
+    <StockAdjustmentForm
+      v-model="adjustForm.item.value"
+      @submit="onAdjustSubmit"
+      @reset="adjustForm.handleReset"
+      :loading="adjustForm.loading.value"
+      :validation="adjustForm.validation.value"
+      :changes="adjustForm.changes.value"
+      :dirty="adjustForm.dirty.value"
+      :stock="product.stock"
+    />
+  </Dialog>
+
+  <Dialog
     v-model:visible="printDialog"
     modal
     :focusOnShow="false"
@@ -271,15 +304,21 @@ import type { Product } from '@/types/product'
 
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
 import SaleForm from './SaleForm.vue'
+import StockAdjustmentForm from './StockAdjustmentForm.vue'
+import type { StockAdjustment } from '@/types/stockAdjustment'
 import type { Sale } from '@/types/sale'
 import { useProduct } from '@/composables/useProduct'
 import PrintFieldset from './PrintFieldset.vue'
 import ProductTimeline from './ProductTimeline.vue'
 import { useForm } from '@/composables/useForm'
 import { formatDate } from '@/utils/dateUtils'
-import { useProductPrintConstants, useProductSaleConstants } from '@/utils/i18nConstants'
+import {
+  useProductPrintConstants,
+  useProductSaleConstants,
+  useStockAdjustmentConstants,
+} from '@/utils/i18nConstants'
 import { formatCurrency } from '@/utils/currencyUtils'
-import { addProductSale } from '@/services/api/productService'
+import { addProductSale, adjustProductStock } from '@/services/api/productService'
 
 const { canEdit } = useRoles()
 const router = useRouter()
@@ -488,6 +527,58 @@ const onSaleSubmit = async () => {
     resetSaleForm()
     historyKey.value++
     saleDialog.value = false
+  }
+}
+
+/* STOCK ADJUSTMENT */
+
+const adjustConstants = useStockAdjustmentConstants()
+const adjustDialog = ref(false)
+
+const adjustForm = useForm<StockAdjustment, Product>({
+  group: 'stockAdjustmentDifferences',
+  create: (item: StockAdjustment) => adjustProductStock(product.value.id!, item),
+  fieldMappings: [
+    {
+      key: 'countedStock',
+      label: adjustConstants.countedStock.label,
+      validator: (counted?: number) => {
+        if (counted == null) return { message: adjustConstants.countedStock.messages.required }
+        if (counted === (product.value.stock ?? 0))
+          return { message: adjustConstants.countedStock.messages.same }
+      },
+    },
+    {
+      key: 'reason',
+      label: adjustConstants.reason.label,
+      validator: (reason?: string) => {
+        if (!reason?.trim()) return { message: adjustConstants.reason.messages.required }
+      },
+    },
+  ],
+})
+
+// Parte dalla giacenza attuale: la rettifica è la differenza con la quantità contata
+const resetAdjustForm = () => {
+  adjustForm.resetOriginal()
+  adjustForm.setItem({ countedStock: product.value.stock ?? 0 })
+}
+
+const openAdjustment = () => {
+  resetAdjustForm()
+  adjustDialog.value = true
+}
+
+const onAdjustClose = async () => {
+  if (await adjustForm.handleClose()) adjustDialog.value = false
+}
+
+const onAdjustSubmit = async () => {
+  const result = await adjustForm.handleSubmit()
+  if (result) {
+    setProduct(result as Product)
+    historyKey.value++
+    adjustDialog.value = false
   }
 }
 </script>

@@ -29,7 +29,11 @@
       "price": "Prezzo di Vendita",
       "vat": "IVA",
       "purchasePrice": "Prezzo di Acquisto (IVA Esclusa)",
-      "quantity": "Quantità"
+      "quantity": "Quantità",
+      "currentStock": "Giacenza attuale",
+      "countedStock": "Quantità contata",
+      "difference": "Differenza",
+      "adjustmentReason": "Motivo"
     },
     "messages": {
       "dateRequired": "Seleziona una data",
@@ -60,6 +64,9 @@
       "priceRequired": "Inserisci il prezzo",
       "quantityRequired": "Inserisci la quantità",
       "quantityInvalid": "La quantità deve essere almeno 1",
+      "countedStockRequired": "Inserisci la quantità contata",
+      "countedStockSame": "La quantità contata coincide con la giacenza",
+      "adjustmentReasonRequired": "Inserisci il motivo della rettifica",
       "vatRequired": "Seleziona l'IVA",
       "vatInvalid": "L'IVA deve essere compresa tra 0 e 100"
     },
@@ -123,6 +130,10 @@
     "sell": {
       "label": "Vendita",
       "icon": "pi pi-shopping-cart"
+    },
+    "adjust": {
+      "label": "Rettifica giacenza",
+      "icon": "pi pi-sliders-h"
     }
   },
   "dialogs": {
@@ -273,6 +284,9 @@
     "sale": {
       "legend": "Vendita"
     },
+    "stockAdjustment": {
+      "legend": "Rettifica giacenza"
+    },
     "print": {
       "legend": "Stampa"
     },
@@ -281,6 +295,8 @@
       "empty": "Nessun movimento registrato",
       "draft": "Bozza",
       "sale": "Vendita",
+      "stockAdjustment": "Rettifica giacenza",
+      "stock": "Giacenza",
       "purchase": "Acquisto",
       "invoice": "Fattura {number}",
       "receipt": "Ricevuta Usato {number}",
@@ -560,6 +576,7 @@
     "INVOICE_NOT_FOUND": "Fattura non trovata.",
     "PURCHASE_ITEM_NOT_FOUND": "Prodotto della fattura non trovato.",
     "PRODUCT_STOCK_NOT_ENOUGH": "Giacenza insufficiente per la quantità richiesta.",
+    "STOCK_ADJUSTMENT_NO_CHANGE": "La quantità contata coincide con la giacenza: nessuna rettifica da registrare.",
     "INVOICE_NUMBER_ALREADY_EXISTS": "Esiste già una fattura con questo numero per il fornitore selezionato.",
     "PRODUCT_ALREADY_IN_INVOICE": "Il prodotto è già presente in questa fattura.",
     "PURCHASE_ITEM_NOT_IN_INVOICE": "Il prodotto non appartiene a questa fattura.",
@@ -635,6 +652,7 @@
     "entities": {
       "Product": "Prodotto",
       "Sale": "Vendita",
+      "StockAdjustment": "Rettifica giacenza",
       "IncomingInvoice": "Fattura",
       "UsedReceipt": "Ricevuta usato",
       "PurchaseItem": "Riga acquisto",
@@ -655,6 +673,9 @@
       "reorderPoint": "Scorta minima",
       "purchasePrice": "Costo di acquisto",
       "quantity": "Quantità",
+      "previousStock": "Giacenza precedente",
+      "countedStock": "Quantità contata",
+      "reason": "Motivo",
       "vat": "IVA",
       "notes": "Note"
     },

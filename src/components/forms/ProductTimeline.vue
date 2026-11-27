@@ -62,7 +62,7 @@
                   { 'line-through opacity-60': superseded(entry, 'quantity') },
                 ]"
               >
-                {{ entry.type === 'SALE' ? '−' : '+' }}{{ entry.quantity }}
+                {{ quantitySign(entry) }}{{ Math.abs(entry.quantity) }}
               </span>
             </div>
 
@@ -83,6 +83,13 @@
                 class="pi pi-comment"
                 :aria-label="t('fieldset.history.notes')"
               />
+            </div>
+
+            <div v-if="entry.type === 'STOCK_ADJUSTMENT'" class="text-sm break-words">
+              <span class="text-muted-color me-1">{{ t('fieldset.history.stock') }}:</span>
+              <span class="text-muted-color line-through">{{ entry.previousStock }}</span>
+              →
+              <span>{{ entry.countedStock }}</span>
             </div>
 
             <div v-for="c in entry.changes" :key="c.field" class="text-sm break-words">
@@ -175,10 +182,17 @@ const STYLES: Record<string, { bg: string; icon: string; label: string }> = {
   },
   PRODUCT_CHANGE: { bg: 'bg-amber-500', icon: 'pi pi-pencil', label: 'changed' },
   PRODUCT_CREATED: { bg: 'bg-amber-500', icon: 'pi pi-plus', label: 'created' },
+  STOCK_ADJUSTMENT: {
+    bg: 'bg-amber-500',
+    icon: 'pi pi-sliders-h',
+    label: 'stockAdjustment',
+  },
 }
 const style = (e: TimelineEntry) => STYLES[e.type]!
 
 const hasInvoice = (e: TimelineEntry) => e.type === 'PURCHASE' || e.type === 'PURCHASE_CHANGE'
+const quantitySign = (e: TimelineEntry) =>
+  e.type === 'SALE' || (e.type === 'STOCK_ADJUSTMENT' && (e.quantity ?? 0) < 0) ? '−' : '+'
 const superseded = (e: TimelineEntry, field: string) => !!e.superseded?.includes(field)
 const isCostSuperseded = (e: TimelineEntry) =>
   superseded(e, 'purchasePrice') || superseded(e, 'vat')
