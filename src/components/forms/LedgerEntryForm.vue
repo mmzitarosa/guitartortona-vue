@@ -22,6 +22,18 @@
         {{ constants.pending.message }}
       </Message>
 
+      <div v-if="ledgerEntry.usedReceiptId && canEdit" class="mt-4 flex flex-wrap items-center gap-2">
+        <span class="text-sm text-muted-color">{{ constants.receiptLink.message }}</span>
+        <Button
+          type="button"
+          size="small"
+          text
+          icon="pi pi-file"
+          :label="constants.receiptLink.label"
+          @click="openReceipt"
+        />
+      </div>
+
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: data-->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
@@ -261,6 +273,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useRoles } from '@/composables/useRoles'
 import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
@@ -296,7 +309,15 @@ import {
 import { useLedgerEntryConstants } from '@/utils/i18nConstants'
 import { formatDate } from '@/utils/dateUtils'
 
-const { ledgerPermissions } = useRoles()
+const { ledgerPermissions, canEdit } = useRoles()
+const router = useRouter()
+
+const openReceipt = () =>
+  router.push({
+    name: 'usedReceipt',
+    params: { id: ledgerEntry.value.usedReceiptId },
+    query: { editable: 'false' },
+  })
 
 const emit = defineEmits<{
   submit: [ledgerEntry: LedgerEntry]

@@ -3,6 +3,27 @@ import type { UsedReceiptProduct } from '@/types/usedReceiptProduct'
 
 export type UsedReceiptStatus = 'DRAFT' | 'PENDING' | 'COMPLETED'
 
+/** Valori di una riga di brogliaccio; la data arriva già formattata (gg/mm/aaaa) */
+export interface LedgerAlignmentValues {
+  date?: string
+  reason?: string
+  amount?: number
+}
+
+/**
+ * Differenza tra la ricevuta registrata e la riga di brogliaccio che ne è nata.
+ * UPDATE: la riga va aggiornata ai valori proposti; ARCHIVE: la ricevuta è eliminata, la riga va eliminata.
+ */
+export interface LedgerAlignment {
+  ledgerEntryId: number
+  action: 'UPDATE' | 'ARCHIVE'
+  current: LedgerAlignmentValues
+  proposed?: LedgerAlignmentValues
+}
+
+/** Cosa fare della riga di brogliaccio: ALIGN la porta ai valori della ricevuta (o la elimina), IGNORE la lascia com'è */
+export type LedgerChoice = 'ALIGN' | 'IGNORE'
+
 export interface UsedReceipt {
   id?: number
   internalCode?: string
@@ -15,6 +36,9 @@ export interface UsedReceipt {
   customer?: Customer
   updateCustomer?: boolean
   items?: UsedReceiptProduct[]
+  ledgerEntryId?: number
+  ledgerEntryArchived?: boolean
+  ledgerAlignment?: LedgerAlignment
 }
 
 export interface UsedReceiptLight {

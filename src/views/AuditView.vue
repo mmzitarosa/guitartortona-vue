@@ -163,7 +163,7 @@ const ENTITIES = [
   'Brand',
   'Category',
 ]
-const OPERATIONS = ['CREATE', 'UPDATE', 'DELETE']
+const OPERATIONS = ['CREATE', 'UPDATE', 'DELETE', 'ALIGN', 'IGNORE']
 
 const entityOptions = computed(() => ENTITIES.map((e) => ({ value: e, label: entityLabel(e) })))
 const operationOptions = computed(() =>
@@ -190,7 +190,13 @@ const entityLabel = (type: string) =>
   te(`audit.entities.${type}`) ? t(`audit.entities.${type}`) : type
 const fieldLabel = (field: string) =>
   te(`audit.fields.${field}`) ? t(`audit.fields.${field}`) : field
-const severity = (op: string) => (op === 'CREATE' ? 'success' : op === 'DELETE' ? 'danger' : 'info')
+const SEVERITIES: Record<string, string> = {
+  CREATE: 'success',
+  DELETE: 'danger',
+  ALIGN: 'warn',
+  IGNORE: 'secondary',
+}
+const severity = (op: string) => SEVERITIES[op] ?? 'info'
 
 const formatDateTime = (value: string) => {
   const d = new Date(value)

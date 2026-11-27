@@ -12,6 +12,36 @@
         {{ constants.archived.message }}
       </Message>
 
+      <!-- Ricevuta registrata: riga di brogliaccio collegata e differenze da gestire (solo admin) -->
+      <Message
+        v-if="model.ledgerAlignment"
+        severity="warn"
+        icon="pi pi-exclamation-triangle"
+        class="mt-4"
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <span>{{ constants.ledgerAlignment.notice[model.ledgerAlignment.action] }}</span>
+          <Button
+            type="button"
+            size="small"
+            outlined
+            :label="constants.ledgerAlignment.review"
+            @click="emit('reviewLedger')"
+          />
+        </div>
+      </Message>
+
+      <div v-if="model.ledgerEntryId && canEdit" class="mt-4">
+        <Button
+          type="button"
+          size="small"
+          text
+          icon="pi pi-book"
+          :label="constants.ledgerAlignment.openLedger"
+          @click="emit('openLedger')"
+        />
+      </div>
+
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: codice interno -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
@@ -70,6 +100,8 @@
             inputId="date"
             :label="constants.date.label"
             :readonly
+            :minDate="frozenYear ? new Date(frozenYear, 0, 1) : undefined"
+            :maxDate="frozenYear ? new Date(frozenYear, 11, 31) : undefined"
             :validation="validation.fields.date"
           />
         </div>
@@ -293,7 +325,7 @@ const props = withDefaults(defineProps<UsedReceiptFormProps>(), {
   loading: false,
 })
 
-const { receiptPermissions } = useRoles()
+const { receiptPermissions, canEdit } = useRoles()
 const confirmDialog = useConfirmDialog()
 
 const emit = defineEmits<{
@@ -306,12 +338,20 @@ const emit = defineEmits<{
   restore: []
   hardDelete: []
   reset: []
+  reviewLedger: []
+  openLedger: []
 }>()
 const model = defineModel<UsedReceipt>({ required: true })
 
 const { options: customerOptions, loading: customersLoading, loadCustomers } = useCustomers()
 
 const permissions = computed(() => receiptPermissions(model.value))
+
+// Anno e numero nascono alla registrazione ("n/aa"): la data si può cambiare solo dentro quell'anno
+const frozenYear = computed(() => {
+  const suffix = model.value.number?.split('/')[1]
+  return suffix ? 2000 + Number(suffix) : undefined
+})
 
 const readonly = computed(
   () => !props.editable || (props.existingItem && !permissions.value.edit),

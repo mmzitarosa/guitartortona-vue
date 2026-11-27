@@ -1,15 +1,19 @@
 import { useForm } from '@/composables/useForm'
 import { useConfirmDialog } from '@/composables/useConfirmDialog'
+import { useErrorHandler } from '@/utils/errorHandler'
 import { type Customer, customerFullName } from '@/types/customer'
-import type { UsedReceipt } from '@/types/usedReceipt'
+import { useToast } from 'primevue'
+import type { LedgerChoice, UsedReceipt } from '@/types/usedReceipt'
 import { formatDate } from '@/utils/dateUtils'
 import { useUsedReceiptConstants } from '@/utils/i18nConstants'
 import {
+  alignUsedReceiptLedger,
   archiveUsedReceipt,
   confirmUsedReceipt,
   createUsedReceipt,
   deleteUsedReceipt,
   getUsedReceiptDetail,
+  ignoreUsedReceiptLedger,
   registerUsedReceipt,
   restoreUsedReceipt,
   updateUsedReceipt,
@@ -35,6 +39,9 @@ const customerSummary = (customer?: Customer) =>
 export function useUsedReceipt() {
   const constants = useUsedReceiptConstants()
   const confirmDialog = useConfirmDialog()
+  const toast = useToast()
+  const { handleApiError } = useErrorHandler()
+  let ledgerChoice: LedgerChoice | undefined
 
   const fieldMappings = [
     {
@@ -67,7 +74,7 @@ export function useUsedReceipt() {
     complete: confirmUsedReceipt,
     archive: archiveUsedReceipt,
     restore: restoreUsedReceipt,
-    hardDelete: deleteUsedReceipt,
+    hardDelete: (id: number) => deleteUsedReceipt(id, ledgerChoice),
     mapResponse: (receipt: UsedReceipt) => receipt,
     fieldMappings,
   })
@@ -89,6 +96,39 @@ export function useUsedReceipt() {
         }),
     })
 
+  // Eliminazione definitiva: la scelta sul brogliaccio, se serve, è già stata fatta dall'utente
+  const handleHardDelete = (choice?: LedgerChoice) => {
+    ledgerChoice = choice
+    return form.handleHardDelete()
+  }
+
+  const alignLedger = (choice: LedgerChoice) =>
+    form.withLoading(async () => {
+      try {
+        const id = form.item.value.id as number
+        const updated =
+          choice === 'ALIGN' ? await alignUsedReceiptLedger(id) : await ignoreUsedReceiptLedger(id)
+        form.setItem(updated)
+        toast.add({
+          severity: 'success',
+          summary: constants.ledgerAlignment.toastTitle,
+          detail: constants.ledgerAlignment.toast[choice],
+          life: 3000,
+        })
+        return true
+      } catch (error) {
+        handleApiError(error)
+        return false
+      }
+    })
+
+  // Dopo una modifica delle righe cambia l'importo: aggiorna solo la differenza col brogliaccio, senza toccare il form
+  const refreshLedgerAlignment = async () => {
+    const fresh = await getUsedReceiptDetail(form.item.value.id as number)
+    form.item.value.ledgerAlignment = fresh.ledgerAlignment
+    return fresh.ledgerAlignment
+  }
+
   return {
     usedReceipt: form.item,
     loading: form.loading,
@@ -105,6 +145,8 @@ export function useUsedReceipt() {
     handleClose: form.handleClose,
     handleArchive: form.handleArchive,
     handleRestore: form.handleRestore,
-    handleHardDelete: form.handleHardDelete,
+    handleHardDelete,
+    alignLedger,
+    refreshLedgerAlignment,
   }
 }

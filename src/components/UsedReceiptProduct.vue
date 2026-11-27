@@ -77,6 +77,7 @@ const { ensureBrand } = useBrands()
 
 const emit = defineEmits<{
   rowSelect: [id?: number, edit?: boolean]
+  changed: []
 }>()
 
 const onSubmit = async () => {
@@ -85,6 +86,7 @@ const onSubmit = async () => {
     await ensureBrand((result.product as { brandId?: number } | undefined)?.brandId)
     addProductToReceipt(model.value, result)
     resetOriginal()
+    emit('changed')
   }
 }
 
@@ -103,6 +105,7 @@ const onDelete = async () => {
   if (!(await handleDelete())) return
   removeProductFromReceipt(model.value, usedReceiptProduct.value.id!)
   resetOriginal()
+  emit('changed')
 }
 
 const onViewProduct = async (item: UsedReceiptProductLight) => {

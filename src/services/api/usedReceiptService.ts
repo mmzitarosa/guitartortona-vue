@@ -1,6 +1,6 @@
 import apiClient from '@/services/api/apiClient'
 import { fetchPrintPageUrl } from '@/services/api/printService'
-import type { UsedReceipt, UsedReceiptLight } from '@/types/usedReceipt'
+import type { LedgerChoice, UsedReceipt, UsedReceiptLight } from '@/types/usedReceipt'
 import type { UsedReceiptProduct } from '@/types/usedReceiptProduct'
 import { toCustomerDTO } from '@/types/customer'
 import { formatDate, parseDate } from '@/utils/dateUtils'
@@ -80,9 +80,20 @@ export async function archiveUsedReceipt(id: number): Promise<void> {
   await apiClient.patch(`/usedReceipt/${id}/archive`)
 }
 
-//Delete (fisica, solo admin e solo se già archiviata)
-export async function deleteUsedReceipt(id: number): Promise<void> {
-  await apiClient.delete(`/usedReceipt/${id}`)
+//Delete (fisica, solo admin e solo se già archiviata); con la riga di brogliaccio ancora visibile serve la scelta
+export async function deleteUsedReceipt(id: number, ledger?: LedgerChoice): Promise<void> {
+  await apiClient.delete(`/usedReceipt/${id}`, { params: { ledger } })
+}
+
+//Scelta dell'admin sul brogliaccio dopo una modifica o un'archiviazione della ricevuta registrata
+export async function alignUsedReceiptLedger(id: number): Promise<UsedReceipt> {
+  const { data } = await apiClient.patch(`/usedReceipt/${id}/ledger/align`)
+  return fromDTO(data)
+}
+
+export async function ignoreUsedReceiptLedger(id: number): Promise<UsedReceipt> {
+  const { data } = await apiClient.patch(`/usedReceipt/${id}/ledger/ignore`)
+  return fromDTO(data)
 }
 
 //Print

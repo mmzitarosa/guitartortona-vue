@@ -181,6 +181,10 @@ export const useLedgerEntryConstants = () => {
     pending: {
       message: t('cards.newRecord.pendingMessage'),
     },
+    receiptLink: {
+      message: t('cards.newRecord.receiptLinkMessage'),
+      label: t('cards.newRecord.receiptLinkLabel'),
+    },
     confirm: {
       label: t('buttons.confirm.label'),
       icon: t('buttons.confirm.icon'),
@@ -744,6 +748,47 @@ export const useUsedReceiptConstants = () => {
       messages: { tooLong: t('usedReceipt.messages.notesTooLong') },
     },
     confirm: { label: t('usedReceipt.confirm.label') },
+    ledgerAlignment: {
+      openLedger: t('usedReceipt.ledgerAlignment.openLedger'),
+      review: t('usedReceipt.ledgerAlignment.review'),
+      ignore: t('usedReceipt.ledgerAlignment.ignore'),
+      keep: t('usedReceipt.ledgerAlignment.keep'),
+      archiveRow: t('usedReceipt.ledgerAlignment.archiveRow'),
+      toastTitle: t('usedReceipt.ledgerAlignment.toastTitle'),
+      toast: {
+        ALIGN: t('usedReceipt.ledgerAlignment.toast.ALIGN'),
+        IGNORE: t('usedReceipt.ledgerAlignment.toast.IGNORE'),
+      },
+      notice: {
+        UPDATE: t('usedReceipt.ledgerAlignment.notice.UPDATE'),
+        ARCHIVE: t('usedReceipt.ledgerAlignment.notice.ARCHIVE'),
+      },
+      title: {
+        UPDATE: t('usedReceipt.ledgerAlignment.title.UPDATE'),
+        ARCHIVE: t('usedReceipt.ledgerAlignment.title.ARCHIVE'),
+        DELETE: t('usedReceipt.ledgerAlignment.title.DELETE'),
+      },
+      message: {
+        UPDATE: t('usedReceipt.ledgerAlignment.message.UPDATE'),
+        ARCHIVE: t('usedReceipt.ledgerAlignment.message.ARCHIVE'),
+        DELETE: t('usedReceipt.ledgerAlignment.message.DELETE'),
+      },
+      accept: {
+        UPDATE: t('usedReceipt.ledgerAlignment.accept.UPDATE'),
+        ARCHIVE: t('usedReceipt.ledgerAlignment.accept.ARCHIVE'),
+        DELETE: t('usedReceipt.ledgerAlignment.accept.DELETE'),
+      },
+      columns: {
+        field: t('usedReceipt.ledgerAlignment.columns.field'),
+        current: t('usedReceipt.ledgerAlignment.columns.current'),
+        proposed: t('usedReceipt.ledgerAlignment.columns.proposed'),
+      },
+      fields: {
+        date: t('usedReceipt.ledgerAlignment.fields.date'),
+        reason: t('usedReceipt.ledgerAlignment.fields.reason'),
+        amount: t('usedReceipt.ledgerAlignment.fields.amount'),
+      },
+    },
     register: {
       label: t('usedReceipt.register.label'),
       title: t('usedReceipt.register.title'),
