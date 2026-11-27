@@ -24,10 +24,6 @@ export interface IncomingInvoiceLight {
   status: InvoiceStatus
 }
 
-export function isEditable(invoice: IncomingInvoice): boolean {
-  return invoice.status === 'DRAFT' && !invoice.archived
-}
-
 export function addProductToInvoice(
   invoice: IncomingInvoice,
   product: IncomingInvoiceProduct,

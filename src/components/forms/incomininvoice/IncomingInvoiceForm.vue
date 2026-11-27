@@ -121,27 +121,27 @@
           />
 
           <!-- Fattura eliminata: solo admin, ripristino ed eliminazione definitiva -->
-          <template v-if="model.archived && canDelete">
-            <Button
-              type="button"
-              text
-              severity="danger"
-              :label="constants.hardDelete.label"
-              icon="pi pi-times-circle"
-              @click="emit('hardDelete')"
-            />
-            <Button
-              type="button"
-              outlined
-              :label="constants.restore.label"
-              icon="pi pi-replay"
-              @click="emit('restore')"
-            />
-          </template>
+          <Button
+            v-if="permissions.hardDelete"
+            type="button"
+            text
+            severity="danger"
+            :label="constants.hardDelete.label"
+            icon="pi pi-times-circle"
+            @click="emit('hardDelete')"
+          />
+          <Button
+            v-if="permissions.restore"
+            type="button"
+            outlined
+            :label="constants.restore.label"
+            icon="pi pi-replay"
+            @click="emit('restore')"
+          />
 
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
-            v-if="readonly && !model.archived"
+            v-if="readonly && permissions.edit"
             type="button"
             rounded
             text
@@ -169,7 +169,7 @@
           />
 
           <Button
-            v-else-if="isEditable(model)"
+            v-else-if="permissions.confirm"
             type="button"
             outlined
             label="Conferma"
@@ -189,7 +189,6 @@ import { computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import { Button, Message, ProgressBar } from 'primevue'
 import type { IncomingInvoice } from '@/types/incomingInvoice'
-import { isEditable } from '@/types/incomingInvoice'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
 import InputAmountField from '@/components/layout/fields/InputAmountField.vue'
@@ -221,7 +220,7 @@ const props = withDefaults(defineProps<IncomingInvoiceFormProps>(), {
   loading: false,
 })
 
-const { canDelete, canEdit } = useRoles()
+const { invoicePermissions } = useRoles()
 
 const emit = defineEmits<{
   submit: []
@@ -242,13 +241,14 @@ const {
   formatter: supplierFormatter,
 } = useSuppliers()
 
-const readonly = computed(() => !props.editable || !!model.value.archived)
+const permissions = computed(() => invoicePermissions(model.value))
+
+const readonly = computed(
+  () => !props.editable || (props.existingItem && !permissions.value.edit),
+)
 
 const canArchive = computed(
-  () =>
-    props.existingItem &&
-    !readonly.value &&
-    (canDelete || (canEdit && model.value.status === 'DRAFT')),
+  () => props.existingItem && !readonly.value && permissions.value.archive,
 )
 
 onMounted(async () => {

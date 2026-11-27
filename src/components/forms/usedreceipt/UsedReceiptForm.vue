@@ -157,27 +157,27 @@
           />
 
           <!-- Ricevuta eliminata: solo admin, ripristino ed eliminazione definitiva -->
-          <template v-if="model.archived && canDelete">
-            <Button
-              type="button"
-              text
-              severity="danger"
-              :label="constants.hardDelete.label"
-              icon="pi pi-times-circle"
-              @click="emit('hardDelete')"
-            />
-            <Button
-              type="button"
-              outlined
-              :label="constants.restore.label"
-              icon="pi pi-replay"
-              @click="emit('restore')"
-            />
-          </template>
+          <Button
+            v-if="permissions.hardDelete"
+            type="button"
+            text
+            severity="danger"
+            :label="constants.hardDelete.label"
+            icon="pi pi-times-circle"
+            @click="emit('hardDelete')"
+          />
+          <Button
+            v-if="permissions.restore"
+            type="button"
+            outlined
+            :label="constants.restore.label"
+            icon="pi pi-replay"
+            @click="emit('restore')"
+          />
 
           <!-- Tasto Stampa - dalla conferma in poi -->
           <Button
-            v-if="existingItem && isPrintable(model) && !dirty"
+            v-if="existingItem && permissions.print && !dirty"
             type="button"
             rounded
             text
@@ -190,7 +190,7 @@
 
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
-            v-if="readonly && existingItem && isModifiable(model, isAdmin)"
+            v-if="readonly && existingItem && permissions.edit"
             type="button"
             rounded
             text
@@ -219,7 +219,7 @@
 
           <!-- Bozza: Conferma (passa in attesa di registrazione) -->
           <Button
-            v-else-if="canConfirm(model)"
+            v-else-if="permissions.confirm"
             type="button"
             outlined
             :disabled="!model.items?.length"
@@ -230,7 +230,7 @@
 
           <!-- Confermata: Registra (assegna numero) -->
           <Button
-            v-else-if="canRegister(model)"
+            v-else-if="permissions.register"
             type="button"
             outlined
             :label="constants.register.label"
@@ -258,7 +258,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import Card from 'primevue/card'
 import { Button, Message, ProgressBar } from 'primevue'
 import type { UsedReceipt } from '@/types/usedReceipt'
-import { canConfirm, canRegister, isModifiable, isPrintable } from '@/types/usedReceipt'
 import { type CustomerOption, type Customer, toCustomerDTO, withFullName } from '@/types/customer'
 import ChangesDialog from '@/components/layout/ChangesDialog.vue'
 import InputDateField from '@/components/layout/fields/InputDateField.vue'
@@ -294,7 +293,7 @@ const props = withDefaults(defineProps<UsedReceiptFormProps>(), {
   loading: false,
 })
 
-const { canDelete, canEdit, isAdmin } = useRoles()
+const { receiptPermissions } = useRoles()
 const confirmDialog = useConfirmDialog()
 
 const emit = defineEmits<{
@@ -312,13 +311,14 @@ const model = defineModel<UsedReceipt>({ required: true })
 
 const { options: customerOptions, loading: customersLoading, loadCustomers } = useCustomers()
 
-const readonly = computed(() => !props.editable || !!model.value.archived)
+const permissions = computed(() => receiptPermissions(model.value))
+
+const readonly = computed(
+  () => !props.editable || (props.existingItem && !permissions.value.edit),
+)
 
 const canArchive = computed(
-  () =>
-    props.existingItem &&
-    !readonly.value &&
-    (canDelete || (canEdit && model.value.status === 'DRAFT')),
+  () => props.existingItem && !readonly.value && permissions.value.archive,
 )
 
 // Il cliente è una copia dei dati sulla ricevuta; scegliere dall'anagrafica non la modifica
