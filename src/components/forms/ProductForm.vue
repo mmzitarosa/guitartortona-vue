@@ -148,6 +148,16 @@
           </div>
           <!-- Bottoni di destra -->
           <div class="flex gap-2">
+            <!-- Tasto Edit - Visualizzazione  -->
+            <Button
+              v-if="readonly && canEdit"
+              type="button"
+              rounded
+              text
+              icon="pi pi-pen-to-square"
+              severity="secondary"
+              @click="onFormEdit"
+            />
             <!-- Tasto Stampa - Visualizzazione -->
             <Button
               v-if="readonly && pristine"
@@ -160,19 +170,9 @@
               v-tooltip.top="printConstants.print.label"
               @click="printDialog = true"
             />
-            <!-- Tasto Edit - Visualizzazione  -->
-            <Button
-              v-if="readonly && canEdit"
-              type="button"
-              rounded
-              text
-              icon="pi pi-pen-to-square"
-              severity="secondary"
-              @click="onFormEdit"
-            />
             <!-- Tasto Aggiorna - Modifica con cambiamenti   -->
             <Button
-              v-else-if="dirty"
+              v-if="dirty"
               type="button"
               :label="constants.update.label"
               :icon="constants.update.icon"

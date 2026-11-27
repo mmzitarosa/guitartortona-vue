@@ -1,6 +1,19 @@
 <template>
   <Card>
-    <template #title>{{ constants.card.title }}</template>
+    <template #title>
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <span>{{ constants.card.title }}</span>
+        <Button
+          v-if="ledgerEntry.usedReceiptId && canEdit"
+          type="button"
+          size="small"
+          text
+          icon="pi pi-file"
+          :label="constants.receiptLink.label"
+          @click="openReceipt"
+        />
+      </div>
+    </template>
     <template #subtitle>{{ constants.card.subtitle }}</template>
     <template #content>
       <ProgressBar
@@ -21,18 +34,6 @@
       >
         {{ constants.pending.message }}
       </Message>
-
-      <div v-if="ledgerEntry.usedReceiptId && canEdit" class="mt-4 flex flex-wrap items-center gap-2">
-        <span class="text-sm text-muted-color">{{ constants.receiptLink.message }}</span>
-        <Button
-          type="button"
-          size="small"
-          text
-          icon="pi pi-file"
-          :label="constants.receiptLink.label"
-          @click="openReceipt"
-        />
-      </div>
 
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: data-->
@@ -200,35 +201,8 @@
             @click="onFormReset"
           />
         </div>
-        <!-- Bottoni di destra -->
+        <!-- Bottoni di destra: Elimina | Modifica | Conferma -->
         <div class="flex gap-2">
-          <!-- Riga eliminata: solo admin -->
-          <template v-if="existingItem && ledgerEntry.archived">
-            <Button
-              v-if="permissions.restore"
-              type="button"
-              severity="secondary"
-              :label="constants.restore.label"
-              :icon="constants.restore.icon"
-              @click="onFormRestore"
-            />
-            <Button
-              v-if="permissions.hardDelete"
-              type="button"
-              severity="danger"
-              :label="constants.hardDelete.label"
-              :icon="constants.hardDelete.icon"
-              @click="onFormHardDelete"
-            />
-          </template>
-          <!-- Tasto Conferma - riga da confermare, in visualizzazione -->
-          <Button
-            v-if="existingItem && readonly && permissions.confirm"
-            type="button"
-            :label="constants.confirm.label"
-            :icon="constants.confirm.icon"
-            @click="onFormComplete"
-          />
           <!-- Tasto Elimina (archivia) - Visualizzazione e modifica, secondo ruolo -->
           <Button
             v-if="existingItem && permissions.archive"
@@ -239,6 +213,25 @@
             severity="secondary"
             @click="onFormArchive"
           />
+          <!-- Riga eliminata: solo admin -->
+          <template v-if="existingItem && ledgerEntry.archived">
+            <Button
+              v-if="permissions.hardDelete"
+              type="button"
+              severity="danger"
+              :label="constants.hardDelete.label"
+              :icon="constants.hardDelete.icon"
+              @click="onFormHardDelete"
+            />
+            <Button
+              v-if="permissions.restore"
+              type="button"
+              severity="secondary"
+              :label="constants.restore.label"
+              :icon="constants.restore.icon"
+              @click="onFormRestore"
+            />
+          </template>
           <!-- Tasto Edit - Visualizzazione  -->
           <Button
             v-if="readonly && permissions.edit"
@@ -249,9 +242,17 @@
             severity="secondary"
             @click="onFormEdit"
           />
+          <!-- Tasto Conferma - riga da confermare, in visualizzazione -->
+          <Button
+            v-if="existingItem && readonly && permissions.confirm"
+            type="button"
+            :label="constants.confirm.label"
+            :icon="constants.confirm.icon"
+            @click="onFormComplete"
+          />
           <!-- Tasto Aggiungi - Inserimento  -->
           <Button
-            v-else-if="!existingItem"
+            v-if="!existingItem"
             type="button"
             :label="constants.save.label"
             :icon="constants.save.icon"
@@ -472,9 +473,7 @@ const {
 const permissions = computed(() => ledgerPermissions(ledgerEntry.value))
 
 // Una riga nuova è sempre modificabile; una esistente solo se i permessi lo consentono
-const readonly = computed(
-  () => !props.editable || (existingItem.value && !permissions.value.edit),
-)
+const readonly = computed(() => !props.editable || (existingItem.value && !permissions.value.edit))
 
 onMounted(async () => {
   formLoading.value = true
@@ -513,7 +512,6 @@ const onFormHardDelete = async () => {
 }
 
 const onFormClose = async () => {
-  if(await handleClose())
-    emit('close')
+  if (await handleClose()) emit('close')
 }
 </script>

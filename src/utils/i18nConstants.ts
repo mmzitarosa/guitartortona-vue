@@ -182,7 +182,6 @@ export const useLedgerEntryConstants = () => {
       message: t('cards.newRecord.pendingMessage'),
     },
     receiptLink: {
-      message: t('cards.newRecord.receiptLinkMessage'),
       label: t('cards.newRecord.receiptLinkLabel'),
     },
     confirm: {

@@ -1,6 +1,19 @@
 <template>
   <Card>
-    <template #title>{{ constants.card.title }}</template>
+    <template #title>
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <span>{{ constants.card.title }}</span>
+        <Button
+          v-if="model.ledgerEntryId && canEdit"
+          type="button"
+          size="small"
+          text
+          icon="pi pi-book"
+          :label="constants.ledgerAlignment.openLedger"
+          @click="emit('openLedger')"
+        />
+      </div>
+    </template>
     <template #subtitle>{{ constants.card.subtitle }}</template>
     <template #content>
       <ProgressBar
@@ -23,24 +36,13 @@
           <span>{{ constants.ledgerAlignment.notice[model.ledgerAlignment.action] }}</span>
           <Button
             type="button"
-            size="small"
-            outlined
+            link
+            class="!p-0 underline"
             :label="constants.ledgerAlignment.review"
             @click="emit('reviewLedger')"
           />
         </div>
       </Message>
-
-      <div v-if="model.ledgerEntryId && canEdit" class="mt-4">
-        <Button
-          type="button"
-          size="small"
-          text
-          icon="pi pi-book"
-          :label="constants.ledgerAlignment.openLedger"
-          @click="emit('openLedger')"
-        />
-      </div>
 
       <div class="grid gap-4 w-full mt-6">
         <!-- Prima riga: codice interno -->
@@ -207,6 +209,17 @@
             @click="emit('restore')"
           />
 
+          <!-- Tasto Edit - Visualizzazione  -->
+          <Button
+            v-if="readonly && existingItem && permissions.edit"
+            type="button"
+            rounded
+            text
+            icon="pi pi-pen-to-square"
+            severity="secondary"
+            @click="emit('edit')"
+          />
+
           <!-- Tasto Stampa - dalla conferma in poi -->
           <Button
             v-if="existingItem && permissions.print && !dirty"
@@ -218,17 +231,6 @@
             :aria-label="constants.print.receipt"
             v-tooltip.top="constants.print.receipt"
             @click="printDialog = true"
-          />
-
-          <!-- Tasto Edit - Visualizzazione  -->
-          <Button
-            v-if="readonly && existingItem && permissions.edit"
-            type="button"
-            rounded
-            text
-            icon="pi pi-pen-to-square"
-            severity="secondary"
-            @click="emit('edit')"
           />
 
           <!-- Tasto Aggiungi - Inserimento  -->
@@ -353,10 +355,7 @@ const frozenYear = computed(() => {
   return suffix ? 2000 + Number(suffix) : undefined
 })
 
-const readonly = computed(
-  () => !props.editable || (props.existingItem && !permissions.value.edit),
-)
-
+const readonly = computed(() => !props.editable || (props.existingItem && !permissions.value.edit))
 
 // Il cliente è una copia dei dati sulla ricevuta; scegliere dall'anagrafica non la modifica
 const customerModel = computed({

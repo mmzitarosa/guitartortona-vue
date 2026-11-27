@@ -240,7 +240,6 @@
       "subtitle": "Dati Record",
       "archivedMessage": "Riga eliminata. Per modificarla ripristinala prima.",
       "pendingMessage": "Riga da confermare: generata da un altro documento, non ancora verificata.",
-      "receiptLinkMessage": "Riga generata dalla registrazione di una ricevuta dell'usato.",
       "receiptLinkLabel": "Vedi la ricevuta"
     },
     "newInvoice": {
