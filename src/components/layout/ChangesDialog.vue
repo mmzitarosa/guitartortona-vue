@@ -1,5 +1,5 @@
 <template>
-  <ConfirmDialog :group>
+  <ConfirmDialog :group class="w-full max-w-xl mx-4">
     <template #message="slotProps">
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-4">
