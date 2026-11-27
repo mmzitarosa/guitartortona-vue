@@ -43,26 +43,6 @@ export interface UsedReceiptLightItem {
   saleReceipt?: string
 }
 
-/** Bozza non eliminata: si può confermare */
-export function canConfirm(receipt: UsedReceipt): boolean {
-  return receipt.status === 'DRAFT' && !receipt.archived
-}
-
-/** Confermata non eliminata: si può registrare (numero) */
-export function canRegister(receipt: UsedReceipt): boolean {
-  return receipt.status === 'PENDING' && !receipt.archived
-}
-
-/** La stampa è possibile dalla conferma in poi */
-export function isPrintable(receipt: UsedReceipt): boolean {
-  return (receipt.status === 'PENDING' || receipt.status === 'COMPLETED') && !receipt.archived
-}
-
-/** Modificabile se non eliminata e (bozza oppure admin) */
-export function isModifiable(receipt: UsedReceipt, isAdmin: boolean): boolean {
-  return !receipt.archived && (receipt.status === 'DRAFT' || isAdmin)
-}
-
 export function receiptAmount(receipt: UsedReceipt): number {
   return (receipt.items ?? []).reduce((total, item) => total + (item.purchasePrice ?? 0), 0)
 }

@@ -23,7 +23,7 @@
   <UsedReceiptProduct
     v-model="usedReceipt"
     class="mt-4"
-    :editable="editable && isModifiable(usedReceipt, isAdmin)"
+    :editable="editable && receiptPermissions(usedReceipt).edit"
     @rowSelect="onRowSelect"
   />
 </template>
@@ -36,11 +36,10 @@ import { computed, onMounted } from 'vue'
 import router from '@/router'
 import { useUsedReceipt } from '@/composables/useUsedReceipt'
 import { useRoles } from '@/composables/useRoles'
-import { isModifiable } from '@/types/usedReceipt'
 
 const route = useRoute()
 const id = Number(route.params.id)
-const { isAdmin } = useRoles()
+const { receiptPermissions } = useRoles()
 
 const {
   usedReceipt,

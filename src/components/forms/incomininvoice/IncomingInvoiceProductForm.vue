@@ -235,7 +235,7 @@ withDefaults(defineProps<IncomingInvoiceProductFormProps>(), {
   loading: false,
 })
 
-const { canDelete, canEdit } = useRoles()
+const { canDelete } = useRoles()
 
 const emit = defineEmits(['submit', 'close', 'delete', 'reset', 'search', 'print'])
 const model = defineModel<IncomingInvoiceProduct>({ required: true })

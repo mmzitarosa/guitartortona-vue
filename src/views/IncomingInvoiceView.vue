@@ -19,7 +19,12 @@
     @complete="onComplete"
   />
 
-  <IncomingInvoiceProduct v-model="incomingInvoice" class="mt-4" :editable="editable && !incomingInvoice.archived" @rowSelect="onRowSelect"/>
+  <IncomingInvoiceProduct
+    v-model="incomingInvoice"
+    class="mt-4"
+    :editable="editable && invoicePermissions(incomingInvoice).edit"
+    @rowSelect="onRowSelect"
+  />
 </template>
 
 <script setup lang="ts">
@@ -29,9 +34,11 @@ import { useRoute } from 'vue-router'
 import { computed, onMounted } from 'vue'
 import router from '@/router'
 import { useIncomingInvoice } from '@/composables/useIncomingInvoice'
+import { useRoles } from '@/composables/useRoles'
 
 const route = useRoute()
 const id = Number(route.params.id)
+const { invoicePermissions } = useRoles()
 
 // Usa il composable centralizzato per gestire l'invoice
 const {
