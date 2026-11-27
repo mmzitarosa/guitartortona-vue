@@ -36,7 +36,8 @@ export function fromDTO(dto: LedgerEntryDTO): LedgerEntry {
     bank: dto.bank,
     movementType: dto.movementType,
     amount: dto.amount,
-    notes: dto.notes
+    notes: dto.notes,
+    archived: dto.archived
   }
 }
 
@@ -53,6 +54,7 @@ export function fromLightDTO(dto: LedgerEntryDTO): LedgerEntryLight {
     paymentMethod: dto.paymentMethod,
     bankId: dto.bankId,
     movementType: dto.movementType,
-    amount: dto.amount
+    amount: dto.amount,
+    archived: dto.archived
   }
 }

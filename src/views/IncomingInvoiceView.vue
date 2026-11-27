@@ -108,7 +108,7 @@ const onArchive = async () => {
 }
 
 const onRestore = async () => {
-  await handleRestore()
+  if (await handleRestore()) editable.value = false
 }
 
 const onHardDelete = async () => {

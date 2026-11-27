@@ -150,6 +150,17 @@ export const useLedgerEntryConstants = () => {
       label: t('buttons.delete.label'),
       icon: t('buttons.delete.icon'),
     },
+    restore: {
+      label: t('buttons.restore.label'),
+      icon: t('buttons.restore.icon'),
+    },
+    hardDelete: {
+      label: t('buttons.hardDelete.label'),
+      icon: t('buttons.hardDelete.icon'),
+    },
+    archived: {
+      message: t('cards.newRecord.archivedMessage'),
+    },
   }
 }
 

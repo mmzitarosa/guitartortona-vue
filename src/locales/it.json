@@ -225,7 +225,8 @@
   "cards": {
     "newRecord": {
       "title": "Nuovo Record",
-      "subtitle": "Dati Record"
+      "subtitle": "Dati Record",
+      "archivedMessage": "Riga eliminata. Per modificarla ripristinala prima."
     },
     "newInvoice": {
       "title": "Nuova Fattura",
@@ -469,6 +470,8 @@
     "CATEGORY_NOT_FOUND": "Categoria non trovata.",
     "BRAND_NOT_FOUND": "Marca non trovata.",
     "LEDGER_ENTRY_NOT_FOUND": "Voce del brogliaccio non trovata.",
+    "LEDGER_ENTRY_NOT_ARCHIVED": "Per eliminare definitivamente la riga del brogliaccio eliminala prima.",
+    "LEDGER_ENTRY_NOT_EDITABLE": "La riga del brogliaccio è eliminata: ripristinala per modificarla.",
     "INVOICE_NOT_FOUND": "Fattura non trovata.",
     "PURCHASE_ITEM_NOT_FOUND": "Prodotto della fattura non trovato.",
     "PRODUCT_STOCK_NOT_ENOUGH": "Giacenza insufficiente per la quantità richiesta.",

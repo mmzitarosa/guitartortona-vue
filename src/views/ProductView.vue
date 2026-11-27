@@ -5,7 +5,6 @@
     @submit="onSubmit"
     @close="onClose"
     @edit="onEdit"
-    @delete="onDelete"
   >
   </ProductForm>
 </template>
@@ -13,7 +12,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { useRoles } from '@/composables/useRoles'
-import LedgerEntryForm from '@/components/forms/LedgerEntryForm.vue'
 import router from '@/router'
 import { computed } from 'vue'
 import ProductForm from '@/components/forms/ProductForm.vue'
@@ -46,9 +44,5 @@ const onClose = () => {
 
 const onEdit = () => {
   editable.value = true
-}
-
-const onDelete = () => {
-  router.back()
 }
 </script>
