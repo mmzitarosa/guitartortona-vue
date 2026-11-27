@@ -1,5 +1,10 @@
 {
   "common": {
+    "changes": {
+      "field": "Dato",
+      "before": "Prima",
+      "after": "Dopo"
+    },
     "labels": {
       "date": "Data",
       "amount": "Importo",

@@ -120,7 +120,8 @@ const onLedgerChoice = async (choice: LedgerChoice) => {
 }
 
 const onProductsChanged = async () => {
-  if (isAdmin && usedReceipt.value.ledgerEntryId) await refreshLedgerAlignment()
+  if (!isAdmin || !usedReceipt.value.ledgerEntryId) return
+  if (await refreshLedgerAlignment()) openAlignment('update')
 }
 
 const onOpenLedger = () => {
