@@ -18,13 +18,14 @@
       >
         <template #header>
           <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-wrap gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <!-- Da data -->
               <InputDateField
                 v-model="searchFormItem.fromDate"
                 inputId="fromDate"
                 :label="constants.fromDate.label"
                 :validation="validation.fields.fromDate"
+                clearable
               />
 
               <!-- A data -->
@@ -33,10 +34,32 @@
                 inputId="toDate"
                 :label="constants.toDate.label"
                 :validation="validation.fields.toDate"
+                clearable
+              />
+
+              <!-- Stampa del periodo filtrato -->
+              <Button
+                v-if="hasDateFilter"
+                type="button"
+                rounded
+                text
+                :icon="constants.print.icon"
+                severity="secondary"
+                :aria-label="constants.print.label"
+                v-tooltip.top="constants.print.label"
+                @click="onPrint"
               />
             </div>
 
             <div class="flex flex-wrap items-center gap-4">
+              <Button
+                v-if="hasDateFilter || _archived || _status"
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                severity="secondary"
+                variant="text"
+                @click="onFilter(undefined, undefined, false, '')"
+              />
               <SelectField
                 v-if="viewOptions.length"
                 v-model="_view"
@@ -48,25 +71,6 @@
                 label="Stato"
                 :optionSeverity="(option) => option.severity"
                 class="w-56"
-              />
-
-              <Button
-                label="Rimuovi filtri"
-                icon="pi pi-filter-slash"
-                :disabled="!hasDateFilter && !_archived && !_status"
-                severity="secondary"
-                variant="text"
-                @click="onFilter(undefined, undefined, false, '')"
-              />
-
-              <!-- Stampa del periodo filtrato -->
-              <Button
-                v-if="hasDateFilter"
-                type="button"
-                :icon="constants.print.icon"
-                :aria-label="constants.print.label"
-                severity="secondary"
-                @click="onPrint"
               />
             </div>
           </div>
@@ -296,13 +300,13 @@ const viewOptions = computed(() =>
     {
       value: 'PENDING',
       severity: constants.status.PENDING.severity,
-      label: constants.pendingFilter.label + ' (' + totalPending + ')',
+      label: constants.status.PENDING.label + ' (' + totalPending.value + ')',
       show: totalPending.value > 0,
     },
     {
       value: 'ARCHIVED',
       severity: constants.status.ARCHIVED.severity,
-      label: 'Eliminate (' + totalArchived.value + ')',
+      label: constants.status.ARCHIVED.label + ' (' + totalArchived.value + ')',
       show: isAdmin && totalArchived.value > 0,
     },
   ].filter((option) => option.show || option.value === _view.value),

@@ -27,6 +27,14 @@
               />
             </IconField>
             <div class="flex flex-wrap items-center gap-4">
+              <Button
+                v-if="filters.global.value || archived"
+                :label="t('customers.clearFilters')"
+                icon="pi pi-filter-slash"
+                severity="secondary"
+                variant="text"
+                @click="clearFilters"
+              />
               <SelectField
                 v-if="viewOptions.length"
                 v-model="view"
@@ -38,14 +46,6 @@
                 label="Stato"
                 :optionSeverity="(option) => option.severity"
                 class="w-56"
-              />
-              <Button
-                :label="t('customers.clearFilters')"
-                icon="pi pi-filter-slash"
-                :disabled="!filters.global.value && !archived"
-                severity="secondary"
-                variant="text"
-                @click="clearFilters"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ const viewOptions = computed(() =>
     ? [
         {
           value: 'ARCHIVED',
-          label: 'Eliminate (' + totalArchived.value + ')',
+          label: t('status.archived.label') + ' (' + totalArchived.value + ')',
           severity: t('status.archived.severity'),
         },
       ]

@@ -31,6 +31,14 @@
             />
 
             <div class="flex flex-wrap items-center gap-4">
+              <Button
+                v-if="_status || _supplierId || _archived"
+                label="Rimuovi filtri"
+                icon="pi pi-filter-slash"
+                severity="secondary"
+                variant="text"
+                @click="onFilter(undefined, undefined, false)"
+              />
               <SelectField
                 v-if="viewOptions.length"
                 v-model="_view"
@@ -42,15 +50,6 @@
                 label="Stato"
                 :optionSeverity="(option) => option.severity"
                 class="w-56"
-              />
-
-              <Button
-                label="Rimuovi filtri"
-                icon="pi pi-filter-slash"
-                :disabled="!_status && !_supplierId && !_archived"
-                severity="secondary"
-                variant="text"
-                @click="onFilter(undefined, undefined, false)"
               />
             </div>
           </div>
@@ -253,13 +252,13 @@ const viewOptions = computed(() =>
     {
       value: 'DRAFT',
       severity: constants.draft.severity,
-      label: 'Bozze (' + totalDrafts.value + ')',
+      label: constants.draft.label + ' (' + totalDrafts.value + ')',
       show: totalDrafts.value > 0,
     },
     {
       value: 'ARCHIVED',
       severity: constants.archived.severity,
-      label: 'Eliminate (' + totalArchived.value + ')',
+      label: constants.archived.label + ' (' + totalArchived.value + ')',
       show: isAdmin && totalArchived.value > 0,
     },
   ].filter((option) => option.show || option.value === _view.value),
