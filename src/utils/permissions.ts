@@ -75,6 +75,8 @@ export interface LedgerPermissions {
   edit: boolean
   /** Eliminare (archiviare), qualsiasi riga e stato */
   archive: boolean
+  /** Confermare una riga da confermare (PENDING) */
+  confirm: boolean
   /** Ripristinare una riga eliminata */
   restore: boolean
   /** Eliminare definitivamente */
@@ -85,9 +87,24 @@ export interface LedgerPermissions {
  * Brogliaccio: operatore e admin modificano ed eliminano qualsiasi riga, a prescindere dallo stato.
  * Una riga eliminata è in sola lettura, visibile solo all'admin, che può ripristinarla o cancellarla.
  */
-export function ledgerPermissions(entry: { archived?: boolean }, roles: Roles): LedgerPermissions {
+export function ledgerPermissions(
+  entry: { archived?: boolean; status?: string },
+  roles: Roles,
+): LedgerPermissions {
   if (entry.archived) {
-    return { edit: false, archive: false, restore: roles.isAdmin, hardDelete: roles.isAdmin }
+    return {
+      edit: false,
+      archive: false,
+      confirm: false,
+      restore: roles.isAdmin,
+      hardDelete: roles.isAdmin,
+    }
   }
-  return { edit: roles.isUser, archive: roles.isUser, restore: false, hardDelete: false }
+  return {
+    edit: roles.isUser,
+    archive: roles.isUser,
+    confirm: roles.isUser && entry.status === 'PENDING',
+    restore: false,
+    hardDelete: false,
+  }
 }

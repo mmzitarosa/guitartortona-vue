@@ -1,5 +1,7 @@
 import type { Bank } from '@/types/bank'
 
+export type LedgerEntryStatus = 'PENDING' | 'COMPLETED'
+
 export interface LedgerEntry {
   id?: number
   date?: Date
@@ -14,6 +16,7 @@ export interface LedgerEntry {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
+  status?: LedgerEntryStatus
   archived?: boolean
 }
 
@@ -30,6 +33,7 @@ export interface LedgerEntryLight {
   receiptNumber?: string
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
+  status?: LedgerEntryStatus
   archived?: boolean
 }
 
@@ -95,5 +99,6 @@ export interface LedgerEntryDTO {
   movementType?: 'INCOME' | 'EXPENSE'
   amount?: number
   notes?: string
+  status?: LedgerEntryStatus
   archived?: boolean
 }

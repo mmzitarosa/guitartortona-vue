@@ -94,6 +94,10 @@
       "label": "Ripristina",
       "icon": "pi pi-replay"
     },
+    "confirm": {
+      "label": "Conferma",
+      "icon": "pi pi-check"
+    },
     "hardDelete": {
       "label": "Elimina definitivamente",
       "icon": "pi pi-times-circle"
@@ -220,13 +224,22 @@
     "archived": {
       "label": "ELIMINATA",
       "severity": "secondary"
+    },
+    "ledgerPending": {
+      "label": "DA CONFERMARE",
+      "severity": "warn"
+    },
+    "ledgerCompleted": {
+      "label": "CONFERMATA",
+      "severity": "success"
     }
   },
   "cards": {
     "newRecord": {
       "title": "Nuovo Record",
       "subtitle": "Dati Record",
-      "archivedMessage": "Riga eliminata. Per modificarla ripristinala prima."
+      "archivedMessage": "Riga eliminata. Per modificarla ripristinala prima.",
+      "pendingMessage": "Riga da confermare: generata da un altro documento, non ancora verificata."
     },
     "newInvoice": {
       "title": "Nuova Fattura",
@@ -281,6 +294,9 @@
     },
     "toDate": {
       "label": "Filtra a"
+    },
+    "pending": {
+      "label": "Da confermare"
     }
   },
   "layout": {
@@ -471,6 +487,7 @@
     "BRAND_NOT_FOUND": "Marca non trovata.",
     "LEDGER_ENTRY_NOT_FOUND": "Voce del brogliaccio non trovata.",
     "LEDGER_ENTRY_NOT_ARCHIVED": "Per eliminare definitivamente la riga del brogliaccio eliminala prima.",
+    "LEDGER_ENTRY_NOT_PENDING": "La riga del brogliaccio non è da confermare.",
     "LEDGER_ENTRY_NOT_EDITABLE": "La riga del brogliaccio è eliminata: ripristinala per modificarla.",
     "INVOICE_NOT_FOUND": "Fattura non trovata.",
     "PURCHASE_ITEM_NOT_FOUND": "Prodotto della fattura non trovato.",

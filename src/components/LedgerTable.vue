@@ -21,13 +21,23 @@
             <Button
               label="Rimuovi filtri"
               icon="pi pi-filter-slash"
-              :disabled="!hasDateFilter && !_archived"
+              :disabled="!hasDateFilter && !_archived && !_status"
               severity="secondary"
               variant="text"
-              @click="onFilter(undefined, undefined, false)"
+              @click="onFilter(undefined, undefined, false, '')"
             />
 
             <div class="flex flex-wrap gap-4">
+              <Button
+                v-if="totalPending > 0"
+                :label="constants.pendingFilter.label + ' (' + totalPending + ')'"
+                icon="pi pi-clock"
+                :disabled="!!_status || _archived"
+                severity="secondary"
+                variant="text"
+                @click="_status = 'PENDING'"
+              />
+
               <Button
                 v-if="isAdmin && totalArchived > 0"
                 :label="'Eliminate (' + totalArchived + ')'"
@@ -114,6 +124,15 @@
             }}
           </template>
         </Column>
+        <Column header="Stato">
+          <template #body="{ data }">
+            <Tag
+              v-if="constants.status[statusOf(data)]"
+              :value="constants.status[statusOf(data)].label"
+              :severity="constants.status[statusOf(data)].severity"
+            />
+          </template>
+        </Column>
         <Column field="receiptNumber" header="Ultime3" bodyStyle="text-align:center"></Column>
         <Column header="Importo" bodyStyle="text-align:right">
           <template #body="{ data }">
@@ -161,6 +180,7 @@ import {
   Card,
   Column,
   DataTable,
+  Tag,
   type DataTableFilterMeta,
   type DataTableFilterMetaData,
   type DataTableOperatorFilterMetaData,
@@ -180,7 +200,8 @@ import SelectField from './layout/fields/SelectField.vue'
 
 const constants = useLedgerTableConstants()
 
-const { ledger, archivedLedger, totalArchived, loadLedger, loading } = useLedgerTable()
+const { ledger, archivedLedger, totalArchived, totalPending, loadLedger, loading } =
+  useLedgerTable()
 const { isAdmin } = useRoles()
 const { banks, loadBanks, loading: banksLoading } = useBanks()
 
@@ -193,6 +214,7 @@ const props = defineProps<{
     from?: string
     to?: string
     archived?: boolean
+    status?: string
   }
 }>()
 
@@ -200,7 +222,7 @@ const emit = defineEmits<{
   page: [page: number, size: number]
   year: [year: number]
   rowSelect: [id?: number, edit?: boolean]
-  filter: [from?: Date, to?: Date, archived?: boolean]
+  filter: [from?: Date, to?: Date, archived?: boolean, status?: string]
   print: [from: Date, to: Date]
 }>()
 
@@ -251,10 +273,21 @@ const filters: Ref<DataTableFilterMeta> = ref({
 const _archived = computed({
   get: (): boolean => !!props.filter.archived && isAdmin,
   set: (value: boolean): void =>
-    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, value),
+    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, value, ''),
 })
 
-const rows = computed(() => (_archived.value ? archivedLedger.value : ledger.value))
+const _status = computed({
+  get: (): string | undefined => props.filter.status,
+  set: (value?: string): void =>
+    onFilter(searchFormItem.value.fromDate, searchFormItem.value.toDate, _archived.value, value ?? ''),
+})
+
+const rows = computed(() => {
+  if (_archived.value) return archivedLedger.value
+  return _status.value ? ledger.value.filter((e) => e.status === _status.value) : ledger.value
+})
+
+const statusOf = (data: { status?: string }) => (_archived.value ? 'ARCHIVED' : (data.status ?? ''))
 
 const _year = computed({
   get: (): number => props.filter.year,
@@ -283,8 +316,13 @@ const onPage = (event: DataTablePageEvent): void => {
   emit('page', page, rows)
 }
 
-const onFilter = (from?: Date, to?: Date, archived: boolean = _archived.value): void => {
-  emit('filter', from, to, archived)
+const onFilter = (
+  from?: Date,
+  to?: Date,
+  archived: boolean = _archived.value,
+  status: string | undefined = _status.value,
+): void => {
+  emit('filter', from, to, archived, status)
 }
 
 // DateForm

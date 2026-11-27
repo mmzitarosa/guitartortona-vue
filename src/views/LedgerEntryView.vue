@@ -8,6 +8,7 @@
     @edit="onEdit"
     @delete="onDelete"
     @restore="onRestore"
+    @complete="onComplete"
   >
   </LedgerEntryForm>
 </template>
@@ -51,6 +52,11 @@ const onEdit = () => {
 
 const onDelete = () => {
   router.back()
+}
+
+// Dopo la conferma si torna alla semplice visualizzazione
+const onComplete = () => {
+  editable.value = false
 }
 
 // Dopo il ripristino si torna alla semplice visualizzazione

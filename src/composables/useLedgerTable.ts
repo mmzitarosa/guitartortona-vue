@@ -25,11 +25,13 @@ export const useLedgerTable = () => {
   }
 
   const totalArchived = computed(() => archivedLedger.value.length)
+  const totalPending = computed(() => ledger.value.filter((e) => e.status === 'PENDING').length)
 
   return {
     ledger,
     archivedLedger,
     totalArchived,
+    totalPending,
     loadLedger,
     loading,
   }

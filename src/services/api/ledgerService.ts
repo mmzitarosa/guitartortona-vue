@@ -34,6 +34,11 @@ export async function putLedgerEntryById(
   return fromDTO(data)
 }
 
+export async function confirmLedgerEntryById(id: number): Promise<LedgerEntry> {
+  const { data } = await apiClient.patch(`/ledgerEntry/${id}/confirm`)
+  return fromDTO(data)
+}
+
 export async function archiveLedgerEntryById(id: number): Promise<void> {
   await apiClient.patch(`/ledgerEntry/${id}/archive`)
 }

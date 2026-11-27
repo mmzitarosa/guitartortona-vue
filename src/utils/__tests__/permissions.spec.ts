@@ -76,6 +76,7 @@ describe('ledgerPermissions', () => {
       expect(ledgerPermissions({}, roles)).toEqual({
         edit: true,
         archive: true,
+        confirm: false,
         restore: false,
         hardDelete: false,
       })
@@ -83,16 +84,27 @@ describe('ledgerPermissions', () => {
     expect(ledgerPermissions({}, guest)).toMatchObject({ edit: false, archive: false })
   })
 
+  it('solo le righe da confermare si confermano, non se eliminate né dall\'ospite', () => {
+    for (const roles of [operator, admin]) {
+      expect(ledgerPermissions({ status: 'PENDING' }, roles).confirm).toBe(true)
+      expect(ledgerPermissions({ status: 'COMPLETED' }, roles).confirm).toBe(false)
+      expect(ledgerPermissions({ status: 'PENDING', archived: true }, roles).confirm).toBe(false)
+    }
+    expect(ledgerPermissions({ status: 'PENDING' }, guest).confirm).toBe(false)
+  })
+
   it("una riga eliminata è in sola lettura: solo l'admin ripristina ed elimina definitivamente", () => {
     expect(ledgerPermissions({ archived: true }, admin)).toEqual({
       edit: false,
       archive: false,
+      confirm: false,
       restore: true,
       hardDelete: true,
     })
     expect(ledgerPermissions({ archived: true }, operator)).toEqual({
       edit: false,
       archive: false,
+      confirm: false,
       restore: false,
       hardDelete: false,
     })
